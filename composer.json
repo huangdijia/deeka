@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": ">=7.1.0",
-        "huangdijia/deeka-jsonrpc": "*"
+        "huangdijia/deeka-jsonrpc": "dev-master"
     },
     "autoload": {
         "psr-4": {
