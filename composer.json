@@ -1,0 +1,21 @@
+{
+    "name": "huangdijia/deekaframework",
+    "description": "A Framework For PHP7",
+    "homepage": "http://www.hdj.me/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "huangdijia",
+            "email": "huangdijia@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "deeka\\": "library"
+        }
+    }
+}
+

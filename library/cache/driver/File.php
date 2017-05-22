@@ -1,0 +1,121 @@
+<?php
+namespace deeka\cache\driver;
+
+use deeka\Cache;
+use deeka\Config;
+
+class File extends Cache
+{
+    // 构造函数
+    public function __construct($options = [])
+    {
+        if (is_array($options) && !empty($options)) {
+            $this->options = $options;
+        }
+        $this->options = array_merge(
+            [
+                'path'   => Config::get('cache.path'),
+                'prefix' => Config::get('cache.prefix'),
+                'expire' => Config::get('cache.expire'),
+                'check'  => Config::get('cache.check'),
+            ],
+            $this->options
+        );
+        $this->init();
+    }
+
+    private function init()
+    {
+        // 创建项目缓存目录
+        if (!is_dir($this->options['path'])) {
+            mkdir($this->options['path']);
+        }
+    }
+
+    private function filename($name)
+    {
+        return rtrim($this->options['path'], '/') . '/' . $this->options['prefix'] . md5($name) . '.php';
+    }
+
+    public function get($name)
+    {
+        $filename = $this->filename($name);
+        if (!is_file($filename)) {
+            return false;
+        }
+        $content = file_get_contents($filename);
+        if (false === $content) {
+            return false;
+        }
+        // 有效期
+        $expire = (int) substr($content, 8, 12);
+        if ($expire > 0 && time() > filemtime($filename) + $expire) {
+            unlink($filename);
+            return false;
+        }
+        // 内容校验
+        if ($this->options['check']) {
+            $check   = substr($content, 20, 32);
+            $content = substr($content, 52, -3);
+            if ($check != md5($content)) {
+                return false;
+            }
+        } else {
+            $content = substr($content, 20, -3);
+        }
+        // 反序列化
+        $content = unserialize($content);
+        return $content;
+    }
+
+    public function set($name, $value, $expire = null)
+    {
+        if (is_null($expire)) {
+            $expire = $this->options['expire'];
+        }
+        $filename = $this->filename($name);
+        $data     = serialize($value);
+        // 生成校验码
+        if ($this->options['check']) {
+            $check = md5($data);
+        } else {
+            $check = '';
+        }
+        // 缓存内容
+        $content = "<?php\n//" . sprintf('%012d', $expire) . $check . $data . "\n?>";
+        // 保存文件
+        $result = file_put_contents($filename, $content);
+        if ($result) {
+            clearstatcache();
+            return true;
+        }
+        return false;
+    }
+
+    public function rm($name)
+    {
+        $filename = $this->filename($name);
+        if (is_file($filename)) {
+            return unlink($filename);
+        }
+        return false;
+    }
+
+    public function clear()
+    {
+        $path  = $this->options['path'];
+        $prefix = $this->options['prefix'];
+        $files = scandir($path);
+        if ($files) {
+            foreach ($files as $file) {
+                if ($file != '.' && $file != '..' && is_dir($path . $file)) {
+                    array_map('unlink', glob($path . $file . '/' . $prefix . '*.*'));
+                } elseif (is_file($path . $file)) {
+                    unlink($path . $file);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+}
