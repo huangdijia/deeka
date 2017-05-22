@@ -18,7 +18,7 @@ class Ajax
             $callback = $data['callback'];
             unset($data['callback']);
         }
-        // ·µ»ØJSONÊý¾Ý¸ñÊ½µ½¿Í»§¶Ë °üº¬×´Ì¬ÐÅÏ¢
+        // è¿”å›žJSONæ•°æ®æ ¼å¼åˆ°å®¢æˆ·ç«¯ åŒ…å«çŠ¶æ€ä¿¡æ¯
         header('Content-Type:application/json; charset=utf-8');
         if ('' != $callback) {
             Response::instance()->jsonp($data, $callback);
