@@ -16,6 +16,7 @@
         "psr-4": {
             "deeka\\": "library"
         },
+        "classmap" : ["vendor/jsonRPC", "vendor/ssdb"],
         "files": [
             "deeka.php"
         ]
