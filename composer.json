@@ -10,14 +10,20 @@
         }
     ],
     "require": {
-        "php": ">=7.1.0",
-        "huangdijia/jsonrpc": "~1.0.0"
+        "php": ">=7.1.0"
     },
     "autoload": {
         "psr-4": {
             "deeka\\": "library"
         },
-        "files": ["deeka.php"]
+        "psr-0": {
+            "jsonRPCClient": "vendor/jsonRPC/jsonRPCClient.php",
+            "jsonRPCServer": "vendor/jsonRPC/jsonRPCServer.php",
+            "SimpleSSDB": "vendor/ssdb/SSDB.php"
+        },
+        "files": [
+            "deeka.php",
+        ]
     }
 }
 
