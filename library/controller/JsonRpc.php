@@ -2,7 +2,6 @@
 namespace deeka\Controller;
 
 use deeka\Loader;
-use jsonrpc\jsonRPCServer;
 
 class JsonRpc
 {
@@ -18,7 +17,7 @@ class JsonRpc
             $this->_initialize();
         }
         // 导入类库
-        // Loader::addClassMap('jsonRPCServer', CORE_PATH . '/vendor/jsonRPC/jsonRPCServer.php');
+        Loader::addClassMap('jsonRPCServer', CORE_PATH . '/vendor/jsonRPC/jsonRPCServer.php');
         // 启动server
         try {
             \jsonRPCServer::handle($this);
