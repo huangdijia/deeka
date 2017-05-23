@@ -1,6 +1,7 @@
 <?php
 namespace deeka\controller;
 
+use deeka\Input;
 use deeka\Log;
 use deeka\Response;
 
