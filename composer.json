@@ -16,11 +16,11 @@
         "psr-4": {
             "deeka\\": "library"
         },
-        "psr-0": {
+        "psr-0": [
             "jsonRPCClient": "vendor/jsonRPC/jsonRPCClient.php",
             "jsonRPCServer": "vendor/jsonRPC/jsonRPCServer.php",
             "SimpleSSDB": "vendor/ssdb/SSDB.php"
-        },
+        ],
         "files": [
             "deeka.php",
         ]
