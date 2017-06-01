@@ -5,6 +5,14 @@ class View
 {
     protected $_view = null;
 
+    public function __construct()
+    {
+        // 控制器初始化
+        if (method_exists($this, '_initialize')) {
+            $this->_initialize();
+        }
+    }
+
     protected function initView()
     {
         if (is_null($this->_view)) {
