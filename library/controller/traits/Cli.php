@@ -13,6 +13,10 @@ trait Cli
             Log::record("Request invaild!");
             exit;
         }
+        // 控制器初始化
+        if (method_exists($this, '_initialize')) {
+            $this->_initialize();
+        }
     }
 
     public function __call($name, $args)
