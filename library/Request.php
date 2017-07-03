@@ -297,8 +297,12 @@ class Request
         return $float ? Input::server('REQUEST_TIME_FLOAT') : Input::server('REQUEST_TIME');
     }
 
-    public function contentType()
+    public static function contentType()
     {
+        static $type = null;
+        if (!is_null($type)) {
+            return $type;
+        }
         $contentType = Input::server('CONTENT_TYPE');
         if ($contentType) {
             if (strpos($contentType, ';')) {
@@ -318,7 +322,7 @@ class Request
             $content = file_get_contents('php://input');
         }
         if ($parse) {
-            if (false !== strpos($this->contentType(), 'application/json')) {
+            if (false !== strpos(self::contentType(), 'application/json')) {
                 $content = (array) json_decode($content, true);
             } else {
                 parse_str($content, $content);
