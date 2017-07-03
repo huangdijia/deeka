@@ -318,16 +318,17 @@ class Request
     public static function content($parse = false)
     {
         static $content = null;
+        static $data    = null;
         if (is_null($content)) {
             $content = file_get_contents('php://input');
         }
-        if ($parse) {
+        if (is_null($data)) {
             if (false !== strpos(self::contentType(), 'application/json')) {
-                $content = (array) json_decode($content, true);
+                $data = (array) json_decode($content, true);
             } else {
-                parse_str($content, $content);
+                parse_str($content, $data);
             }
         }
-        return $content;
+        return $parse ? $data : $content;
     }
 }
