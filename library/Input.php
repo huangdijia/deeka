@@ -1,6 +1,8 @@
 <?php
 namespace deeka;
 
+use deeka\Request;
+
 /*
  * Input::setGlobalFilter('addslashes, htmlspecialchars');
  * Input::$fun([key], [default], [filter])
@@ -46,6 +48,7 @@ class Input
                 $input = $GLOBALS;
                 break;
             case 'request':
+                empty($_POST) && $_POST = Request::content(true);
                 $_REQUEST = array_merge($_POST, $_GET);
                 $input    = $_REQUEST;
                 break;
@@ -54,17 +57,19 @@ class Input
                 $input = $_GET;
                 break;
             case 'post':
+                empty($_POST) && $_POST = Request::content(true);
                 $input = $_POST;
                 break;
             case 'put':
-                parse_str(file_get_contents('php://input'), $input);
+                $input = Request::content(true);
                 break;
             case 'param':
                 switch (strtolower(self::server('REQUEST_METHOD'))) {
                     case 'put':
-                        parse_str(file_get_contents('php://input'), $input);
+                        $input = Request::content(true);
                         break;
                     case 'post':
+                        empty($_POST) && $_POST = Request::content(true);
                         $input = $_POST;
                         break;
                     case 'delete':

@@ -297,13 +297,33 @@ class Request
         return $float ? Input::server('REQUEST_TIME_FLOAT') : Input::server('REQUEST_TIME');
     }
 
-    public static function content()
+    public function contentType()
+    {
+        $contentType = Input::server('CONTENT_TYPE');
+        if ($contentType) {
+            if (strpos($contentType, ';')) {
+                $type = explode(';', $contentType)[0];
+            } else {
+                $type = $contentType;
+            }
+            return trim($type);
+        }
+        return '';
+    }
+
+    public static function content($parse = false)
     {
         static $content = null;
-        if (!is_null($content)) {
-            return $content;
+        if (is_null($content)) {
+            $content = file_get_contents('php://input');
         }
-        $content = file_get_contents('php://input');
+        if ($parse) {
+            if (false !== strpos($this->contentType(), 'application/json')) {
+                $content = (array) json_decode($content, true);
+            } else {
+                parse_str($content, $content);
+            }
+        }
         return $content;
     }
 }
