@@ -217,6 +217,8 @@ class Mysql
      * 查询一条记录
      * @param string $sql
      * @return mixed
+     * Db::selectOne('select * from table where id = ?', 123);
+     * Db::selectOne('select * from table where id = :id', ['id'=>123]);
      */
     public function selectOne()
     {
@@ -232,6 +234,8 @@ class Mysql
     /**
      * @param string $sql
      * @return mixed
+     * Db::selectAll('select * from table where id = ?', 123);
+     * Db::selectAll('select * from table where id = :id', ['id'=>123]);
      */
     public function selectAll()
     {
@@ -247,6 +251,8 @@ class Mysql
     /**
      * @param string $sql
      * @return mixed
+     * Db::select('select * from table where id = ?', 123);
+     * Db::select('select * from table where id = :id', ['id'=>123]);
      */
     public function select()
     {
@@ -264,6 +270,8 @@ class Mysql
      * @param string $sql
      * @param bool $one
      * @return mixed
+     * Db::query('select * from table where id = ?', 123);
+     * Db::query('select * from table where id = :id', ['id'=>123]);
      */
     public function query(string $sql = '')
     {
@@ -279,7 +287,7 @@ class Mysql
         $this->_sql = self::_parseSql($sql, $params);
         // record bind
         if (!empty($this->options['bind'])) {
-            Log::record("[DB BIND] " . preg_replace('/\s+/', ' ', var_export($this->options['bind'], true)), Log::INFO);
+            Log::record("[DB BIND] " . preg_replace('/\s+/', ' ', var_export($params, true)), Log::INFO);
         }
         // get cache
         if (
@@ -442,6 +450,7 @@ class Mysql
             return null;
         }
         if (false !== strpos($sql, ':')) {
+            $params = $params[0] ?? [];
             // id=:id mode
             preg_match_all('/:(\w+)/', $sql, $matches);
             $keys = $matches[1] ?? [];
@@ -450,11 +459,14 @@ class Mysql
                 if (!in_array($key, $keys)) {
                     continue;
                 }
-                $bind[$key] = $value;
+                $bind[$key] = self::_parseValue($value);
             }
             return $bind;
+        } else {
+            return array_map(function ($val) {
+                return self::_parseValue($val);
+            }, $params);
         }
-        return $params;
     }
 
     /**
