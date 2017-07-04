@@ -3,8 +3,6 @@ namespace deeka;
 
 class App
 {
-    private static $initialize = [];
-
     private function __construct()
     {
         //
@@ -30,25 +28,7 @@ class App
         // 设置默认过滤器
         Input::setGlobalFilter(Config::get('default.filter'));
         // CLI模式接收参数
-        if (Request::isCli()) {
-            // 以url的方式去解析
-            $_SERVER['REQUEST_METHOD'] = 'CLI';
-            $_SERVER['REMOTE_ADDR']    = '127.0.0.1';
-            $_SERVER['REQUEST_URI']    = realpath($_SERVER['SCRIPT_NAME']) . ' ' . (isset($_SERVER['argv'][1]) ? ('"' . $_SERVER['argv'][1] . '"') : '');
-            $_SERVER['PATH_INFO']      = '/';
-            // cli模式下参数解析
-            switch(Config::get('app.cli_params_parse_type')) {
-                // php index.php --c=Controller --a=action
-                case 1:
-                    $_GET = Options::get();
-                    break;
-                // php index.php "c=Controller&a=action"
-                case 0:
-                default:
-                    !empty($_SERVER['argv'][1]) && parse_str($_SERVER['argv'][1], $_GET);
-                    break;
-            }
-        } else {
+        if (!Request::isCli()) {
             // Session配置
             $sessopts = array_merge(
                 (array) Config::get('session.options'),
@@ -61,8 +41,8 @@ class App
             );
             Session::init($sessopts);
         }
-        // 路由支持
-        self::parse();
+        // 执行钩子
+        Hook::trigger('app.dispatch');
         // 获取控制器及操作名
         define('MODULE_NAME', Request::module());
         define('MODULE_PATH', APP_PATH . Str::parseName(MODULE_NAME) . DS);
@@ -74,52 +54,6 @@ class App
         ('' == Config::get('tmpl.tmpl_cache_path')) && Config::set('tmpl.tmpl_cache_path', CACHE_PATH);
         // 返回
         return true;
-    }
-
-    public static function parse()
-    {
-        if (
-            empty($_SERVER["PATH_INFO"])
-            || '/' == $_SERVER["PATH_INFO"]
-        ) {
-            return;
-        }
-        $pathinfo = explode('/', trim($_SERVER['PATH_INFO'], '/'));
-        switch (count($pathinfo)) {
-            case '0':
-                break;
-            case '1':
-                $_GET[Config::get('var.module')] = $pathinfo[0];
-                break;
-            case '2':
-                $_GET[Config::get('var.module')]     = $pathinfo[0];
-                $_GET[Config::get('var.controller')] = $pathinfo[1];
-                break;
-            case '3':
-                $_GET[Config::get('var.module')]     = $pathinfo[0];
-                $_GET[Config::get('var.controller')] = $pathinfo[1];
-                $_GET[Config::get('var.action')]     = $pathinfo[2];
-                break;
-            default:
-                $_GET[Config::get('var.module')]     = $pathinfo[0];
-                $_GET[Config::get('var.controller')] = $pathinfo[1];
-                $_GET[Config::get('var.action')]     = $pathinfo[2];
-                array_shift($pathinfo);
-                array_shift($pathinfo);
-                array_shift($pathinfo);
-                $keys   = [];
-                $values = [];
-                foreach ($pathinfo as $index => $value) {
-                    if (($index % 2) == 0) {
-                        $keys[] = $value;
-                    } else {
-                        $values[] = $value;
-                    }
-                }
-                $vars = array_combine($keys, $values);
-                $_GET = array_merge($_GET, $vars);
-                break;
-        }
     }
 
     public static function start()
@@ -159,7 +93,7 @@ class App
             if ($method->isPublic() && !$method->isStatic()) {
                 if ($method->getNumberOfParameters() > 0 && Config::get('app.url_params_bind', false)) {
                     // 根据请求方法确定绑定参数
-                    switch (Input::server('REQUEST_METHOD', 'GET')) {
+                    switch (Request::method()) {
                         case 'POST':
                             $vars = array_merge(Input::get(), Input::post());
                             break;
