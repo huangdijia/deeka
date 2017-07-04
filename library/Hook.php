@@ -6,7 +6,7 @@ use deeka\Log;
 
 class Hook
 {
-    static $hooks = [];
+    private static $hooks = [];
 
     public static function import(array $hooks = array())
     {
@@ -38,7 +38,7 @@ class Hook
         $hooks = self::$hooks[$name] ?? [];
         foreach ((array) $hooks as $callback) {
             if (!is_callable($callback)) {
-                Log::record("[HOOK] {$name} has a error callback", Log::ERR);
+                Log::record("[HOOK] error hook {$name}", Log::ERR);
                 continue;
             }
             Debug::remark('hook_exec_start');
