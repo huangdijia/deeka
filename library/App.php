@@ -15,17 +15,10 @@ class App
         //
     }
 
-    public static function init(\Closure $callback = null)
+    public static function init()
     {
-        // 设置项目初始化
-        if (!is_null($callback)) {
-            self::$initialize[] = $callback;
-            return true;
-        }
-        // 执行初始化方法
-        foreach ((array) self::$initialize as $callback) {
-            call_user_func($callback);
-        }
+        // 触发钩子
+        Hook::trigger('app.init');
         // 记录app_start时间
         Debug::remark('app_start');
         // 设置时区
@@ -129,10 +122,12 @@ class App
         }
     }
 
-    public static function run()
+    public static function start()
     {
         // 初始化
         self::init();
+        // 触发钩子
+        Hook::trigger('app.start');
         // 检查控制器名合法性
         if (!preg_match('/^[A-Za-z](\w)*$/', CONTROLLER_NAME)) {
             $error = "CONTROLLER IS NOT EXISTS: " . CONTROLLER_NAME;
@@ -206,11 +201,5 @@ class App
             }
         }
         return;
-    }
-
-    public static function start()
-    {
-        // 运行应用
-        self::run();
     }
 }
