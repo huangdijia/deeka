@@ -2,6 +2,7 @@
 namespace deeka\controller\traits;
 
 use deeka\Log;
+use deeka\Request;
 use deeka\Response;
 
 trait Cli
