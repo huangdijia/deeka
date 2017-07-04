@@ -39,46 +39,12 @@ defined('APP_DEBUG') or define('APP_DEBUG', \deeka\Env::get('app.debug'));
 // 加载配置
 \deeka\Config::set(include CORE_PATH . 'config.php');
 // DEBUG
-if (APP_DEBUG) {
-    \deeka\Config::set('log.level', 'all');
-}
+APP_DEBUG && \deeka\Config::set('log.level', 'all');
 // 加载验证规则
 \deeka\Validate::addRule([]);
 // 加载助手函数
+is_file(CORE_PATH . 'hook' . EXT) && require_once CORE_PATH . 'hook' . EXT;
+// 加载钩子
 is_file(CORE_PATH . 'helper' . EXT) && require_once CORE_PATH . 'helper' . EXT;
 // 默认自动运行模式
-if (defined('APP_AUTO_START') && APP_AUTO_START) {
-    \deeka\Hook::register('app.init', function () {
-        // 项目初始化文件，手动加载项目配置及自定义函数
-        /**
-         * <?php
-         * \deeka\Loader::addNamespace([]);
-         * \deeka\Loader::addClassMap([]);
-         * \deeka\Config::set([]);
-         * \deeka\Validate::addRule([]);
-         * require_onde APP_PATH . DS . 'functions' . EXT; // 或直接定义方法
-         */
-        if (is_file(APP_PATH . DS . 'initialize' . EXT)) {
-            require_once APP_PATH . DS . 'initialize' . EXT;
-        } else {
-            // 加载项目命名空间配置
-            is_file(APP_PATH . DS . 'namespace' . EXT) && \deeka\Loader::addNamespace(include APP_PATH . DS . 'namespace' . EXT);
-            // 配置项目根命名空间
-            \deeka\Loader::addNamespace(\deeka\Config::get('app.namespace', 'app'), APP_PATH);
-            // 加载钩子
-            is_file(APP_PATH . DS . 'hook' . EXT) && \deeka\Hook::import(include APP_PATH . DS . 'hook' . EXT);
-            // 加载别名配置
-            is_file(APP_PATH . DS . 'classmap' . EXT) && \deeka\Loader::addClassMap(include APP_PATH . DS . 'classmap' . EXT);
-            // 加载应用配置
-            is_file(APP_PATH . DS . 'config' . EXT) && \deeka\Config::set(include APP_PATH . DS . 'config' . EXT);
-            // 加载环境配置
-            (!empty(APP_STATUS) && is_file(APP_PATH . DS . APP_STATUS . EXT)) && \deeka\Config::set(include APP_PATH . DS . APP_STATUS . EXT);
-            // 加载应用验证规则
-            is_file(APP_PATH . DS . 'validate' . EXT) && \deeka\Validate::addRule(include APP_PATH . DS . 'validate' . EXT);
-            // 加载应用共用方法
-            is_file(APP_PATH . DS . 'functions' . EXT) && require_once APP_PATH . DS . 'functions' . EXT;
-        }
-    });
-    // 运行项目
-    \deeka\App::start();
-}
+APP_AUTO_START && \deeka\App::start();
