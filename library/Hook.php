@@ -1,6 +1,7 @@
 <?php
 namespace deeka;
 
+use deeka\Debug;
 use deeka\Log;
 
 class Hook
@@ -37,10 +38,14 @@ class Hook
         $hooks = self::$hooks[$name] ?? [];
         foreach ((array) $hooks as $callback) {
             if (!is_callable($callback)) {
+                Log::record("[HOOK] {$name} has a error callback", Log::ERR);
                 continue;
             }
-            APP_DEBUG && Log::record("[HOOK] {$name} EXECUTE", Log::INFO);
+            Debug::remark('hook_exec_start');
             call_user_func_array($callback, $args);
+            Debug::remark('hook_exec_end');
+            $runtime = Debug::getUseTime('hook_exec_start', 'hook_exec_end');
+            APP_DEBUG && Log::record("[HOOK] Run {$name} [runtime:{$runtime}]", Log::INFO);
         }
     }
 }

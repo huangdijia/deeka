@@ -8,6 +8,7 @@
         // 参数绑定
         'url_params_bind'      => true,
         'url_params_bind_type' => 0,
+        'cli_params_parse_type'=> 0,
     ],
     // 错误
     'error'    => [
