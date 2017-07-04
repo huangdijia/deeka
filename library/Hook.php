@@ -36,7 +36,7 @@ class Hook
         $args  = func_get_args();
         $name  = array_shift($args);
         $hooks = self::$hooks[$name] ?? [];
-        foreach ((array) $hooks as $callback) {
+        foreach ((array) $hooks as $key=>$callback) {
             if (!is_callable($callback)) {
                 Log::record("[HOOK] error hook {$name}", Log::ERR);
                 continue;
@@ -44,8 +44,9 @@ class Hook
             Debug::remark('hook_exec_start');
             call_user_func_array($callback, $args);
             Debug::remark('hook_exec_end');
-            $runtime = Debug::getUseTime('hook_exec_start', 'hook_exec_end');
-            APP_DEBUG && Log::record("[HOOK] Run {$name} [runtime:{$runtime}]", Log::INFO);
+            $runtime = Debug::getRangeTime('hook_exec_start', 'hook_exec_end');
+            dump($runtime);
+            APP_DEBUG && Log::record("[HOOK] Run {$name}#{$key} [runtime:{$runtime}]", Log::INFO);
         }
     }
 }
