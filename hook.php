@@ -19,7 +19,7 @@ Hook::register('app.init', function () {
         // 配置项目根命名空间
         Loader::addNamespace(Config::get('app.namespace', 'app'), APP_PATH);
         // 加载钩子
-        is_file(APP_PATH . DS . 'hook' . EXT) && Hook::import(include APP_PATH . DS . 'hook' . EXT);
+        is_file(APP_PATH . DS . 'hook' . EXT) && require APP_PATH . DS . 'hook' . EXT;
         // 加载别名配置
         is_file(APP_PATH . DS . 'classmap' . EXT) && Loader::addClassMap(include APP_PATH . DS . 'classmap' . EXT);
         // 加载应用配置
