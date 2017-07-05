@@ -82,7 +82,7 @@ class Mysql
                 'pwd'        => '',
                 'dbname'     => '',
                 'charset'    => 'utf8',
-                'persistent' => true,
+                'persistent' => false,
             ],
             $config
         );
