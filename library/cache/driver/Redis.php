@@ -17,12 +17,17 @@ class Redis extends Cache
             'host'       => Config::get('redis.host', '127.0.0.1'),
             'port'       => Config::get('redis.port', '6379'),
             'timeout'    => Config::get('cache.timeout', false),
+            'persistent' => Config::get('redis.persistent', false),
             'prefix'     => Config::get('cache.prefix'),
             'expire'     => Config::get('cache.expire'),
         ];
         $this->options = array_merge($defaults, $options);
         $this->handler = new \Redis;
-        $this->handler->connect($this->options['host'], $this->options['port']);
+        if ($this->options['persistent']) {
+            $this->handler->pconnect($this->options['host'], $this->options['port']);
+        } else {
+            $this->handler->connect($this->options['host'], $this->options['port']);
+        }
     }
 
     public function get($name)
