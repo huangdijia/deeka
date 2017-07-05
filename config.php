@@ -64,22 +64,18 @@
     ],
     // 缓存
     'cache'    => [
-        'file' => [
-            'path'    => CACHE_PATH,
-            'type'    => 'File',
-            'check'   => false,
-            'prefix'  => 'cache_',
-            'expire'  => 120,
-            'timeout' => 0,
-        ]
+        'type'    => 'File',
+        'path'    => CACHE_PATH,
+        'check'   => false,
+        'prefix'  => 'cache_',
+        'expire'  => 120,
+        'timeout' => 0,
     ],
     // 队列
     'queue'    => [
-        'file' => [
-            'path'   => DATA_PATH,
-            'prefix' => 'queue_',
-            'type'   => 'File',
-        ]
+        'type'   => 'File',
+        'path'   => DATA_PATH,
+        'prefix' => 'queue_',
     ],
     // 模板配置
     'tmpl'     => [
