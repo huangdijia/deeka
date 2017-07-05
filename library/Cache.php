@@ -67,6 +67,8 @@ class Cache
         if (empty($options) || !is_array($options)) {
             throw new \Exception("Error cache config.", 1);
         }
+        // 合拼默认配置
+        $options = array_merge(Config::get('cache'), $options);
         // 解析类型
         $type = $options['type']??'file';
         if (false === strpos($type, '\\')) {
