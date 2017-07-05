@@ -298,9 +298,11 @@ class Mysql
         }
         // query
         try {
-            $this->stmt = $this->dbh->prepare($sql);
+            // $this->stmt = $this->dbh->prepare($sql);
+            $this->stmt = $this->dbh->prepare($this->_sql);
             Debug::remark('sql_begin');
-            $this->stmt->execute($params);
+            // $this->stmt->execute($params);
+            $this->stmt->execute();
             Debug::remark('sql_end');
             // record sql and runtime
             Log::record(
@@ -359,9 +361,11 @@ class Mysql
         }
         // execute
         try {
-            $this->stmt = $this->dbh->prepare($sql);
+            // $this->stmt = $this->dbh->prepare($sql);
+            $this->stmt = $this->dbh->prepare($this->_sql);
             Debug::remark('sql_begin');
-            $result = $this->stmt->execute($params);
+            // $result = $this->stmt->execute($params);
+            $result = $this->stmt->execute();
             Debug::remark('sql_end');
             // record sql and runtime
             Log::record(
@@ -462,11 +466,8 @@ class Mysql
                 $bind[$key] = self::_parseValue($value);
             }
             return $bind;
-        } else {
-            return array_map(function ($val) {
-                return self::_parseValue($val);
-            }, $params);
         }
+        return $params;
     }
 
     /**
