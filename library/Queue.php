@@ -56,7 +56,7 @@ class Queue
         if (empty($options)) {
             $options = current(Config::get('queue')) ?? null;
         } elseif (is_scalar($options)) {
-            $options = Config::get("queue")[$options] ?? self::parse($options);
+            $options = self::parse($options);
         } elseif (is_object($options)) {
             $options = (array) $options;
         }

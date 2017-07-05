@@ -60,7 +60,7 @@ class Cache
         if (empty($options)) {
             $options = current(Config::get('cache')) ?? null;
         } elseif (is_scalar($options)) {
-            $options = Config::get("cache")[$options] ?? self::parse($options);
+            $options = self::parse($options);
         } elseif (is_object($options)) {
             $options = (array) $options;
         }
