@@ -16,8 +16,8 @@ define('START_TIME', microtime(true));
 define('START_MEM', memory_get_usage());
 define('ENV_PREFIX', 'ENV_');
 // 版本及版权信息
-define('AUTHOR', 'deeka');
-define('VERSION', '2.0.0 beta');
+define('AUTHOR', 'Deeka');
+define('VERSION', '2.3.2');
 define('LICENSE', 'MIT');
 // ob_start
 ob_start();
