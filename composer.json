@@ -18,8 +18,7 @@
         },
         "classmap" : ["vendor/jsonRPC", "vendor/ssdb"],
         "files": [
-            "deeka.php"
+            "bootstrap.php"
         ]
     }
 }
-
