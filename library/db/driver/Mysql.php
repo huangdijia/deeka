@@ -170,7 +170,7 @@ class Mysql
     /**
      * 保持连接
      */
-    public static function ping()
+    public function ping()
     {
         try {
             $this->selectOne("SELECT 1");
