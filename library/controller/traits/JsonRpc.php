@@ -20,7 +20,7 @@ trait JsonRpc
         // 启动server
         try {
             \jsonRPCServer::handle($this);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw $e;
         }
         // 退出框架流程
