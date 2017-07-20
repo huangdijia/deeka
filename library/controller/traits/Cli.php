@@ -38,5 +38,6 @@ trait Cli
     public function log($info = '')
     {
         Response::instance()->log($info, 'LOG', false);
+        ob_flush();
     }
 }
