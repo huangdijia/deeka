@@ -34,4 +34,9 @@ trait Cli
     {
         Response::instance()->log($info, 'FAILD', true);
     }
+
+    public function log($info = '')
+    {
+        Response::instance()->log($info, 'LOG', false);
+    }
 }
