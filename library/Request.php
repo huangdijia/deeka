@@ -337,7 +337,7 @@ class Request
     {
         static $ext = null;
         if (is_null($ext)) {
-            $ext = pathinfo($this->pathinfo(), PATHINFO_EXTENSION) ?? Input::param('_ext');
+            $ext = pathinfo($_SERVER['PATH_INFO'] ?? '/', PATHINFO_EXTENSION) ?? Input::param('_ext');
         }
         return $ext;
     }
