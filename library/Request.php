@@ -331,4 +331,14 @@ class Request
         }
         return $parse ? $data : $content;
     }
+
+
+    public static function ext()
+    {
+        static $ext = null;
+        if (is_null($ext)) {
+            $ext = pathinfo($this->pathinfo(), PATHINFO_EXTENSION) ?? Input::param('_ext');
+        }
+        return $ext;
+    }
 }
