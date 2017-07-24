@@ -1,6 +1,8 @@
 <?php
-namespace deeka\controller;
+namespace deeka\controller\traits;
 
+use deeka\App;
+use deeka\Input;
 use deeka\Request;
 use deeka\Response;
 
@@ -26,11 +28,11 @@ trait Rest
             $this->type = Request::ext();
         }
         if (false !== stripos($this->allowMethod, Request::method())) {
-            $this->method = Request::method();
+            $this->method = Request::method(CASE_LOWER);
         }
     }
 
-    public function __call($method, $args)
+    public function __call($method, $args = [])
     {
         if (method_exists($this, $method . '_' . $this->method . '_' . $this->type)) {
             $fun = $method . '_' . $this->method . '_' . $this->type;
@@ -40,10 +42,10 @@ trait Rest
             $fun = $method . '_' . $this->method;
         }
         if (isset($fun)) {
-            return call_user_func_array([$this, $fun], $args);
+            App::invokeMethod([$this, $fun], $args);
         } else {
             // 抛出异常
-            throw new \Exception('error action :' . $method);
+            throw new \Exception('Error action:' . $method);
         }
     }
 

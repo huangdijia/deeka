@@ -64,11 +64,11 @@ class App
         Hook::trigger('app.start');
         // 检查控制器名合法性
         if (!preg_match('/^[A-Za-z](\w)*$/', CONTROLLER_NAME)) {
-            $error = "CONTROLLER IS NOT EXISTS: " . CONTROLLER_NAME;
+            $error = "Controller does not exists:" . CONTROLLER_NAME;
             throw new \Exception($error);
         }
         if (!preg_match('/^[A-Za-z](\w)*$/', ACTION_NAME)) {
-            $error = "ACTION IS NOT EXISTS: " . ACTION_NAME;
+            $error = "Action does not exists:" . ACTION_NAME;
             throw new \Exception($error);
         }
         // [app.namespace]\[module]\[controller]\[controller_name]
@@ -84,56 +84,67 @@ class App
         $controller = Loader::controller($controller_name);
         // 加载失败则抛出异常
         if (false === $controller) {
-            $error = "CONTROLLER IS NOT EXISTS: '{$controller_name}'";
+            $error = "Controller does not exists: '{$controller_name}'";
             throw new \Exception($error, 1);
         }
         // 参数绑定
         try {
-            $method = new \ReflectionMethod($controller, $action_name);
-            if ($method->isPublic() && !$method->isStatic()) {
-                if ($method->getNumberOfParameters() > 0 && Config::get('app.url_params_bind', false)) {
-                    // 根据请求方法确定绑定参数
-                    switch (Request::method()) {
-                        case 'POST':
-                            $vars = array_merge(Input::get(), Input::post());
-                            break;
-                        case 'PUT':
-                            $vars = Input::put();
-                            break;
-                        default:
-                            $vars = Input::get();
-                            break;
-                    }
-                    $params = $method->getParameters();
-                    // 参数绑定类型 0 = 变量名, 1 = 顺序
-                    $bind_type = Config::get('app.url_params_bind_type', 0);
-                    foreach ($params as $param) {
-                        $name = $param->getName();
-                        if (1 == $bind_type && !empty($vars)) {
-                            $args[] = array_shift($vars);
-                        } elseif (0 == $bind_type && isset($vars[$name])) {
-                            $args[] = $vars[$name];
-                        } elseif ($param->isDefaultValueAvailable()) {
-                            $args[] = $param->getDefaultValue();
-                        } else {
-                            throw new \Exception('PARAM ERROR:' . $name);
-                        }
-                    }
-                    $method->invokeArgs($controller, $args);
-                } else {
-                    $method->invoke($controller);
-                }
-            } else {
-                throw new \ReflectionException();
-            }
+            // 参数绑定类型 0 = 变量名, 1 = 顺序
+            self::invokeMethod([$controller, $action_name], Input::param(), Config::get('app.url_params_bind_type', 0));
         } catch (\ReflectionException $e) {
             try {
-                $method = new \ReflectionMethod($controller, '__call');
-                $method->invokeArgs($controller, [$action_name, '']);
-            } catch (\Exception $e) {
-                throw $e;
+                self::invokeMethod([$controller, '__call'], [$action_name, Input::param()], 1);
+            } catch (\ReflectionException $e) {
+                throw new \Exception("Error action:{$action_name}");
             }
         }
         return;
+    }
+
+    /**
+     * @param $method 发射方法
+     * @param array $vars 参数
+     * @param $bind_type 参数绑定类型 0 = 变量名, 1 = 顺序
+     * @return mixed
+     */
+    public static function invokeMethod($method, $vars = [], $bind_type = 0)
+    {
+        if (is_array($method)) {
+            $object  = is_object($method[0]) ? $method[0] : new $method[0]();
+            $reflect = new \ReflectionMethod($object, $method[1]);
+        } else {
+            $reflect = new \ReflectionMethod($method);
+        }
+        $args = self::bindParams($reflect, $vars, $bind_type);
+        return $reflect->invokeArgs($object ?? null, $args);
+    }
+
+    /**
+     * @param $reflect 反射对象
+     * @param array $vars 参数
+     * @param $bind_type 参数绑定类型 0 = 变量名, 1 = 顺序
+     * @return mixed
+     */
+    public static function bindParams($reflect, $vars = [], $bind_type = 0)
+    {
+        $vars = $vars ?? Input::param();
+        $args = [];
+        if ($reflect->getNumberOfParameters() > 0) {
+            // 判断数组类型 数字数组时按顺序绑定参数
+            $params = $reflect->getParameters();
+            foreach ($params as $param) {
+                $name = $param->getName();
+                if (1 == $bind_type && !empty($vars)) {
+                    $args[] = array_shift($vars);
+                } elseif (0 == $bind_type && isset($vars[$name])) {
+                    $args[] = $vars[$name];
+                } elseif ($param->isDefaultValueAvailable()) {
+                    $args[] = $param->getDefaultValue();
+                } else {
+                    throw new \Exception('Error param:' . $name);
+                }
+            }
+        }
+        return $args;
     }
 }
