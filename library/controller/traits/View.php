@@ -1,6 +1,10 @@
 <?php
 namespace deeka\controller\traits;
 
+use deeka\Config;
+use deeka\Response;
+use deeka\View as Template;
+
 trait View
 {
     protected $_view = null;
@@ -16,7 +20,7 @@ trait View
     protected function initView()
     {
         if (is_null($this->_view)) {
-            $this->_view = View::instance(Config::get('tmpl'));
+            $this->_view = Template::instance(Config::get('tmpl'));
         }
     }
 
