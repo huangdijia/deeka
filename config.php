@@ -87,7 +87,7 @@
         'tmpl_cache_path'     => '',
         'tmpl_cache_suffix'   => EXT,
         'tmpl_charset'        => 'utf-8',
-        'tmpl_strip_space'    => true,
+        'tmpl_strip_space'    => false,
         'tmpl_deny_func_list' => 'phpinfo,exec',
         'tmpl_engine'         => '',
         'tmpl_suffix'         => '.html',
@@ -95,7 +95,7 @@
         'tmpl_path'           => '',
         'tmpl_parse_string'   => [],
         'tmpl_output_charset' => 'utf-8',
-        'tmpl_var_identify'   => 'array',
+        'tmpl_var_identify'   => '', // array, object
     ],
     // response
     'response' => [

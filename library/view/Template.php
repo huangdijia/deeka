@@ -333,7 +333,7 @@ class Template
                         }
 
                         break;
-                    case 'obj': // 识别为对象
+                    case 'object': // 识别为对象
                         $name = '$' . $var;
                         foreach ($vars as $key => $val) {
                             $name .= '->' . $val;
