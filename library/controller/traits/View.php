@@ -1,7 +1,7 @@
 <?php
 namespace deeka\controller\traits;
 
-class View
+trait View
 {
     protected $_view = null;
 
