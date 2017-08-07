@@ -136,9 +136,15 @@ class Template
         $content = preg_replace('/(break;)[^:]+(case|default|endswitch)/is', '\\1 \\2', $content);
         // 解析普通模板标签 {tagName}
         // 修正对JS/JQUERY的支持
-        $content = preg_replace('/(\{)([^\d\s\{\}].+?)(\})/eis', "\$this->parseTag('\\2')", $content);
+        // $content = preg_replace('/(\{)([^\d\s\{\}].+?)(\})/eis', "\$this->parseTag('\\2')", $content);
+        $content = preg_replace('/(\{)([^\d\s\{\}].+?)(\})/is', function ($m) {
+            return $this->parseTag($m[2]);
+        }, $content);
         // 还原literal
-        $content = preg_replace('/<!--###literal(\d+)###-->/eis', "\$this->restoreLiteral('\\1')", $content);
+        // $content = preg_replace('/<!--###literal(\d+)###-->/eis', "\$this->restoreLiteral('\\1')", $content);
+        $content = preg_replace('/<!--###literal(\d+)###-->/is', function ($m) {
+            return $this->restoreLiteral($m[1]);
+        }, $content);
         // 去掉空白php標記
         $content = preg_replace('/<\?(php)?\s*?\?>/is', '', $content);
         // 返回内容
@@ -151,7 +157,10 @@ class Template
         // 解析include
         $content = $this->parseInclude($content);
         // 解析literal
-        $content = preg_replace('/\{literal\}(.*?)\{\/literal\}/eis', "\$this->parseLiteral('\\1')", $content);
+        // $content = preg_replace('/\{literal\}(.*?)\{\/literal\}/eis', "\$this->parseLiteral('\\1')", $content);
+        $content = preg_replace('/\{literal\}(.*?)\{\/literal\}/is', function ($m) {
+            return $this->parseLiteral($m[1]);
+        }, $content);
         // 解析语法
         $content = $this->parsePhpSyntax($content);
         if ($this->config['tmpl_strip_space']) {
@@ -181,10 +190,18 @@ class Template
     protected function compatInclude($content)
     {
         // 兼容$this->loadTmplate
-        $content = preg_replace('/\$this\->loadTmplate\s*\((.*?)\);/eis', "\$this->compatPhpInclude('\\1')", $content);
+        // $content = preg_replace('/\$this\->loadTmplate\s*\((.*?)\);/eis', "\$this->compatPhpInclude('\\1')", $content);
+        $content = preg_replace('/\$this\->loadTmplate\s*\((.*?)\);/is', function ($m) {
+            return $this->compatPhpInclude('\\1');
+        }, $content);
         // 兼容原生include或require
-        $content = preg_replace('/(include|require|include_once|require_once)\(([^;]+)\);/eis', "\$this->compatPhpInclude('\\2', '\\1')", $content);
-        $content = preg_replace('/(include|require|include_once|require_once)\s(?!file=)([^;]+);/eis', "\$this->compatPhpInclude('\\2', '\\1')", $content);
+        $content = preg_replace('/(include|require|include_once|require_once)\(([^;]+)\);/is', function ($m) {
+            return $this->compatPhpInclude('\\2', '\\1');
+        }, $content);
+        // $content = preg_replace('/(include|require|include_once|require_once)\s(?!file=)([^;]+);/eis', "\$this->compatPhpInclude('\\2', '\\1')", $content);
+        $content = preg_replace('/(include|require|include_once|require_once)\s(?!file=)([^;]+);/is', function ($m) {
+            return $this->compatPhpInclude($m[2], $m[1]);
+        }, $content);
         // 返回內容
         return $content;
     }
@@ -209,7 +226,10 @@ class Template
             'TEMPLATE_PATH.' => TMPL_PATH,
         ];
         $includeFile = str_replace(array_keys($replaces), array_values($replaces), $includeFile);
-        $includeFile = preg_replace('/\$(\w+)/eis', "\$this->get('\\1')", $includeFile);
+        // $includeFile = preg_replace('/\$(\w+)/eis', "\$this->get('\\1')", $includeFile);
+        $includeFile = preg_replace('/\$(\w+)/is', function ($m) {
+            return $this->get($m[1]);
+        }, $includeFile);
         $parseStr    = ' ?>{include file="' . $includeFile . '"}<?php ';
         return $parseStr;
     }
@@ -217,7 +237,10 @@ class Template
     // 兼容原生的php代碼
     protected function compatPhp($content)
     {
-        $content = preg_replace('/<\?(.*?)\?>/eis', "\$this->compatLiteralPhp('\\1')", $content);
+        /* $content = preg_replace('/<\?(.*?)\?>/eis', "\$this->compatLiteralPhp('\\1')", $content);*/
+        $content = preg_replace('/<\?(.*?)\?>/is', function ($m) {
+            return $this->compatLiteralPhp($m[1]);
+        }, $content);
         return $content;
     }
 
@@ -485,8 +508,11 @@ class Template
     public function parseExtend($content)
     {
         // 储存block
-        $regex   = '/\{block\s([^\}]+)\}(.*?)\{\/block\}/eis';
-        $content = preg_replace($regex, "\$this->parseBlock('\\1', '\\0')", $content);
+        $regex   = '/\{block\s([^\}]+)\}(.*?)\{\/block\}/is';
+        // $content = preg_replace($regex, "\$this->parseBlock('\\1', '\\0')", $content);
+        $content = preg_replace($regex, function ($m) {
+            return $this->parseBlock($m[1], $m[0]);
+        }, $content);
         // 查找父模板
         $pattern = '/\{extend\s([^\}]+)\}/i';
         $find    = preg_match($pattern, $content, $matches);
@@ -503,7 +529,10 @@ class Template
             $content = $this->parseExtend($content);
         }
         // 还原block
-        $content = preg_replace($regex, "\$this->replaceBlock('\\1', '\\0')", $content);
+        // $content = preg_replace($regex, "\$this->replaceBlock('\\1', '\\0')", $content);
+        $content = preg_replace($regex, function ($m) {
+            return $this->replaceBlock($m[1], $m[0]);
+        }, $content);
         // 返回内容
         return $content;
     }
