@@ -74,8 +74,9 @@ class Lang
 
     public static function get(string $key = '', string $range = null): string
     {
-        $range = $range ?? self::$range;
-        $key   = strtolower($key);
+        $default = $key;
+        $range   = $range ?? self::$range;
+        $key     = strtolower($key);
         if (isset(self::$lang[$range][$key])) {
             $args = array_slice(func_get_args(), 2);
             if (!empty($args)) {
@@ -84,8 +85,8 @@ class Lang
                 return self::$lang[$range][$key];
             }
         }
-        Log::record("lang '{$key}' is undefined in {$range}.", Log::NOTICE);
-        return $key;
+        Log::record("lang '{$default}' is undefined in {$range}.", Log::NOTICE);
+        return $default;
     }
 
     public static function has(string $key = '', string $range = null): bool
