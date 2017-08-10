@@ -31,10 +31,10 @@ Hook::register('app.init', function () {
         // 加载应用共用方法
         is_file(APP_PATH . DS . 'functions' . EXT) && require_once APP_PATH . DS . 'functions' . EXT;
         // 加载语言
-        if (\deeka\Config::get('lang.allow_list')) {
+        if (\deeka\Config::get('lang.accept')) {
             \deeka\Lang::detect();
             // 加载应用语言包
-            foreach (\deeka\Config::get('lang.allow_list') as $range) {
+            foreach (\deeka\Config::get('lang.accept') as $range) {
                 is_file(APP_PATH . $range . EXT) && \deeka\Lang::set(include APP_PATH . $range . EXT, '', $range);
             }
         }
