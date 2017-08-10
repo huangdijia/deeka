@@ -2,13 +2,13 @@
     // app
     'app'      => [
         // 命名空间
-        'namespace'            => 'app',
+        'namespace'             => 'app',
         // 时区设置
-        'timezone'             => 'Asia/Shanghai',
+        'timezone'              => 'Asia/Shanghai',
         // 参数绑定
-        'url_params_bind'      => true,
-        'url_params_bind_type' => 0,
-        'cli_params_parse_type'=> 0,
+        'url_params_bind'       => true,
+        'url_params_bind_type'  => 0,
+        'cli_params_parse_type' => 0,
     ],
     // 错误
     'error'    => [
@@ -33,6 +33,13 @@
         'action'     => 'index',
         // 过滤器
         'filter'     => '',
+        // 语言
+        'lang'       => 'zh-cn',
+    ],
+    'lang'     => [
+        'allow_list' => [],
+        'cookie_var' => 'lang',
+        'detect_var' => 'lang',
     ],
     // 层级命名
     'layer'    => [
