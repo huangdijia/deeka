@@ -30,10 +30,19 @@ Hook::register('app.init', function () {
         is_file(APP_PATH . DS . 'validate' . EXT) && Validate::addRule(include APP_PATH . DS . 'validate' . EXT);
         // 加载应用共用方法
         is_file(APP_PATH . DS . 'functions' . EXT) && require_once APP_PATH . DS . 'functions' . EXT;
+        // 加载语言
+        if (\deeka\Config::get('lang.allow_list')) {
+            \deeka\Lang::detect();
+            \deeka\Lang::allowList(\deeka\Config::get('lang.allow_list'));
+            // 加载应用语言包
+            foreach (\deeka\Lang::allowList() as $range) {
+                is_file(APP_PATH . $range . EXT) && \deeka\Lang::set(include APP_PATH . $range . EXT, $range);
+            }
+        }
     }
 });
 
-Hook::register('app.dispatch', function() {
+Hook::register('app.dispatch', function () {
     if (Request::isCli()) {
         // 以url的方式去解析
         $_SERVER['REQUEST_METHOD'] = 'CLI';
