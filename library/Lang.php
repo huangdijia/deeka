@@ -27,6 +27,12 @@ class Lang
         if (!in_array($range, Config::get('lang.allow_list', []))){
             $range = Config::get('default.lang', 'zh-cn');
         }
+        if (
+            !isset($_COOKIE[Config::get('lang.cookie_var', self::$cookieVar)])
+            || $range != $_COOKIE[Config::get('lang.cookie_var', self::$cookieVar)]
+        ) {
+            setcookie(Config::get('lang.cookie_var', self::$cookieVar), $range, time() + 30*24*3600, '/');
+        }
         self::$range = $range;
         return $range;
     }
