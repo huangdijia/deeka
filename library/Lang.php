@@ -46,17 +46,18 @@ class Lang
         if (is_null($range)) {
             return self::$range;
         }
-        return self::$range = strtolower($range);
+        self::$range = strtolower($range);
+        return true;
     }
 
-    public static function all()
+    public static function all() : array
     {
         return self::$lang;
     }
 
     public static function set($key = '', string $value = '', string $range = null): bool
     {
-        $range = self::range($range);
+        $range = $range ?? self::$range;
         if (is_array($key)) {
             foreach ($key as $k => $v) {
                 self::set($k, $v, $range);
@@ -73,7 +74,7 @@ class Lang
 
     public static function get(string $key = '', string $range = null): string
     {
-        $range = self::range($range);
+        $range = $range ?? self::$range;
         $key   = strtolower($key);
         if (isset(self::$lang[$range][$key])) {
             $args = array_slice(func_get_args(), 2);
@@ -89,7 +90,7 @@ class Lang
 
     public static function has(string $key = '', string $range = null): bool
     {
-        $range = self::range($range);
+        $range = $range ?? self::$range;
         $key   = strtolower($key);
         return isset(self::$lang[$range][$key]) ? true : false;
     }
