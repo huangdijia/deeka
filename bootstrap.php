@@ -38,6 +38,15 @@ defined('APP_STATUS') or define('APP_STATUS', \deeka\Env::get('app.status'));
 defined('APP_DEBUG') or define('APP_DEBUG', \deeka\Env::get('app.debug'));
 // 加载配置
 \deeka\Config::set(include CORE_PATH . 'config.php');
+// 检测语音
+if (\deeka\Config::get('lang.allow_list')) {
+    \deeka\Lang::detect();
+    \deeka\Lang::allowList(\deeka\Config::get('lang.allow_list'));
+    // 加载框架语言包
+    foreach (\deeka\Lang::allowList() as $range) {
+        is_file(CORE_PATH . $range . EXT) && \deeka\Lang::set(include CORE_PATH . $range . EXT, $range);
+    }
+}
 // DEBUG
 APP_DEBUG && \deeka\Config::set('log.level', 'all');
 // 加载验证规则
