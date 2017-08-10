@@ -41,9 +41,8 @@ defined('APP_DEBUG') or define('APP_DEBUG', \deeka\Env::get('app.debug'));
 // 检测语音
 if (\deeka\Config::get('lang.allow_list')) {
     \deeka\Lang::detect();
-    \deeka\Lang::allowList(\deeka\Config::get('lang.allow_list'));
     // 加载框架语言包
-    foreach (\deeka\Lang::allowList() as $range) {
+    foreach (\deeka\Config::get('lang.allow_list') as $range) {
         is_file(CORE_PATH . $range . EXT) && \deeka\Lang::set(include CORE_PATH . $range . EXT, '', $range);
     }
 }
