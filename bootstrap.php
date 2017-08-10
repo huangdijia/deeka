@@ -44,7 +44,7 @@ if (\deeka\Config::get('lang.allow_list')) {
     \deeka\Lang::allowList(\deeka\Config::get('lang.allow_list'));
     // 加载框架语言包
     foreach (\deeka\Lang::allowList() as $range) {
-        is_file(CORE_PATH . $range . EXT) && \deeka\Lang::set(include CORE_PATH . $range . EXT, $range);
+        is_file(CORE_PATH . $range . EXT) && \deeka\Lang::set(include CORE_PATH . $range . EXT, '', $range);
     }
 }
 // DEBUG

@@ -59,7 +59,7 @@ class Lang
         $range = self::range($range);
         if (is_array($key)) {
             foreach ($key as $k => $v) {
-                self::set($k, $v, self::range($range));
+                self::set($k, $v, $range);
             }
         } else {
             $key = strtolower($key);
