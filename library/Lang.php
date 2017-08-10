@@ -76,7 +76,12 @@ class Lang
         $range = self::range($range);
         $key   = strtolower($key);
         if (isset(self::$lang[$range][$key])) {
-            return self::$lang[$range][$key];
+            $args = array_slice(func_get_args(), 2);
+            if (!empty($args)) {
+                return vsprintf(self::$lang[$range][$key], $args);
+            } else {
+                return self::$lang[$range][$key];
+            }
         }
         Log::record("lang '{$key}' is undefined in {$range}.", Log::NOTICE);
         return $key;

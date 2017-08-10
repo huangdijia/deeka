@@ -161,3 +161,10 @@ function cookie($name, $value = '', $option = null)
         return Cookie::set($name, $value, $option);
     }
 }
+
+function __()
+{
+    $args = func_get_args();
+    array_splice($args, 1, 0, [null]);
+    return call_user_func_array('\deeka\Lang::get', $args);
+}
