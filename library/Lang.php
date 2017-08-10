@@ -20,21 +20,18 @@ class Lang
 
     public static function detect()
     {
-        return self::$range = $_GET[Config::get('lang.detect_var', self::$detectVar)] 
+        $range = $_GET[Config::get('lang.detect_var', self::$detectVar)] 
             ?? $_COOKIE[Config::get('lang.cookie_var', self::$cookieVar)] 
-            ?? self::acceptLang() 
+            ?? self::acceptLanguage()
             ?? self::$range;
-    }
-
-    public static function allowList(array $list = null)
-    {
-        if (is_null($list)) {
-            return self::$allowList;
+        if (!in_array($range, Config::get('lang.allow_list', []))){
+            $range = Config::get('default.lang', 'zh-cn');
         }
-        return self::$allowList = $list;
+        self::$range = $range;
+        return $range;
     }
 
-    private static function acceptLang()
+    private static function acceptLanguage()
     {
         if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) return null;
         preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);

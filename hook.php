@@ -33,9 +33,8 @@ Hook::register('app.init', function () {
         // 加载语言
         if (\deeka\Config::get('lang.allow_list')) {
             \deeka\Lang::detect();
-            \deeka\Lang::allowList(\deeka\Config::get('lang.allow_list'));
             // 加载应用语言包
-            foreach (\deeka\Lang::allowList() as $range) {
+            foreach (\deeka\Config::get('lang.allow_list') as $range) {
                 is_file(APP_PATH . $range . EXT) && \deeka\Lang::set(include APP_PATH . $range . EXT, '', $range);
             }
         }
