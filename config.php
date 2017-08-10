@@ -37,7 +37,7 @@
         'lang'       => 'zh-cn',
     ],
     'lang'     => [
-        'allow_list' => [],
+        'accept'     => [],
         'cookie_var' => 'lang',
         'detect_var' => 'lang',
     ],

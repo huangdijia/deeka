@@ -24,7 +24,7 @@ class Lang
             ?? $_COOKIE[Config::get('lang.cookie_var', self::$cookieVar)] 
             ?? self::acceptLanguage()
             ?? self::$range;
-        if (!in_array($range, Config::get('lang.allow_list', []))){
+        if (!in_array($range, Config::get('lang.accept'))){
             $range = Config::get('default.lang', 'zh-cn');
         }
         if (
