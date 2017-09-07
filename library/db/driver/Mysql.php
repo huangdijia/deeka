@@ -399,6 +399,9 @@ class Mysql
      */
     private static function _parseSql(string $sql = '', array $params = null)
     {
+        if (empty($params)) {
+            return $sql;
+        }
         if (false !== strpos($sql, '?')) {
             $sql = preg_replace_callback('/[\?]/', function ($matches) use (&$params) {
                 $var = array_shift($params);
