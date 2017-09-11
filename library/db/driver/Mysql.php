@@ -312,7 +312,7 @@ class Mysql
                     Debug::getRangeTime('sql_begin', 'sql_end')
                 ), Log::SQL
             );
-            $func              = $this->options['one'] ? 'fetch' : 'fetchAll';
+            $func              = $this->options['one'] ?? 0 ? 'fetch' : 'fetchAll';
             $result            = $this->stmt->$func(PDO::FETCH_ASSOC);
             $this->_affectrows = $this->stmt->rowCount();
         } catch (PDOException $e) {
