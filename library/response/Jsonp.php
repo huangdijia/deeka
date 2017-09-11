@@ -2,6 +2,7 @@
 namespace deeka\response;
 
 use deeka\Response;
+use deeka\Log;
 
 class Jsonp extends Response
 {
@@ -13,6 +14,9 @@ class Jsonp extends Response
     public function render($data = [])
     {
         $json = json_encode($data, $this->options['json_encode_param']);
+        if (\json_last_error()) {
+            Log::record(\json_last_error_msg());
+        }
         return "{$this->options['jsonp_handler']}({$json});";
     }
 }
