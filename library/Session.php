@@ -75,14 +75,14 @@ class Session
             if (!class_exists($class)) {
                 throw new \Exception("Bad Session driver {$class}", 1);
             }
-            $hander = new $class();
+            $handler = new $class();
             session_set_save_handler(
-                [ & $hander, "open"],
-                [ & $hander, "close"],
-                [ & $hander, "read"],
-                [ & $hander, "write"],
-                [ & $hander, "destroy"],
-                [ & $hander, "gc"]
+                [ & $handler, "open"],
+                [ & $handler, "close"],
+                [ & $handler, "read"],
+                [ & $handler, "write"],
+                [ & $handler, "destroy"],
+                [ & $handler, "gc"]
             );
         }
         // 启动session
