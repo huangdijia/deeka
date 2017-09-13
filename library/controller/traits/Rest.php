@@ -2,6 +2,7 @@
 namespace deeka\controller\traits;
 
 use deeka\App;
+use deeka\Input;
 use deeka\Reflect;
 use deeka\Request;
 use deeka\Response;
