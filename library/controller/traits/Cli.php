@@ -17,7 +17,7 @@ trait Cli
         }
         // 控制器初始化
         if (method_exists($this, '_initialize')) {
-            Reflect::invokeMethod([$this, '_initialize']);
+            Reflect::invokeMethod([$this, '_initialize'], Input::param());
         }
     }
 

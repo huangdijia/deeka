@@ -14,7 +14,7 @@ trait JsonRpc
     {
         // 控制器初始化
         if (method_exists($this, '_initialize')) {
-            Reflect::invokeMethod([$this, '_initialize']);
+            Reflect::invokeMethod([$this, '_initialize'], Input::param());
         }
         // 导入类库
         Loader::addClassMap('jsonRPCServer', CORE_PATH . '/vendor/jsonRPC/jsonRPCServer.php');
