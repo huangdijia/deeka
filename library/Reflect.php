@@ -50,7 +50,9 @@ class Reflect
      */
     public static function bindParams($reflect, $vars = [], $bind_type = 0)
     {
-        $vars = $vars ?? Input::param();
+        if (empty($vars)) {
+            $vars = Input::param();
+        }
         $args = [];
         if ($reflect->getNumberOfParameters() > 0) {
             // 判断数组类型 数字数组时按顺序绑定参数
@@ -60,7 +62,7 @@ class Reflect
                 $class = $param->getClass();
                 if ($class) {
                     $cn     = $class->getName();
-                    $args[] = method_exists($cn, 'instance') ? $cn::instance() : self::invokeClass($cn);
+                    $args[] = method_exists($cn, 'instance') ? $cn::instance() : self::invokeClass($cn, $vars);
                 } elseif (1 == $bind_type && !empty($vars)) {
                     $args[] = array_shift($vars);
                 } elseif (0 == $bind_type && isset($vars[$name])) {
