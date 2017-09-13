@@ -2,6 +2,7 @@
 namespace deeka\Controller\traits;
 
 use deeka\Loader;
+use deeka\Reflect;
 
 trait JsonRpc
 {
@@ -13,7 +14,7 @@ trait JsonRpc
     {
         // 控制器初始化
         if (method_exists($this, '_initialize')) {
-            $this->_initialize();
+            Reflect::invokeMethod([$this, '_initialize']);
         }
         // 导入类库
         Loader::addClassMap('jsonRPCServer', CORE_PATH . '/vendor/jsonRPC/jsonRPCServer.php');
