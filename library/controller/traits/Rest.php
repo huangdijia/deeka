@@ -2,7 +2,7 @@
 namespace deeka\controller\traits;
 
 use deeka\App;
-use deeka\Input;
+use deeka\Reflect;
 use deeka\Request;
 use deeka\Response;
 
@@ -29,6 +29,10 @@ trait Rest
         }
         if (false !== stripos($this->allowMethod, Request::method())) {
             $this->method = Request::method(CASE_LOWER);
+        }
+        // 控制器初始化
+        if (method_exists($this, '_initialize')) {
+            Reflect::invokeMethod([$this, '_initialize']);
         }
     }
 
