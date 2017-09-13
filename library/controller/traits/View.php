@@ -2,6 +2,7 @@
 namespace deeka\controller\traits;
 
 use deeka\Config;
+use deeka\Reflect;
 use deeka\Response;
 use deeka\View as Template;
 
@@ -13,7 +14,7 @@ trait View
     {
         // 控制器初始化
         if (method_exists($this, '_initialize')) {
-            $this->_initialize();
+            Reflect::invokeMethod([$this, '_initialize']);
         }
     }
 

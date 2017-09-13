@@ -1,6 +1,9 @@
 <?php
 namespace deeka\session;
 
+use deeka\Input;
+use Exception;
+
 class Handler
 {
     protected static $config = [
@@ -63,7 +66,7 @@ class Handler
                 $class = '\\deeka\\session\\driver\\' . ucfirst(strtolower($class));
             }
             if (!class_exists($class)) {
-                throw new \Exception("Bad Session driver {$class}", 1);
+                throw new Exception("Bad Session driver {$class}", 1);
             }
             $handler = new $class();
             session_set_save_handler(
@@ -208,7 +211,7 @@ class Handler
                 return self::serializePhpbinary($array, $safe);
                 break;
             default:
-                throw new \Exception("Unsupported session.serialize_handler: " . $method . ". Supported: php, php_binary");
+                throw new Exception("Unsupported session.serialize_handler: " . $method . ". Supported: php, php_binary");
         }
     }
 
@@ -250,7 +253,7 @@ class Handler
                 return self::unserializePhpbinary($session_data);
                 break;
             default:
-                throw new \Exception("Unsupported session.serialize_handler: " . $method . ". Supported: php, php_binary");
+                throw new Exception("Unsupported session.serialize_handler: " . $method . ". Supported: php, php_binary");
         }
     }
 
@@ -260,7 +263,7 @@ class Handler
         $offset      = 0;
         while ($offset < strlen($session_data)) {
             if (!strstr(substr($session_data, $offset), "|")) {
-                throw new \Exception("invalid data, remaining: " . substr($session_data, $offset));
+                throw new Exception("invalid data, remaining: " . substr($session_data, $offset));
             }
             $pos     = strpos($session_data, "|", $offset);
             $num     = $pos - $offset;
