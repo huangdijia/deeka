@@ -60,7 +60,7 @@ class Reflect
                 $class = $param->getClass();
                 if ($class) {
                     $cn     = $class->getName();
-                    $args[] = method_exists($cn, 'instance') ? $cn::instance() : new $cn;
+                    $args[] = method_exists($cn, 'instance') ? $cn::instance() : self::invokeClass($cn);
                 } elseif (1 == $bind_type && !empty($vars)) {
                     $args[] = array_shift($vars);
                 } elseif (0 == $bind_type && isset($vars[$name])) {
