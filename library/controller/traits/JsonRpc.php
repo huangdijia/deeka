@@ -1,6 +1,7 @@
 <?php
 namespace deeka\Controller\traits;
 
+use deeka\Input;
 use deeka\Loader;
 use deeka\Reflect;
 

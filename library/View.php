@@ -2,6 +2,7 @@
 namespace deeka;
 
 use deeka\view\Template;
+use Exception;
 
 // 視圖類
 class View
@@ -27,6 +28,7 @@ class View
         'tmpl_output_charset' => 'utf-8',
         'tmpl_var_identify'   => 'array',
     ];
+    protected static $handlers = [];
 
     private function __construct()
     {
@@ -40,12 +42,15 @@ class View
 
     public static function instance(array $config = [])
     {
-        static $handler = null;
-        if (is_null($handler)) {
-            $handler = new self;
-            $handler->setConfig($config);
+        if (empty($config)) {
+            $config = Config::get('tmpl');
         }
-        return $handler;
+        $key = md5(serialize($config));
+        if (!isset(self::$handlers[$key])) {
+            self::$handlers[$key] = new self;
+            self::$handlers[$key]->setConfig($config);
+        }
+        return self::$handlers[$key];
     }
 
     // 配置參數設置
@@ -111,7 +116,7 @@ class View
             if (!APP_DEBUG) {
                 $templateFile = strtr($templateFile, APP_PATH, '');
             }
-            throw new \Exception("template '{$templateFile}' is not exists", 1);
+            throw new Exception("template '{$templateFile}' is not exists", 1);
         }
         // 页面缓存
         ob_start();
@@ -132,7 +137,6 @@ class View
                 include $tmplCacheFile;
             } else {
                 // 重新解析
-                // require_once 'Template.php';
                 $engine = new Template();
                 $config = $this->config;
                 unset($config['tmpl_engine']);
