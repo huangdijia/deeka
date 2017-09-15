@@ -286,7 +286,9 @@ class Response
         $format = "[%s] %s %s\n";
         $now    = date('Y-m-d H:i:s');
         $type   = strtoupper($type);
+        $info   = !is_scalar($info) ? var_export($info, 1) : $info;
         echo sprintf($format, $now, $type, $info);
+        ob_flush();
         $exit && exit();
     }
 
