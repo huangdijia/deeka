@@ -12,6 +12,9 @@ class Builder
     public static function prepare(string $sql = '', array $params = null)
     {
         $params = self::parseParams($sql, $params);
+        if (empty($params)) {
+            return $sql;
+        }
         if (false !== strpos($sql, '?')) {
             $sql = preg_replace_callback('/[\?]/', function ($matches) use (&$params) {
                 $var = array_shift($params);
