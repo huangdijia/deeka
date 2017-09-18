@@ -228,7 +228,7 @@ class Mysql
         if (!empty($args)) {
             $this->options['bind'] = $args;
         }
-        return $this->query($sql, true);
+        return $this->query($sql);
     }
 
     /**
