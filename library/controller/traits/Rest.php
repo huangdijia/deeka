@@ -31,8 +31,6 @@ trait Rest
         if (false !== stripos($this->allowMethod, Request::method())) {
             $this->method = Request::method(CASE_LOWER);
         }
-        // 控制器初始化
-        method_exists($this, '_initialize') && Reflect::invokeMethod([$this, '_initialize'], Input::param());
     }
 
     public function __call($method, $args = [])
@@ -48,7 +46,7 @@ trait Rest
             Reflect::invokeMethod([$this, $fun], $args);
         } else {
             // 抛出异常
-            throw new Exception('Error action:' . $method);
+            throw new Exception(get_called_class() . "::{$name}() is not exists\n", 1);
         }
     }
 

@@ -12,15 +12,13 @@ trait View
 
     public function __construct(\deeka\View $view)
     {
-        // 控制器初始化
-        method_exists($this, '_initialize') && Reflect::invokeMethod([$this, '_initialize'], Input::param());
         $this->view = $view;
     }
 
     public function __call($name, $args)
     {
         Response::instance()->sendHttpStatus(404);
-        throw new Exception(get_called_class() . "::{$name}() IS NOT EXISTS", 1);
+        throw new Exception(get_called_class() . "::{$name}() is not exists", 1);
     }
 
     protected function fetch($templateFile = '')

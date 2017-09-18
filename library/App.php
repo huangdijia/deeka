@@ -67,12 +67,10 @@ class App
         Hook::trigger('app.start');
         // 检查控制器名合法性
         if (!preg_match('/^[A-Za-z](\w)*$/', CONTROLLER_NAME)) {
-            $error = "Controller does not exists:" . CONTROLLER_NAME;
-            throw new Exception($error);
+            throw new Exception("Controller does not exists:" . CONTROLLER_NAME, 1);
         }
         if (!preg_match('/^[A-Za-z](\w)*$/', ACTION_NAME)) {
-            $error = "Action does not exists:" . ACTION_NAME;
-            throw new Exception($error);
+            throw new Exception("Action does not exists:" . ACTION_NAME, 1);
         }
         // [app.namespace]\[module]\[controller]\[controller_name]
         $controller_name = sprintf(
@@ -85,26 +83,27 @@ class App
         $action_name = ACTION_NAME . Config::get('layer.action', '');
         // 加载失败则抛出异常
         if (!class_exists($controller_name)) {
-            $error = "Controller does not exists: '{$controller_name}'";
-            throw new Exception($error, 1);
+            throw new Exception("Controller does not exists: '{$controller_name}'", 1);
         }
         // 参数绑定类型
         $bind_type = Config::get('app.url_params_bind_type', 0);
         // 加载控制器
         try {
             $controller = Reflect::invokeClass($controller_name, Input::param(), $bind_type);
-        } catch (ReflectionException $e) {
-            throw new Exception("{$controller_name} instance faild", 1);
+        } catch (ReflectionException | Exception $e) {
+            throw $e;
         }
         // 参数绑定, 参数绑定类型 0 = 变量名, 1 = 顺序
         try {
-            Reflect::invokeMethod([$controller, $action_name], Input::param(), $bind_type);
-        } catch (ReflectionException $e) {
-            try {
+            if (method_exists($controller, $action_name)) {
+                Reflect::invokeMethod([$controller, $action_name], Input::param(), $bind_type);
+            } elseif (method_exists($controller, '__call')) {
                 Reflect::invokeMethod([$controller, '__call'], [$action_name, Input::param()], 1);
-            } catch (ReflectionException $e) {
-                throw new Exception("Error action:{$action_name}");
+            } else {
+                throw new Exception("{$controller_name}::{$action_name}() is not exists", 1);
             }
+        } catch (Exception $e) {
+            throw $e;
         }
         return;
     }
