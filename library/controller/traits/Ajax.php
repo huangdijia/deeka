@@ -5,21 +5,20 @@ use deeka\Input;
 use deeka\Log;
 use deeka\Reflect;
 use deeka\Response;
+use Exception;
 
 trait Ajax
 {
     public function __construct()
     {
         // 控制器初始化
-        if (method_exists($this, '_initialize')) {
-            Reflect::invokeMethod([$this, '_initialize'], Input::param());
-        }
+        method_exists($this, '_initialize') && Reflect::invokeMethod([$this, '_initialize'], Input::param());
     }
 
     public function __call($name, $args)
     {
         Response::instance()->sendHttpStatus(404);
-        throw new \Exception(get_called_class() . "::{$name}() IS NOT EXISTS\n", 1);
+        throw new Exception(get_called_class() . "::{$name}() is not exists\n", 1);
     }
 
     protected function jsonReturn($data = null, $callback = '')
