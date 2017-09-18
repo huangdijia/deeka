@@ -16,6 +16,7 @@ class Reflect
      */
     public static function invokeClass($class_name, $vars = [], $bind_type = 0)
     {
+        $args = [];
         // invoke __construct but not execute
         if (method_exists($class_name, '__construct')) {
             $reflect = new ReflectionMethod($class_name, '__construct');
@@ -26,11 +27,8 @@ class Reflect
         }
         // creating an instance
         $class    = new ReflectionClass($class_name);
-        $instance = $class->newInstanceArgs($args ?? []);
-        // invoke _initialize
-        if (method_exists($class_name, '_initialize')) {
-            self::invokeMethod([$instance, '_initialize'], $vars, $bind_type);
-        }
+        $instance = $class->newInstanceArgs($args);
+        // return instance
         return $instance;
     }
 
