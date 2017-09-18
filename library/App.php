@@ -67,12 +67,10 @@ class App
         Hook::trigger('app.start');
         // 检查控制器名合法性
         if (!preg_match('/^[A-Za-z](\w)*$/', CONTROLLER_NAME)) {
-            $error = "Controller does not exists:" . CONTROLLER_NAME;
-            throw new Exception($error);
+            throw new Exception("Controller does not exists:" . CONTROLLER_NAME, 1);
         }
         if (!preg_match('/^[A-Za-z](\w)*$/', ACTION_NAME)) {
-            $error = "Action does not exists:" . ACTION_NAME;
-            throw new Exception($error);
+            throw new Exception("Action does not exists:" . ACTION_NAME, 1);
         }
         // [app.namespace]\[module]\[controller]\[controller_name]
         $controller_name = sprintf(
@@ -85,8 +83,7 @@ class App
         $action_name = ACTION_NAME . Config::get('layer.action', '');
         // 加载失败则抛出异常
         if (!class_exists($controller_name)) {
-            $error = "Controller does not exists: '{$controller_name}'";
-            throw new Exception($error, 1);
+            throw new Exception("Controller does not exists: '{$controller_name}'", 1);
         }
         // 参数绑定类型
         $bind_type = Config::get('app.url_params_bind_type', 0);
