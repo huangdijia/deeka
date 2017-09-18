@@ -105,11 +105,11 @@ function session($name = '', $value = '')
     if (0 < strpos($name, '.')) {
         list($namespace, $name) = explode('.', $name, 2);
     } else {
-        $namespace = Config::get('session_namespace', '');
+        $namespace = Config::get('session.namespace', '');
     }
     if (is_array($name)) {
         if (isset($name['namespace'])) {
-            Config::set('session_namespace', $name['namespace']);
+            Config::set('session.namespace', $name['namespace']);
         }
         Session::init($name);
     } elseif ('' === $value) {
