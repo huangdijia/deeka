@@ -1,11 +1,11 @@
 <?php
 namespace deeka\controller\traits;
 
-use deeka\App;
 use deeka\Input;
 use deeka\Reflect;
 use deeka\Request;
 use deeka\Response;
+use Exception;
 
 trait Rest
 {
@@ -32,9 +32,7 @@ trait Rest
             $this->method = Request::method(CASE_LOWER);
         }
         // 控制器初始化
-        if (method_exists($this, '_initialize')) {
-            Reflect::invokeMethod([$this, '_initialize'], Input::param());
-        }
+        method_exists($this, '_initialize') && Reflect::invokeMethod([$this, '_initialize'], Input::param());
     }
 
     public function __call($method, $args = [])
@@ -47,10 +45,10 @@ trait Rest
             $fun = $method . '_' . $this->method;
         }
         if (isset($fun)) {
-            App::invokeMethod([$this, $fun], $args);
+            Reflect::invokeMethod([$this, $fun], $args);
         } else {
             // 抛出异常
-            throw new \Exception('Error action:' . $method);
+            throw new Exception('Error action:' . $method);
         }
     }
 

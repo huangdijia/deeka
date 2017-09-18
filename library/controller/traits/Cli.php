@@ -6,6 +6,7 @@ use deeka\Log;
 use deeka\Reflect;
 use deeka\Request;
 use deeka\Response;
+use Exception;
 
 trait Cli
 {
@@ -17,14 +18,12 @@ trait Cli
             exit;
         }
         // 控制器初始化
-        if (method_exists($this, '_initialize')) {
-            Reflect::invokeMethod([$this, '_initialize'], Input::param());
-        }
+        method_exists($this, '_initialize') && Reflect::invokeMethod([$this, '_initialize'], Input::param());
     }
 
     public function __call($name, $args)
     {
-        throw new \Exception(get_called_class() . "::{$name}() IS NOT EXISTS\n", 1);
+        throw new Exception(get_called_class() . "::{$name}() IS NOT EXISTS\n", 1);
     }
 
     public function success($info = '')
