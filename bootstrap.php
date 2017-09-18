@@ -17,7 +17,7 @@ define('START_MEM', memory_get_usage());
 define('ENV_PREFIX', 'ENV_');
 // 版本及版权信息
 define('AUTHOR', 'Deeka');
-define('VERSION', '2.3.2');
+define('VERSION', '2.6');
 define('LICENSE', 'MIT');
 // ob_start
 ob_start();

@@ -1,5 +1,11 @@
-# A PHP Framework For PHP7
+# NAME
+`A PHP Framework For PHP7`
 
-# Author
+# AUTHOR
+Deeka (huangdijia@gamil.com)
 
-2.0.0
+# VERSION
+2.6
+
+# LICENSE
+`MIT`
