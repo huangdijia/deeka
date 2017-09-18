@@ -12,8 +12,6 @@ trait View
 
     public function __construct(\deeka\View $view)
     {
-        // 控制器初始化
-        method_exists($this, '_initialize') && Reflect::invokeMethod([$this, '_initialize'], Input::param());
         $this->view = $view;
     }
 

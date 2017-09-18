@@ -16,6 +16,7 @@ class Reflect
      */
     public static function invokeClass($class_name, $vars = [], $bind_type = 0)
     {
+        // invoke __construct but not execute
         if (method_exists($class_name, '__construct')) {
             $reflect = new ReflectionMethod($class_name, '__construct');
             if (!$reflect->isPublic()) {
@@ -23,8 +24,13 @@ class Reflect
             }
             $args = self::bindParams($reflect, $vars, $bind_type);
         }
+        // creating an instance
         $class    = new ReflectionClass($class_name);
         $instance = $class->newInstanceArgs($args ?? []);
+        // invoke _initialize
+        if (method_exists($class_name, '_initialize')) {
+            self::invokeMethod([$instance, '_initialize'], $vars, $bind_type);
+        }
         return $instance;
     }
 
@@ -90,7 +96,7 @@ class Reflect
                 } elseif ($param->isDefaultValueAvailable()) {
                     $args[] = $param->getDefaultValue();
                 } else {
-                    throw new Exception('Error param:' . $name);
+                    throw new Exception("Error param \${$name} of {$reflect->class}::{$reflect->name}()");
                 }
             }
         }

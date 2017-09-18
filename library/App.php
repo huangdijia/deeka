@@ -95,13 +95,15 @@ class App
         }
         // 参数绑定, 参数绑定类型 0 = 变量名, 1 = 顺序
         try {
-            Reflect::invokeMethod([$controller, $action_name], Input::param(), $bind_type);
-        } catch (ReflectionException | Exception $e) {
-            try {
+            if (method_exists($controller, $action_name)) {
+                Reflect::invokeMethod([$controller, $action_name], Input::param(), $bind_type);
+            } elseif (method_exists($controller, '__call')) {
                 Reflect::invokeMethod([$controller, '__call'], [$action_name, Input::param()], 1);
-            } catch (ReflectionException | Exception $e) {
-                throw $e;
+            } else {
+                throw new Exception("{$controller_name}::{$action_name}() is not exists", 1);
             }
+        } catch (Exception $e) {
+            throw $e;
         }
         return;
     }
