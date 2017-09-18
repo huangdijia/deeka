@@ -273,7 +273,7 @@ class Mysql
      * Db::query('select * from table where id = ?', 123);
      * Db::query('select * from table where id = :id', ['id'=>123]);
      */
-    public function query(string $sql = '')
+    public function query()
     {
         // connect
         $this->connect();
@@ -282,6 +282,12 @@ class Mysql
         $this->_insertid   = null;
         $this->_errno      = null;
         $this->_error      = null;
+        // args
+        $args = func_get_args();
+        $sql  = array_shift($args);
+        if (!empty($args)) {
+            $this->options['bind'] = $args;
+        }
         // parse params
         $params     = self::_parseParams($sql, $this->options['bind'] ?? null);
         $this->_sql = self::_parseSql($sql, $params);
@@ -298,10 +304,8 @@ class Mysql
         }
         // query
         try {
-            // $this->stmt = $this->dbh->prepare($sql);
             $this->stmt = $this->dbh->prepare($this->_sql);
             Debug::remark('sql_begin');
-            // $this->stmt->execute($params);
             $this->stmt->execute();
             Debug::remark('sql_end');
             // record sql and runtime
@@ -319,7 +323,7 @@ class Mysql
             $this->options = [];
             $this->_errno  = $e->getCode();
             $this->_error  = $e->getMessage();
-            Log::record($e->getMessage(), Log::ERR);
+            Log::record("SQL:{$sql}, _SQL:{$this->_sql}, ERROR:" . $e->getMessage(), Log::ERR);
             return false;
         }
         // set cache
@@ -361,10 +365,8 @@ class Mysql
         }
         // execute
         try {
-            // $this->stmt = $this->dbh->prepare($sql);
             $this->stmt = $this->dbh->prepare($this->_sql);
             Debug::remark('sql_begin');
-            // $result = $this->stmt->execute($params);
             $result = $this->stmt->execute();
             Debug::remark('sql_end');
             // record sql and runtime
