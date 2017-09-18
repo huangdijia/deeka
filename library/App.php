@@ -83,7 +83,7 @@ class App
         $action_name = ACTION_NAME . Config::get('layer.action', '');
         // 加载失败则抛出异常
         if (!class_exists($controller_name)) {
-            throw new Exception("Controller does not exists: '{$controller_name}'", 1);
+            throw new Exception("Controller {$controller_name} does not exists", 1);
         }
         // 参数绑定类型
         $bind_type = Config::get('app.url_params_bind_type', 0);
@@ -100,9 +100,9 @@ class App
             } elseif (method_exists($controller, '__call')) {
                 Reflect::invokeMethod([$controller, '__call'], [$action_name, Input::param()], 1);
             } else {
-                throw new Exception("{$controller_name}::{$action_name}() is not exists", 1);
+                throw new Exception("Action {$controller_name}::{$action_name}() is not exists", 1);
             }
-        } catch (Exception $e) {
+        } catch (ReflectionException | Exception $e) {
             throw $e;
         }
         return;
