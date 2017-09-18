@@ -17,7 +17,7 @@ trait Ajax
     public function __call($name, $args)
     {
         Response::instance()->sendHttpStatus(404);
-        throw new Exception(get_called_class() . "::{$name}() is not exists\n", 1);
+        throw new Exception("Action " . get_called_class() . "::{$name}() is not exists\n", 1);
     }
 
     protected function jsonReturn($data = null, $callback = '')
