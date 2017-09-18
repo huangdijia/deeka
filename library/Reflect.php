@@ -18,7 +18,10 @@ class Reflect
     {
         if (method_exists($class_name, '__construct')) {
             $reflect = new ReflectionMethod($class_name, '__construct');
-            $args    = self::bindParams($reflect, $vars, $bind_type);
+            if (!$reflect->isPublic()) {
+                throw new Exception("{$reflect->class}::__construct() must be public method", 1);
+            }
+            $args = self::bindParams($reflect, $vars, $bind_type);
         }
         $class    = new ReflectionClass($class_name);
         $instance = $class->newInstanceArgs($args ?? []);
@@ -36,6 +39,9 @@ class Reflect
         if (is_array($method)) {
             $object  = is_object($method[0]) ? $method[0] : new $method[0]();
             $reflect = new ReflectionMethod($object, $method[1]);
+            if (!$reflect->isPublic()) {
+                throw new Exception("{$reflect->class}::{$method[1]}() must be public method", 1);
+            }
         } else {
             $reflect = new ReflectionMethod($method);
         }
