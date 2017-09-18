@@ -100,7 +100,7 @@ class Error
         // 记录日志
         Log::record($log, is_callable([$e, 'getSeverity']) ? $e->getSeverity() : Log::ERR);
         Log::save();
-        @ob_end_clean();
+        ob_get_length() && ob_end_clean();
         if (APP_DEBUG) {
             if (!Request::isCli()) {
                 $log = nl2br($log);

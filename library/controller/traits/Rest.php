@@ -48,7 +48,7 @@ trait Rest
             Reflect::invokeMethod([$this, $fun], $args);
         } else {
             // 抛出异常
-            throw new Exception('Error action:' . $method);
+            throw new Exception(get_called_class() . "::{$name}() is not exists\n", 1);
         }
     }
 

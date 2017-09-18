@@ -93,17 +93,17 @@ class App
         // 加载控制器
         try {
             $controller = Reflect::invokeClass($controller_name, Input::param(), $bind_type);
-        } catch (ReflectionException $e) {
-            throw new Exception("{$controller_name} instance faild", 1);
+        } catch (ReflectionException | Exception $e) {
+            throw $e;
         }
         // 参数绑定, 参数绑定类型 0 = 变量名, 1 = 顺序
         try {
             Reflect::invokeMethod([$controller, $action_name], Input::param(), $bind_type);
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException | Exception $e) {
             try {
                 Reflect::invokeMethod([$controller, '__call'], [$action_name, Input::param()], 1);
-            } catch (ReflectionException $e) {
-                throw new Exception("Error action:{$action_name}");
+            } catch (ReflectionException | Exception $e) {
+                throw $e;
             }
         }
         return;

@@ -23,7 +23,7 @@ trait Cli
 
     public function __call($name, $args)
     {
-        throw new Exception(get_called_class() . "::{$name}() IS NOT EXISTS\n", 1);
+        throw new Exception(get_called_class() . "::{$name}() is not exists\n", 1);
     }
 
     public function success($info = '')

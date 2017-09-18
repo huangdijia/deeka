@@ -20,7 +20,7 @@ trait View
     public function __call($name, $args)
     {
         Response::instance()->sendHttpStatus(404);
-        throw new Exception(get_called_class() . "::{$name}() IS NOT EXISTS", 1);
+        throw new Exception(get_called_class() . "::{$name}() is not exists", 1);
     }
 
     protected function fetch($templateFile = '')
