@@ -21,7 +21,7 @@ class Reflect
             $args    = self::bindParams($reflect, $vars, $bind_type);
         }
         $class    = new ReflectionClass($class_name);
-        $instance = $class->newInstanceArgs((array) $args);
+        $instance = $class->newInstanceArgs($args ?? []);
         return $instance;
     }
 
