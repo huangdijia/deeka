@@ -95,6 +95,11 @@ class App
         }
         // 参数绑定, 参数绑定类型 0 = 变量名, 1 = 顺序
         try {
+            // invoke _initialize
+            if (method_exists($controller, '_initialize')) {
+                Reflect::invokeMethod([$controller, '_initialize'], $vars, $bind_type);
+            }
+            // invoke action
             if (method_exists($controller, $action_name)) {
                 Reflect::invokeMethod([$controller, $action_name], Input::param(), $bind_type);
             } elseif (method_exists($controller, '__call')) {
