@@ -2,9 +2,10 @@
 namespace deeka\cache\driver;
 
 use deeka\Cache;
+use deeka\cache\ICache;
 use deeka\Config;
 
-class File extends Cache
+class File extends Cache implements ICache
 {
     // 构造函数
     public function __construct($options = [])
@@ -103,9 +104,9 @@ class File extends Cache
 
     public function clear()
     {
-        $path  = $this->options['path'];
+        $path   = $this->options['path'];
         $prefix = $this->options['prefix'];
-        $files = scandir($path);
+        $files  = scandir($path);
         if ($files) {
             foreach ($files as $file) {
                 if ($file != '.' && $file != '..' && is_dir($path . $file)) {

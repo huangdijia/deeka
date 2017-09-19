@@ -2,10 +2,12 @@
 namespace deeka\cache\driver;
 
 use deeka\Cache;
+use deeka\cache\ICache;
 use deeka\Config;
 use deeka\Loader;
+use Exception;
 
-class Ssdb extends Cache
+class Ssdb extends Cache implements ICache
 {
     protected $handler = null;
 
@@ -13,7 +15,7 @@ class Ssdb extends Cache
     {
         Loader::addClassMap('SimpleSSDB', CORE_PATH . '/vendor/ssdb/SSDB.php');
         if (!class_exists('SimpleSSDB')) {
-            throw new \Exception('Not suppert SimpleSSDB', 1);
+            throw new Exception('Not suppert SimpleSSDB', 1);
         }
         $defaults = [
             'host'    => Config::get('ssdb.host', '127.0.0.1'),
@@ -29,7 +31,7 @@ class Ssdb extends Cache
             } else {
                 $this->handler = new \SimpleSSDB($this->options['host'], $this->options['port']);
             }
-        } catch (\SSDBException $e) {
+        } catch (\SSDBException | Exception $e) {
             throw $e;
         }
     }
