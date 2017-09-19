@@ -42,7 +42,7 @@ class Options
         }
     }
 
-    private function all()
+    private function all(): array
     {
         static $argv = null;
         if (is_null($argv)) {
@@ -52,7 +52,7 @@ class Options
         return $argv;
     }
 
-    private function has($name = '')
+    private function has($name = ''): bool
     {
         return isset(self::all()[$name]) ? true : false;
     }
