@@ -106,7 +106,7 @@ class Db
         if (false !== $value) {
             Log::record(
                 sprintf(
-                    "[SQLCACHE KEY=%s%s] %s [%f sec ]",
+                    "[SQLCACHE KEY=%s%s] %s [%f sec]",
                     $options['prefix'] ?? '',
                     $name,
                     $sql,
