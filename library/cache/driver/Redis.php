@@ -2,16 +2,18 @@
 namespace deeka\cache\driver;
 
 use deeka\Cache;
+use deeka\cache\ICache;
 use deeka\Config;
+use Exception;
 
-class Redis extends Cache
+class Redis extends Cache implements ICache
 {
     protected $handler = null;
 
     public function __construct($options = [])
     {
         if (!extension_loaded('Redis')) {
-            throw new \Exception('NOT SUPPERT Redis', 1);
+            throw new Exception('NOT SUPPERT Redis', 1);
         }
         $defaults = [
             'host'       => Config::get('redis.host', '127.0.0.1'),
@@ -42,7 +44,7 @@ class Redis extends Cache
 
     public function rm($name)
     {
-        return $this->handler->del($this->options['prefix'] . $name,);
+        return $this->handler->del($this->options['prefix'] . $name);
     }
 
     public function clear()

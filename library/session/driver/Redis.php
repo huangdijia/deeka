@@ -2,14 +2,15 @@
 namespace deeka\session\driver;
 
 use deeka\Config;
+use SessionHandlerInterface;
 
-class Redis
+class Redis implements SessionHandlerInterface
 {
     protected $lifeTime    = 3600;
     protected $sessionName = '';
     protected $handler     = null;
 
-    public function open($savePath, $sessName)
+    public function open($save_path, $session_name)
     {
         $options = [
             'host'       => explode(',', Config::get('redis.host')),
@@ -41,22 +42,22 @@ class Redis
         return true;
     }
 
-    public function read($sessID)
+    public function read($session_id)
     {
-        return (string) $this->handler->get($this->sessionName . $sessID);
+        return (string) $this->handler->get($this->sessionName . $session_id);
     }
 
-    public function write($sessID, $sessData)
+    public function write($session_id, $session_data)
     {
-        return $this->handler->setex($this->sessionName . $sessID, $this->lifeTime, $sessData) ? true : false;
+        return $this->handler->setex($this->sessionName . $session_id, $this->lifeTime, $session_data) ? true : false;
     }
 
-    public function destroy($sessID)
+    public function destroy($session_id)
     {
-        return $this->handler->del($this->sessionName . $sessID) ? true : false;
+        return $this->handler->del($this->sessionName . $session_id) ? true : false;
     }
 
-    public function gc($sessMaxLifeTime)
+    public function gc($maxlifetime)
     {
         return true;
     }

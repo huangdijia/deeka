@@ -4,15 +4,15 @@ namespace deeka\session\driver;
 use deeka\Config;
 use deeka\Loader;
 use deeka\Log;
-use deeka\Response;
+use SessionHandlerInterface;
 
-class Ssdb
+class Ssdb implements SessionHandlerInterface
 {
     protected $lifeTime    = 3600;
     protected $sessionName = '';
     protected $handler     = null;
 
-    public function open($savePath, $sessName)
+    public function open($save_path, $session_name)
     {
         Loader::addClassMap('SimpleSSDB', CORE_PATH . '/vendor/ssdb/SSDB.php');
         $options = [
@@ -43,15 +43,6 @@ class Ssdb
                 $e->getTraceAsString()
             );
             Log::record($log, Log::ERR);
-            $log = nl2br($log);
-            @ob_end_clean();
-            if (APP_DEBUG) {
-                die($log);
-                Response::instance()->halt(500, $log);
-            } else {
-                die($e->getMessage());
-                Response::instance()->halt(500, $e->getMessage());
-            }
         }
         return true;
     }
@@ -64,23 +55,23 @@ class Ssdb
         return true;
     }
 
-    public function read($sessID)
+    public function read($session_id)
     {
-        $data = $this->handler->get($this->sessionName . $sessID);
+        $data = $this->handler->get($this->sessionName . $session_id);
         return unserialize($data);
     }
 
-    public function write($sessID, $sessData)
+    public function write($session_id, $session_data)
     {
-        return $this->handler->setx($this->sessionName . $sessID, serialize($sessData), $this->lifeTime) ? true : false;
+        return $this->handler->setx($this->sessionName . $session_id, serialize($session_data), $this->lifeTime) ? true : false;
     }
 
-    public function destroy($sessID)
+    public function destroy($session_id)
     {
-        return $this->handler->del($this->sessionName . $sessID) ? true : false;
+        return $this->handler->del($this->sessionName . $session_id) ? true : false;
     }
 
-    public function gc($sessMaxLifeTime)
+    public function gc($maxlifetime)
     {
         return true;
     }

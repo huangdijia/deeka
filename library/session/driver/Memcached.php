@@ -2,14 +2,15 @@
 namespace deeka\session\driver;
 
 use deeka\Config;
+use SessionHandlerInterface;
 
-class Memcached
+class Memcached implements SessionHandlerInterface
 {
     protected $lifeTime    = 3600;
     protected $sessionName = '';
     protected $handler     = null;
 
-    public function open($savePath, $sessName)
+    public function open($save_path, $session_name)
     {
         $options = [
             'host'       => explode(',', Config::get('memcache.host')),
@@ -35,27 +36,27 @@ class Memcached
     public function close()
     {
         $this->gc(ini_get('session.gc_maxlifetime'));
-        $this->handler->close();
+        $this->handler->quit();
         $this->handler = null;
         return true;
     }
 
-    public function read($sessID)
+    public function read($session_id)
     {
-        return (string) $this->handler->get($this->sessionName . $sessID);
+        return (string) $this->handler->get($this->sessionName . $session_id);
     }
 
-    public function write($sessID, $sessData)
+    public function write($session_id, $session_data)
     {
-        return $this->handler->set($this->sessionName . $sessID, $sessData, $this->lifeTime) ? true : false;
+        return $this->handler->set($this->sessionName . $session_id, $session_data, $this->lifeTime) ? true : false;
     }
 
-    public function destroy($sessID)
+    public function destroy($session_id)
     {
-        return $this->handler->delete($this->sessionName . $sessID) ? true : false;
+        return $this->handler->delete($this->sessionName . $session_id) ? true : false;
     }
 
-    public function gc($sessMaxLifeTime)
+    public function gc($maxlifetime)
     {
         return true;
     }
