@@ -1,6 +1,9 @@
 <?php
 namespace deeka;
 
+use Exception;
+use deeka\Reflect;
+
 class Loader
 {
     protected static $namespaces = [];
@@ -29,7 +32,7 @@ class Loader
         if (isset(self::$namespaces[$root_ns])) {
             $ns_path = self::$namespaces[$root_ns];
         } else {
-            throw new \Exception("NAMESPACE ROOT {$root_ns} NOT DEFINED", 1);
+            throw new Exception("Namespace root {$root_ns} is undefined", 1);
         }
         $path = $ns_path . $sub_ns . ".php";
         $path = strtr($path, '\\', DS);
@@ -38,7 +41,7 @@ class Loader
             self::$maps[$class] = $path;
             return;
         } else {
-            error_log($path . "\n", 3, LOG_PATH . 'loader.log');
+            error_log("{$path} is not exists\n", 3, LOG_PATH . 'loader.log');
         }
         return;
     }
@@ -92,7 +95,7 @@ class Loader
             return $controller[$class];
         }
         if (class_exists($class)) {
-            $controller[$class] = new $class;
+            $controller[$class] = Reflect::invokeClass($class);
             return $controller[$class];
         }
         return false;
@@ -100,12 +103,11 @@ class Loader
 
     public static function action($controller_name, $action_name, $args = [])
     {
-        $class = self::controller($controller_name);
-        if ($class) {
-            if (is_string($args)) {
-                parse_str($args, $args);
-            }
-            return call_user_func_array([$class, $action_name], $args);
+        $controller = self::controller($controller_name);
+        if ($controller) {
+            is_string($args) && parse_str($args, $args);
+            $bind_type = key($args) == 0 ? 1 : 0;
+            return Reflect::invokeMethod([$controller, $action_name], $args, $bind_type);
         }
         return false;
     }
