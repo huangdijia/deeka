@@ -3,8 +3,17 @@ namespace deeka;
 
 class Config
 {
-    const DELIMITER         = '.';
-    private static $_config = [];
+    const DELIMITER          = '.';
+    private static $_config  = [];
+    private static $instance = null;
+
+    public static function instance()
+    {
+        if (is_null(self::$instance)) {
+            self::$instance = new static;
+        }
+        return self::$instance;
+    }
 
     private function __construct()
     {
@@ -16,12 +25,22 @@ class Config
         //
     }
 
-    public static function all()
+    public function __call($name, $args)
+    {
+        return call_user_func_array([self::instance(), $name], $args);
+    }
+
+    public static function __callStatic($name, $args)
+    {
+        return call_user_func_array([self::instance(), $name], $args);
+    }
+
+    private function all()
     {
         return self::$_config;
     }
 
-    public static function set($name = '', $value = null)
+    private function set($name = '', $value = null)
     {
         // Object to Array
         if (is_object($name)) {
@@ -61,7 +80,7 @@ class Config
         return true;
     }
 
-    public static function has(string $name = '')
+    private function has(string $name = '')
     {
         // 错误类型
         if (empty($name)) {
@@ -80,7 +99,7 @@ class Config
         return true;
     }
 
-    public static function get(string $name = '', $default = null)
+    private function get(string $name = '', $default = null)
     {
         // 返回所有配置
         if (empty($name)) {
