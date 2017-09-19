@@ -97,7 +97,7 @@ class App
         try {
             // invoke _initialize
             if (method_exists($controller, '_initialize')) {
-                Reflect::invokeMethod([$controller, '_initialize'], $vars, $bind_type);
+                Reflect::invokeMethod([$controller, '_initialize'], Input::param(), $bind_type);
             }
             // invoke action
             if (method_exists($controller, $action_name)) {

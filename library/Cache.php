@@ -1,6 +1,8 @@
 <?php
 namespace deeka;
 
+use Exception;
+
 class Cache
 {
     protected static $handlers = [];
@@ -14,6 +16,11 @@ class Cache
         'timeout' => 0,
     ];
 
+    public static function instance()
+    {
+        return self::connect();
+    }
+
     private function __construct()
     {
         //
@@ -22,6 +29,11 @@ class Cache
     private function __clone()
     {
         //
+    }
+
+    public static function __callStatic($name, $args)
+    {
+        return call_user_func_array([self::connect(), $name], $args);
     }
 
     public static function parse($options = '')
@@ -58,25 +70,25 @@ class Cache
     public static function connect($options = '')
     {
         if (empty($options)) {
-            $options = current(Config::get('cache')) ?? null;
+            $options = Config::get('cache') ?? null;
         } elseif (is_scalar($options)) {
             $options = self::parse($options);
         } elseif (is_object($options)) {
             $options = (array) $options;
         }
         if (empty($options) || !is_array($options)) {
-            throw new \Exception("Error cache config.", 1);
+            throw new Exception("Error cache config.", 1);
         }
         // 合拼默认配置
         $options = array_merge(Config::get('cache'), $options);
         // 解析类型
-        $type = $options['type']??'file';
+        $type = $options['type'] ?? 'file';
         if (false === strpos($type, '\\')) {
             $class = '\\deeka\\cache\\driver\\' . ucfirst(strtolower($type));
         }
         // 驱动错误
         if (!class_exists($class)) {
-            throw new \Exception("Error Cache Type '{$class}'", 1);
+            throw new Exception("Cache driver '{$class}' is not exists", 1);
         }
         // 解析key
         $key = md5($class . serialize($options));
@@ -90,10 +102,5 @@ class Cache
         }
         // 返回对象
         return self::$handlers[$key];
-    }
-
-    public static function __callStatic($name, $args)
-    {
-        return call_user_func_array([self::connect(), $name], $args);
     }
 }

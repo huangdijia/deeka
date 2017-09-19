@@ -3,12 +3,13 @@ namespace deeka;
 
 use deeka\Debug;
 use deeka\Log;
+use deeka\Reflect;
 
 class Hook
 {
     private static $hooks = [];
 
-    public static function import(array $hooks = array())
+    public static function import(array $hooks = [])
     {
         foreach ($hooks as $name => $callable) {
             if (is_array($callback)) {
@@ -42,7 +43,7 @@ class Hook
                 continue;
             }
             Debug::remark('hook_exec_start');
-            call_user_func_array($callback, $args);
+            Reflect::invokeFunction($callback, $args, 1);
             Debug::remark('hook_exec_end');
             $runtime = Debug::getRangeTime('hook_exec_start', 'hook_exec_end');
             APP_DEBUG && Log::record("[HOOK] Run {$name}#{$key} [runtime:{$runtime}]", Log::INFO);
