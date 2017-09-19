@@ -11,14 +11,37 @@ class Lang
     private static $detectVar = 'lang';
     private static $cookieVar = 'lang';
     private static $allowList = [];
+    private static $instance = null;
+
+    public static function instance()
+    {
+        if (is_null(self::$instance)) {
+            self::$instance = new static;
+        }
+        return self::$instance;
+    }
 
     private function __construct()
-    {}
+    {
+        //
+    }
 
     private function __clone()
-    {}
+    {
+        //
+    }
 
-    public static function detect()
+    public function __call($name, $args)
+    {
+        return call_user_func_array([self::instance(), $name], $args);
+    }
+
+    public static function __callStatic($name, $args)
+    {
+        return call_user_func_array([self::instance(), $name], $args);
+    }
+
+    private function detect()
     {
         $range = $_GET[Config::get('lang.detect_var', self::$detectVar)] 
             ?? $_COOKIE[Config::get('lang.cookie_var', self::$cookieVar)] 
@@ -44,7 +67,7 @@ class Lang
         return !empty($matches[1]) ? strtolower($matches[1]) : null;
     }
 
-    public static function range(string $range = null)
+    private function range(string $range = null)
     {
         if (is_null($range)) {
             return self::$range;
@@ -53,12 +76,12 @@ class Lang
         return true;
     }
 
-    public static function all() : array
+    private function all() : array
     {
         return self::$lang;
     }
 
-    public static function set($key = '', string $value = '', string $range = null): bool
+    private function set($key = '', string $value = '', string $range = null): bool
     {
         $range = $range ?? self::$range;
         if (is_array($key)) {
@@ -75,7 +98,7 @@ class Lang
         return true;
     }
 
-    public static function get(string $key = '', string $range = null): string
+    private function get(string $key = '', string $range = null): string
     {
         $default = $key;
         $range   = $range ?? self::$range;
@@ -92,7 +115,7 @@ class Lang
         return $default;
     }
 
-    public static function has(string $key = '', string $range = null): bool
+    private function has(string $key = '', string $range = null): bool
     {
         $range = $range ?? self::$range;
         $key   = strtolower($key);
