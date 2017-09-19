@@ -87,7 +87,7 @@ class App
         }
         // 参数绑定类型
         $args = Input::param();
-        $type = key($args) == 0 ? 1 : 0; //Config::get('app.url_params_bind_type', 0);
+        $type = Config::get('app.url_params_bind_type', 0);
         // 加载控制器
         try {
             $controller = Reflect::invokeClass($controller_name, $args, $type);
