@@ -28,47 +28,58 @@ class Str
     }
 
     // 编码转换
-    public static function autoCharset($fContents, $from = 'gbk', $to = 'utf-8')
+    public static function autoCharset($string, $from = 'gbk', $to = 'utf-8')
     {
         $from = strtoupper($from) == 'UTF8' ? 'utf-8' : $from;
         $to   = strtoupper($to) == 'UTF8' ? 'utf-8' : $to;
         if (
-            strtoupper($from) === strtoupper($to) 
-            || empty($fContents) 
-            || (is_scalar($fContents) && !is_string($fContents))
+            strtoupper($from) === strtoupper($to)
+            || empty($string)
+            || (is_scalar($string) && !is_string($string))
         ) {
             // 如果编码相同或者非字符串标量则不转换
-            return $fContents;
+            return $string;
         }
-        if (is_string($fContents)) {
+        if (is_string($string)) {
             if (function_exists('mb_convert_encoding')) {
-                return mb_convert_encoding($fContents, $to, $from);
+                return mb_convert_encoding($string, $to, $from);
             } elseif (function_exists('iconv')) {
-                return iconv($from, $to, $fContents);
+                return iconv($from, $to, $string);
             } else {
-                return $fContents;
+                return $string;
             }
-        } elseif (is_array($fContents)) {
-            foreach ($fContents as $key => $val) {
-                $_key             = self::autoCharset($key, $from, $to);
-                $fContents[$_key] = self::autoCharset($val, $from, $to);
+        } elseif (is_array($string)) {
+            foreach ($string as $key => $val) {
+                $_key          = self::autoCharset($key, $from, $to);
+                $string[$_key] = self::autoCharset($val, $from, $to);
                 if ($key != $_key) {
-                    unset($fContents[$key]);
+                    unset($string[$key]);
                 }
             }
-            return $fContents;
+            return $string;
         } else {
-            return $fContents;
+            return $string;
         }
     }
 
     //获取随机数
-    public function rand($len = 10)
+    public static function rand($len = 10, $mode = 0)
     {
-        $data = 'abcdefghijklmnopqrstuvwxyz0123456789';
-        $str  = '';
+        switch ($mode) {
+            case 2:
+                $map = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                break;
+            case 1:
+                $map = 'abcdefghijklmnopqrstuvwxyz0123456789';
+                break;
+            case 0:
+            default:
+                $map = '0123456789';
+                break;
+        }
+        $str = '';
         while (strlen($str) < $len) {
-            $str .= substr($data, mt_rand(0, strlen($data) - 1), 1);
+            $str .= substr($map, mt_rand(0, strlen($map) - 1), 1);
         }
         return $str;
     }
@@ -231,7 +242,9 @@ class Str
     public static function parseName($name, $type = 0)
     {
         if ($type) {
-            return ucfirst(preg_replace("/_([a-zA-Z])/e", "strtoupper('\\1')", $name));
+            return ucfirst(preg_replace_callback("/_([a-zA-Z])/", function ($m) {
+                return strtoupper($m[1]);
+            }, $name));
         } else {
             return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
         }
