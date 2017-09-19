@@ -87,7 +87,7 @@ class Loader
         return $files[$file];
     }
 
-    public static function controller($name)
+    public static function controller($name, $args = [])
     {
         static $controller = [];
         $class             = $name;
@@ -95,7 +95,9 @@ class Loader
             return $controller[$class];
         }
         if (class_exists($class)) {
-            $controller[$class] = Reflect::invokeClass($class);
+            is_string($args) && parse_str($args, $args);
+            is_object($args) && $args = get_object_vars($args);
+            $controller[$class] = Reflect::invokeClass($class, $vars, key($args) == '0' ? 1 : 0);
             return $controller[$class];
         }
         return false;
@@ -106,8 +108,8 @@ class Loader
         $controller = self::controller($controller_name);
         if ($controller) {
             is_string($args) && parse_str($args, $args);
-            $bind_type = key($args) == 0 ? 1 : 0;
-            return Reflect::invokeMethod([$controller, $action_name], $args, $bind_type);
+            is_object($args) && $args = get_object_vars($args);
+            return Reflect::invokeMethod([$controller, $action_name], $args, key($args) == '0' ? 1 : 0);
         }
         return false;
     }
