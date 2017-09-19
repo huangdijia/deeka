@@ -63,7 +63,7 @@ class Reflect
      * @param $bind_type 参数绑定类型 0 = 变量名, 1 = 顺序
      * @return mixed
      */
-    public static function invokeFunction($name, $args = [], $bind_type = 0)
+    public static function invokeFunction($name, $vars = [], $bind_type = 0)
     {
         $reflect = new ReflectionFunction($name);
         $args    = self::bindParams($reflect, $vars, $bind_type);
