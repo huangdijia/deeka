@@ -6,7 +6,7 @@ use Exception;
 class Cache
 {
     protected static $handlers = [];
-    protected $options  = [
+    protected $options         = [
         'path'    => CACHE_PATH,
         'type'    => 'File',
         'path'    => '',
@@ -94,7 +94,7 @@ class Cache
         $key = md5($class . serialize($options));
         // 单例实例化
         if (
-            !isset(self::$handlers[$key]) 
+            !isset(self::$handlers[$key])
             || !is_object(self::$handlers[$key])
         ) {
             // 实例化驱动类

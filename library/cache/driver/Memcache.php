@@ -2,16 +2,18 @@
 namespace deeka\cache\driver;
 
 use deeka\Cache;
+use deeka\cache\ICache;
 use deeka\Config;
+use Exception;
 
-class Memcache extends Cache
+class Memcache extends Cache implements ICache
 {
     protected $handler = null;
 
     public function __construct($options = [])
     {
         if (!extension_loaded('memcache')) {
-            throw new \Exception('NOT SUPPERT Memcache', 1);
+            throw new Exception('NOT SUPPERT Memcache', 1);
         }
         $defaults = [
             'host'       => explode(',', Config::get('memcache.host', '127.0.0.1')),
