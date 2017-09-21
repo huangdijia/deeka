@@ -24,6 +24,7 @@ class Reflect
                 throw new Exception("Constructor of {$reflect->name} is not public in {$reflect->getFileName()} on line {$reflect->getStartLine()}", 1);
             }
             $args = self::bindParams($constructor, $vars);
+            APP_DEBUG && Log::record("[RUN] {$constructor->class}::{$constructor->name}() in {$constructor->getFileName()} on line {$constructor->getStartLine()}", Log::INFO);
         }
         return $reflect->newInstanceArgs($args ?? []);
     }
