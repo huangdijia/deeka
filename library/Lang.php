@@ -1,9 +1,6 @@
 <?php
 namespace deeka;
 
-use deeka\Config;
-use deeka\Log;
-
 class Lang
 {
     private static $lang      = [];
@@ -11,7 +8,7 @@ class Lang
     private static $detectVar = 'lang';
     private static $cookieVar = 'lang';
     private static $allowList = [];
-    private static $instance = null;
+    private static $instance  = null;
 
     public static function instance()
     {
@@ -43,18 +40,15 @@ class Lang
 
     private function detect()
     {
-        $range = $_GET[Config::get('lang.detect_var', self::$detectVar)] 
-            ?? $_COOKIE[Config::get('lang.cookie_var', self::$cookieVar)] 
-            ?? self::acceptLanguage()
-            ?? self::$range;
-        if (!in_array($range, Config::get('lang.accept'))){
+        $range = $_GET[Config::get('lang.detect_var', self::$detectVar)] ?? $_COOKIE[Config::get('lang.cookie_var', self::$cookieVar)] ?? self::acceptLanguage() ?? self::$range;
+        if (!in_array($range, Config::get('lang.accept'))) {
             $range = Config::get('default.lang', 'zh-cn');
         }
         if (
             !isset($_COOKIE[Config::get('lang.cookie_var', self::$cookieVar)])
             || $range != $_COOKIE[Config::get('lang.cookie_var', self::$cookieVar)]
         ) {
-            setcookie(Config::get('lang.cookie_var', self::$cookieVar), $range, time() + 30*24*3600, '/');
+            setcookie(Config::get('lang.cookie_var', self::$cookieVar), $range, time() + 30 * 24 * 3600, '/');
         }
         self::$range = $range;
         return $range;
@@ -62,7 +56,10 @@ class Lang
 
     private static function acceptLanguage()
     {
-        if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) return null;
+        if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            return null;
+        }
+
         preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
         return !empty($matches[1]) ? strtolower($matches[1]) : null;
     }
@@ -76,7 +73,7 @@ class Lang
         return true;
     }
 
-    private function all() : array
+    private function all(): array
     {
         return self::$lang;
     }

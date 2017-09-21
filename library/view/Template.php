@@ -1,6 +1,8 @@
 <?php
 namespace deeka\view;
 
+use Exception;
+
 // 模板引擎
 class Template
 {
@@ -119,7 +121,7 @@ class Template
         }
         // 写入缓存文件
         if (false === file_put_contents($templateCacheFile, $templateContent)) {
-            throw new \Exception("Create template cache failed");
+            throw new Exception("Create template cache failed");
         }
         return $templateCacheFile;
     }
@@ -571,7 +573,7 @@ class Template
                     case 'elseif':
                         $condition = isset($attr['condition']) ? $attr['condition'] : '';
                         if ('' == $condition) {
-                            throw new \Exception("'condition' of IF is undefined");
+                            throw new Exception("'condition' of IF is undefined");
                         }
                         $condition = str_ireplace(array_keys($this->comparison), array_values($this->comparison), $condition);
                         $replace   = '<?php ' . $tag . '(' . $condition . '):?>';
@@ -582,10 +584,10 @@ class Template
                         $key  = (isset($attr['key']) && $attr['key']) ? $attr['key'] : 'key';
                         $loop = (isset($attr['loop']) && $attr['loop']) ? $attr['loop'] : '_i';
                         if ('' == $name) {
-                            throw new \Exception("'name' of FOREACH is undefined");
+                            throw new Exception("'name' of FOREACH is undefined");
                         }
                         if ('' == $as) {
-                            throw new \Exception("'as' of FOREACH is undefined");
+                            throw new Exception("'as' of FOREACH is undefined");
                         }
                         $replace = '<?php $' . $loop . '=0;foreach((array)$' . $name . ' as $' . $key . '=>$' . $as . '):$' . $loop . '++;?>';
                         break;
@@ -594,7 +596,7 @@ class Template
                         $start = (isset($attr['start']) && $attr['start']) ? $attr['start'] : 0;
                         $end   = isset($attr['end']) ? $attr['end'] : '';
                         if ('' == $end) {
-                            throw new \Exception("'end' of FOR is undefined");
+                            throw new Exception("'end' of FOR is undefined");
                         }
                         $step       = (isset($attr['step']) && $attr['step']) ? $attr['step'] : 1;
                         $comparison = (isset($attr['comparison']) && $attr['comparison']) ? $attr['comparison'] : 'lt';
@@ -604,13 +606,13 @@ class Template
                     case 'switch':
                         $name = isset($attr['name']) ? $attr['name'] : '';
                         if ('' == $name) {
-                            throw new \Exception("'name' of SWITCH is undefined");
+                            throw new Exception("'name' of SWITCH is undefined");
                         }
                         $replace = '<?php switch($' . $name . '):?>';
                         break;
                     case 'case':
                         if (!isset($attr['value'])) {
-                            throw new \Exception("'value' of CASE is undefined");
+                            throw new Exception("'value' of CASE is undefined");
                         }
                         $value   = $attr['value'];
                         $replace = '<?php case "' . $value . '":?>';
@@ -628,10 +630,10 @@ class Template
                     case 'nheq':
                         $name = isset($attr['name']) ? $attr['name'] : '';
                         if ('' == $name) {
-                            throw new \Exception("'name' of " . strtoupper($tag) . " is undefined");
+                            throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
                         if (!isset($attr['value'])) {
-                            throw new \Exception("'value' of " . strtoupper($tag) . " is undefined");
+                            throw new Exception("'value' of " . strtoupper($tag) . " is undefined");
                         }
                         $value      = $attr['value'];
                         $comparison = $this->comparison[' ' . $tag . ' '];
@@ -641,10 +643,10 @@ class Template
                     case 'notin':
                         $name = isset($attr['name']) ? $attr['name'] : '';
                         if ('' == $name) {
-                            throw new \Exception("'name' of " . strtoupper($tag) . " is undefined");
+                            throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
                         if (!isset($attr['value'])) {
-                            throw new \Exception("'value' of " . strtoupper($tag) . " is undefined");
+                            throw new Exception("'value' of " . strtoupper($tag) . " is undefined");
                         }
                         $value    = $attr['value'];
                         $rangeVar = 'explode(\',\', \'' . $value . '\')';
@@ -654,10 +656,10 @@ class Template
                     case 'notbetween':
                         $name = isset($attr['name']) ? $attr['name'] : '';
                         if ('' == $name) {
-                            throw new \Exception("'name' of " . strtoupper($tag) . " is undefined");
+                            throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
                         if (!isset($attr['value'])) {
-                            throw new \Exception("'value' of " . strtoupper($tag) . " is undefined");
+                            throw new Exception("'value' of " . strtoupper($tag) . " is undefined");
                         }
                         $value    = $attr['value'];
                         $rangeVar = '$_RANGE_VAR=explode(\',\', \'' . $value . '\');';
@@ -666,14 +668,14 @@ class Template
                     case 'defined':
                         $name = isset($attr['name']) ? $attr['name'] : '';
                         if ('' == $name) {
-                            throw new \Exception("'name' of " . strtoupper($tag) . " is undefined");
+                            throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
                         $replace = '<?php if(defined(' . $name . ')):?>';
                         break;
                     case 'notdefined':
                         $name = isset($attr['name']) ? $attr['name'] : '';
                         if ('' == $name) {
-                            throw new \Exception("'name' of " . strtoupper($tag) . " is undefined");
+                            throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
                         $replace = '<?php if(!defined(' . $name . ')):?>';
                         break;
@@ -683,7 +685,7 @@ class Template
                     case 'isset':
                         $name = isset($attr['name']) ? $attr['name'] : '';
                         if ('' == $name) {
-                            throw new \Exception("'name' of " . strtoupper($tag) . " is undefined");
+                            throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
                         $replace = '<?php if(' . $tag . '($' . $name . ')):?>';
                         break;
@@ -693,17 +695,17 @@ class Template
                     case 'notisset':
                         $name = isset($attr['name']) ? $attr['name'] : '';
                         if ('' == $name) {
-                            throw new \Exception("'name' of " . strtoupper($tag) . " is undefined");
+                            throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
                         $replace = '<?php if(!' . str_replace('not', '', $tag) . '($' . $name . ')):?>';
                         break;
                     case 'assign':
                         $name = isset($attr['name']) ? $attr['name'] : '';
                         if ('' == $name) {
-                            throw new \Exception("'name' of " . strtoupper($tag) . " is undefined");
+                            throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
                         if (!isset($attr['value'])) {
-                            throw new \Exception("'value' of " . strtoupper($tag) . " is undefined");
+                            throw new Exception("'value' of " . strtoupper($tag) . " is undefined");
                         }
                         $value   = $attr['value'];
                         $replace = '<?php $' . $name . '="' . $value . '";?>';
@@ -711,7 +713,7 @@ class Template
                     case 'js':
                         $href = $attr['href'];
                         if ('' == $href) {
-                            throw new \Exception("'href' of " . strtoupper($tag) . " is undefined");
+                            throw new Exception("'href' of " . strtoupper($tag) . " is undefined");
                         }
                         $type    = (isset($attr['type']) && $attr['type']) ? $attr['type'] : "text/javascript";
                         $replace = '<script type="' . $type . '" src="' . $href . '"></script>';
@@ -720,7 +722,7 @@ class Template
                         $href = $attr['href'];
                         $href = $attr['href'];
                         if ('' == $href) {
-                            throw new \Exception("'href' of " . strtoupper($tag) . " is undefined");
+                            throw new Exception("'href' of " . strtoupper($tag) . " is undefined");
                         }
                         $rel     = (isset($attr['rel']) && $attr['rel']) ? $attr['rel'] : "stylesheet";
                         $type    = (isset($attr['type']) && $attr['type']) ? $attr['type'] : "text/css";
@@ -748,7 +750,7 @@ class Template
         $xmlstr = '<tpl><tag ' . $attrs . ' /></tpl>';
         $xml    = simplexml_load_string($xmlstr);
         if (!$xml) {
-            throw new \Exception('Template syntax error');
+            throw new Exception('Template syntax error');
         }
         $xml   = (array) ($xml->tag->attributes());
         $array = array_change_key_case($xml['@attributes']);

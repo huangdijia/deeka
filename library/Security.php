@@ -1,6 +1,8 @@
 <?php
 namespace deeka;
 
+use Exception;
+
 class Security
 {
     private function __construct()
@@ -25,10 +27,10 @@ class Security
         if (!Config::get('csrf.on', false)) {
             return '';
         }
-        $token    = self::hash();
-        $var_name = Config::get('var.csrf', '__csrf__');
-        Cookie::set($var_name, $token);
-        return sprintf('<input type="hidden" name="%s" value="%s" />', $var_name, $token);
+        $token = self::hash();
+        $name  = Config::get('var.csrf', '__csrf__');
+        Cookie::set($name, $token);
+        return sprintf('<input type="hidden" name="%s" value="%s" />', $name, $token);
     }
 
     public static function checkCsrf()
@@ -36,9 +38,9 @@ class Security
         if (!Config::get('csrf.on', false)) {
             return;
         }
-        $var_name = Config::get('var.csrf', '__csrf__');
-        if (Input::post($var_name) != Cookie::get($var_name)) {
-            throw new \Exception("csrf", 1);
+        $name = Config::get('var.csrf', '__csrf__');
+        if (Input::post($name) != Cookie::get($name)) {
+            throw new Exception("csrf", 1);
         }
     }
 }

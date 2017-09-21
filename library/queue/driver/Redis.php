@@ -3,6 +3,8 @@ namespace deeka\queue\driver;
 
 use deeka\Config;
 use deeka\Queue;
+use Exception;
+use RedisException;
 
 class Redis extends Queue
 {
@@ -19,12 +21,12 @@ class Redis extends Queue
             $options
         );
         if (!class_exists('Redis')) {
-            throw new \Exception('Not suppert Redis', 1);
+            throw new Exception('Not suppert Redis', 1);
         }
         try {
             $this->handler = new \Redis();
             $this->handler->connect($this->options['host'], $this->options['port']);
-        } catch (\RedisException $e) {
+        } catch (RedisException | Exception $e) {
             throw $e;
         }
     }

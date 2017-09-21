@@ -1,8 +1,6 @@
 <?php
 namespace deeka;
 
-use deeka\input\Handler;
-
 /*
  * Input::setGlobalFilter('addslashes, htmlspecialchars');
  * Input::$fun([key], [default], [filter])
