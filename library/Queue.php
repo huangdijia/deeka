@@ -1,6 +1,8 @@
 <?php
 namespace deeka;
 
+use Exception;
+
 class Queue
 {
     protected static $handlers = [];
@@ -61,7 +63,7 @@ class Queue
             $options = (array) $options;
         }
         if (empty($options) || !is_array($options)) {
-            throw new \Exception("Error queue config.", 1);
+            throw new Exception("Error queue config.", 1);
         }
         $type = $options['type'] ?? 'file';
         if (false === strpos($type, '\\')) {
@@ -69,7 +71,7 @@ class Queue
         }
         // 驱动错误
         if (!class_exists($class)) {
-            throw new \Exception("Error Queue Type '{$class}'", 1);
+            throw new Exception("Error queue Type '{$class}'", 1);
         }
         // 解析key
         $key = md5($class . join((array) $options));
