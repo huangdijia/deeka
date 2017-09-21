@@ -43,7 +43,7 @@ class Hook
                 continue;
             }
             Debug::remark('hook_exec_start');
-            Reflect::invokeFunction($callback, $args, 1);
+            Reflect::invokeFunction($callback, $args);
             Debug::remark('hook_exec_end');
             $runtime = Debug::getRangeTime('hook_exec_start', 'hook_exec_end');
             APP_DEBUG && Log::record("[HOOK] Run {$name}#{$key} [runtime:{$runtime}]", Log::INFO);
