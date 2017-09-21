@@ -87,10 +87,9 @@ class App
         }
         // 参数绑定类型
         $args = Input::param();
-        $type = Config::get('app.url_params_bind_type', 0);
         // 加载控制器
         try {
-            $controller = Reflect::invokeClass($controller_name, $args, $type);
+            $controller = Reflect::invokeClass($controller_name, $args);
         } catch (ReflectionException | Exception $e) {
             throw $e;
         }
@@ -98,13 +97,13 @@ class App
         try {
             // invoke _initialize
             if (method_exists($controller, '_initialize')) {
-                Reflect::invokeMethod([$controller, '_initialize'], $args, $type);
+                Reflect::invokeMethod([$controller, '_initialize'], $args);
             }
             // invoke action
             if (method_exists($controller, $action_name)) {
-                Reflect::invokeMethod([$controller, $action_name], $args, $type);
+                Reflect::invokeMethod([$controller, $action_name], $args);
             } elseif (method_exists($controller, '__call')) {
-                Reflect::invokeMethod([$controller, '__call'], [$action_name, $args], 1);
+                Reflect::invokeMethod([$controller, '__call'], [$action_name, $args]);
             } else {
                 throw new Exception("Action {$controller_name}::{$action_name}() is not exists", 1);
             }
