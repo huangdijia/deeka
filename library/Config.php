@@ -1,6 +1,8 @@
 <?php
 namespace deeka;
 
+use Exception;
+
 class Config
 {
     const DELIMITER          = '.';
@@ -56,10 +58,10 @@ class Config
         }
         // 错误类型
         if (!is_string($name)) {
-            throw new \Exception("Error type of \$name of " . __METHOD__ . "()", 1);
+            throw new Exception("Error type of \$name of " . __METHOD__ . "()", 1);
         }
         if (empty($name)) {
-            throw new \Exception("\$name cannot be empty", 1);
+            throw new Exception("\$name cannot be empty", 1);
         }
         // 单个设置
         $name = strtolower($name);
@@ -84,7 +86,7 @@ class Config
     {
         // 错误类型
         if (empty($name)) {
-            throw new \Exception("\$name cannot be empty", 1);
+            return false;
         }
         $name  = strtolower($name);
         $names = explode(self::DELIMITER, $name);

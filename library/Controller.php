@@ -1,6 +1,8 @@
 <?php
 namespace deeka;
 
+use Exception;
+
 class Controller
 {
     public function __call($name, $args)

@@ -1,6 +1,8 @@
 <?php
 namespace deeka;
 
+use Exception;
+
 class Session
 {
     protected static $config = [
@@ -98,7 +100,7 @@ class Session
                 $class = '\\deeka\\session\\driver\\' . ucfirst(strtolower($class));
             }
             if (!class_exists($class)) {
-                throw new Exception("Bad Session driver {$class}", 1);
+                throw new Exception("Bad session driver {$class}", 1);
             }
             $handler = new $class();
             session_set_save_handler(
@@ -290,7 +292,7 @@ class Session
         $offset      = 0;
         while ($offset < strlen($session_data)) {
             if (!strstr(substr($session_data, $offset), "|")) {
-                throw new Exception("invalid data, remaining: " . substr($session_data, $offset));
+                throw new Exception("Invalid data, remaining: " . substr($session_data, $offset));
             }
             $pos     = strpos($session_data, "|", $offset);
             $num     = $pos - $offset;

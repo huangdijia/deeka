@@ -1,6 +1,8 @@
 <?php
 namespace deeka;
 
+use Exception;
+
 class Db
 {
     /**
@@ -60,12 +62,12 @@ class Db
             $config = current(self::$configs);
         } elseif (is_scalar($config)) { // 加载指定配置
             if (!isset(self::$configs[$config])) { // 未找到配置
-                throw new \Exception("Db config [{$config}] is not found", 1);
+                throw new Exception("Db config [{$config}] is not found", 1);
             }
             $config = self::$configs[$config];
         }
         if (!is_array($config)) { // 配置类型不正确
-            throw new \Exception("Db config datatype error", 1);
+            throw new Exception("Db config datatype error", 1);
         }
         $link_id = md5(serialize($config));
         $driver  = $config['type'] ?? 'mysql';
@@ -73,7 +75,7 @@ class Db
             $driver = '\\deeka\\db\\driver\\' . ucfirst(strtolower($driver));
         }
         if (!class_exists($driver)) { // 找不到驱动
-            throw new \Exception("Db driver '{$driver}' is undefined", 1);
+            throw new Exception("Db driver '{$driver}' is undefined", 1);
         }
         if (!isset(self::$instances[$link_id])) { // 单例机制
             self::$instances[$link_id] = new $driver($config);
