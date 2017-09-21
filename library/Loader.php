@@ -97,7 +97,7 @@ class Loader
         if (class_exists($class)) {
             is_string($args) && parse_str($args, $args);
             is_object($args) && $args = get_object_vars($args);
-            $controller[$class] = Reflect::invokeClass($class, $vars, key($args) == '0' ? 1 : 0);
+            $controller[$class] = Reflect::invokeClass($class, $vars);
             return $controller[$class];
         }
         return false;
@@ -109,7 +109,7 @@ class Loader
         if ($controller) {
             is_string($args) && parse_str($args, $args);
             is_object($args) && $args = get_object_vars($args);
-            return Reflect::invokeMethod([$controller, $action_name], $args, key($args) == '0' ? 1 : 0);
+            return Reflect::invokeMethod([$controller, $action_name], $args);
         }
         return false;
     }
