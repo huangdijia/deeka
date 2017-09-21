@@ -17,16 +17,15 @@ class Reflect
      */
     public static function invokeClass($class_name, $vars = [])
     {
-        $args = [];
-        // invoke __construct but not execute
-        if (method_exists($class_name, '__construct')) {
-            [, $args] = self::bindMethodParams([$class_name, '__construct'], $vars);
+        $reflect     = new ReflectionClass($class_name);
+        $constructor = $reflect->getConstructor();
+        if ($constructor) {
+            if (!$constructor->isPublic()) {
+                throw new Exception("Constructor of {$reflect->name} is not public in {$reflect->getFileName()} on line {$reflect->getStartLine()}", 1);
+            }
+            $args = self::bindParams($constructor, $vars);
         }
-        // creating an instance
-        $reflect  = new ReflectionClass($class_name);
-        $instance = $reflect->newInstanceArgs($args);
-        // return instance
-        return $instance;
+        return $reflect->newInstanceArgs($args ?? []);
     }
 
     /**
@@ -38,10 +37,18 @@ class Reflect
      */
     public static function invokeMethod($method, $vars = [])
     {
-        [$reflect, $args] = self::bindMethodParams($method, $vars);
-        APP_DEBUG && Log::record("[RUN] {$reflect->class}->{$reflect->name}() in {$reflect->getFileName()} on line {$reflect->getStartLine()}", Log::INFO);
-        $object = (isset($method[0]) && is_object($method[0])) ? $method[0] : null;
-        return $reflect->invokeArgs($object, $args);
+        if (is_array($method)) {
+            $class   = is_object($method[0]) ? $method[0] : self::invokeClass($method[0]);
+            $reflect = new ReflectionMethod($class, $method[1]);
+            if (!$reflect->isPublic()) {
+                throw new Exception("Method {$reflect->class}::{$reflect->name}() is not public in {$reflect->getFileName()} on line {$reflect->getStartLine()}", 1);
+            }
+        } else {
+            $reflect = new ReflectionMethod($method);
+        }
+        $args = self::bindParams($reflect, $vars);
+        APP_DEBUG && Log::record("[RUN] {$reflect->class}::{$reflect->name}() in {$reflect->getFileName()} on line {$reflect->getStartLine()}", Log::INFO);
+        return $reflect->invokeArgs($class ?? null, $args);
     }
 
     /**
@@ -60,27 +67,6 @@ class Reflect
     }
 
     /**
-     * 方法参数注入
-     * @param $method 方法
-     * @param array $vars 参数
-     * @param $type 参数绑定类型 0 = 变量名, 1 = 顺序
-     * @return array
-     */
-    public static function bindMethodParams($method, $vars = [])
-    {
-        if (is_array($method)) {
-            $reflect = new ReflectionMethod($method[0], $method[1]);
-            if (!$reflect->isPublic()) {
-                throw new Exception("Method {$reflect->class}::{$method[1]}() must be public method", 1);
-            }
-        } else {
-            $reflect = new ReflectionMethod($method);
-        }
-        $args = self::bindParams($reflect, $vars);
-        return [$reflect, $args];
-    }
-
-    /**
      * 绑定参数
      * @param $reflect 反射类
      * @param array $vars 参数
@@ -91,9 +77,9 @@ class Reflect
     {
         $args = [];
         $argc = $reflect->getNumberOfParameters();
-        $type = self::isAssoc($vars) ? 0 : 1; // 自动识别绑定方式
         if ($argc) {
-            // 判断数组类型 数字数组时按顺序绑定参数
+            reset($vars);
+            $type   = self::isAssoc($vars) ? 0 : 1;
             $params = $reflect->getParameters();
             foreach ($params as $param) {
                 $args[] = self::getParamValue($param, $vars, $type);
@@ -109,7 +95,7 @@ class Reflect
      * @param $type 参数绑定类型 0 = 变量名, 1 = 顺序
      * @return mixed
      */
-    public static function getParamValue($param, & $vars, $type = 0)
+    public static function getParamValue($param, &$vars, $type)
     {
         $name  = $param->getName();
         $class = $param->getClass();
