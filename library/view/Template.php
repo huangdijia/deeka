@@ -244,8 +244,8 @@ class Template
     // 原生php代碼保持原樣
     protected function compatLiteralPhp($content)
     {
-        // 替换each($this->var)为eache($var)
-        $content = preg_replace_callback('/each\(\s*\$this\->([\w\[\]\'\_\-\$]+)\s*\)/is', 'each(\$\\1)', $content);
+        // 替换each($this->var)为each($var)
+        $content = preg_replace('/each\(\s*\$this\->([\w\[\]\'\_\-\$]+)\s*\)/is', 'each(\$\\1)', $content);
         // 返回literal包含的格式
         return '{literal}<?' . self::stripslashes($content) . '?>{/literal}';
     }
