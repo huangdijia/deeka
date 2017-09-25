@@ -1,11 +1,19 @@
 <?php
 namespace deeka\db;
 
-use deeka\Reflect;
+use Exception;
 
 class Query
 {
-    private $options = [];
+    private $options      = [];
+    private $expMaps      = ['EQ' => '=', 'NEQ' => '<>', 'GT' => '>', 'EGT' => '>=', 'LT' => '<', 'ELT' => '<='];
+    private $operatorMaps = [
+        'ISNULL'     => 'IS NULL',
+        'NULL'       => 'IS NULL',
+        'NOTNULL'    => 'IS NOT NULL',
+        'ISNOTNULL'  => 'IS NOT NULL',
+        'NOTBETWEEN' => 'NOT BETWEEN',
+    ];
 
     public static function instance()
     {
@@ -17,10 +25,14 @@ class Query
         //
     }
 
+    public function distinct(bool $distinct)
+    {
+        $this->options['distinct'] = $distinct;
+        return $this;
+    }
+
     public function field($field = '')
     {
-        is_object($field) && $field = get_object_vars($field);
-        is_array($field) && $field = join(',', $field);
         $this->options['field'] = $field;
         return $this;
     }
@@ -43,30 +55,19 @@ class Query
         return $this->field($field);
     }
 
-    public function db(string $dbname = '')
-    {
-        $this->options['dbname'] = $dbname;
-        return $this;
-    }
-
     public function table(string $table = '')
     {
         $this->options['table'] = $table;
         return $this;
     }
 
-    public function index(string $index = '', string $type = '')
+    public function force($force)
     {
-        $this->options['index'] = [$type, $index];
+        $this->options['force'] = $force;
         return $this;
     }
 
-    public function forceIndex(string $index = '')
-    {
-        $this->options['index'] = ['FORCE', $index];
-    }
-
-    public function using(string $using = '')
+    public function using($using)
     {
         $this->options['using'] = $using;
         return $this;
@@ -81,7 +82,7 @@ class Query
         if (!in_array($type, ['LEFT', 'RIGHT', 'INNER', 'OUTER', 'CROSS'])) {
             $type = 'LEFT';
         }
-        $this->options['join'][] = [$type, $talbe, $condition];
+        $this->options['join'][] = [$type, $table, $condition];
         return $this;
     }
 
@@ -90,14 +91,14 @@ class Query
         return $this->join($table, $condition, 'LEFT');
     }
 
-    public function rightJoin(string $talbe = '', string $condition = '')
+    public function rightJoin(string $table = '', string $condition = '')
     {
         return $this->join($table, $condition, 'RIGHT');
     }
 
     public function innerJoin(string $table = '', string $condition = '')
     {
-        return $this->join($talbe, $condition, 'INNER');
+        return $this->join($table, $condition, 'INNER');
     }
 
     public function outerJoin(string $table = '', string $condition = '')
@@ -117,34 +118,31 @@ class Query
         }
         if ($field instanceof \Closure) {
             $instance = new Query;
-            call_user_func_array($field, [&$instance]);
-            $this->options['where'][] = [$logic, $instance->toArray('where')];
+            call_user_func_array($field, [ & $instance]);
+            $this->options['where'][] = [$logic, $instance->getOption('where')];
             return $this;
         } elseif ($field instanceof Query) {
-            $this->options['where'][] = [$logic, $field->toArray('where')];
+            $this->options['where'][] = [$logic, $field->getOption('where')];
             return $this;
+        }
+        if (empty($field)) {
+            throw new Exception("Field can not be empty.", 1);
         }
         if (is_null($operator)) {
             $operator = 'exp';
         }
-        if (is_null($value)) {
-            [$operator, $value] = ['=', $operator];
+        if (in_array(strtoupper($operator), array_keys($this->expMaps))) {
+            $operator = $this->expMaps[strtoupper($operator)];
         }
-        $logic    = strtoupper($logic);
-        $operator = strtoupper($operator);
-        if (!in_array($logic, ['AND', 'OR', 'XOR'])) {
+        if (!in_array(strtoupper($operator), array_keys($this->operatorMaps)) ) {
+            is_null($value) && [$value, $operator] = [$operator, '='];
+        } else {
+            $operator = $this->operatorMaps[strtoupper($operator)];
+        }
+        if (!in_array(strtoupper($logic), ['AND', 'OR', 'XOR'])) {
             $logic = 'AND';
         }
-        switch ($operator) {
-            case 'IN':
-            case 'NOT IN':
-            case 'BETWEEN':
-            case 'NOT BETWEEN':
-                is_object($value) && $value = get_object_vars($value);
-                is_scalar($value) && $value = explode(',', $value);
-                break;
-        }
-        $this->options['where'][] = [$logic, $field, $operator, $value];
+        $this->options['where'][] = [strtoupper($logic), $field, strtoupper($operator), $value];
         return $this;
     }
 
@@ -248,11 +246,28 @@ class Query
         return $this;
     }
 
-    public function toArray(string $name = '')
+    public function lock($lock = false)
+    {
+        $this->options['lock'] = $lock;
+        return $this;
+    }
+
+    public function comment($comment = '')
+    {
+        $this->options['comment'] = $comment;
+        return $this;
+    }
+
+    public function getOption(string $name = '')
     {
         if ('' == $name) {
             return $this->options;
         }
         return $this->options[$name] ?? null;
+    }
+
+    public function getOptions()
+    {
+        return $this->options;
     }
 }
