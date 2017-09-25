@@ -1,8 +1,11 @@
 <?php
 namespace deeka\db\driver;
 
+use Closure;
 use deeka\Cache;
 use deeka\Db;
+use deeka\db\builder\Mysql as Builder;
+use deeka\db\Query;
 use deeka\Debug;
 use deeka\Log;
 use Exception;
@@ -222,8 +225,8 @@ class Mysql
      */
     public function selectOne()
     {
-        $args = func_get_args();
-        $sql  = array_shift($args);
+        $args                 = func_get_args();
+        $sql                  = array_shift($args);
         $this->options['one'] = 1;
         if (!empty($args)) {
             $this->options['bind'] = $args;
@@ -239,8 +242,8 @@ class Mysql
      */
     public function selectAll()
     {
-        $args = func_get_args();
-        $sql  = array_shift($args);
+        $args                 = func_get_args();
+        $sql                  = array_shift($args);
         $this->options['one'] = 0;
         if (!empty($args)) {
             $this->options['bind'] = $args;
@@ -256,8 +259,8 @@ class Mysql
      */
     public function select()
     {
-        $args = func_get_args();
-        $sql  = array_shift($args);
+        $args                 = func_get_args();
+        $sql                  = array_shift($args);
         $this->options['one'] = 0;
         if (!empty($args)) {
             $this->options['bind'] = $args;
@@ -285,16 +288,35 @@ class Mysql
         // args
         $args = func_get_args();
         $sql  = array_shift($args);
-        if (!empty($args)) {
+        if (!empty($args) && empty($this->options['bind'])) {
             $this->options['bind'] = $args;
+        } elseif (empty($args) && !empty($this->options['bind'])) {
+            $args = $this->options['bind'];
+        } else {
+            $args = [];
         }
-        // parse params
-        $params     = self::_parseParams($sql, $this->options['bind'] ?? null);
-        $this->_sql = self::_parseSql($sql, $params);
-        // record bind
-        if (!empty($this->options['bind'])) {
-            Log::record("[DB BIND] " . preg_replace('/\s+/', ' ', var_export($params, true)), Log::INFO);
+        if ($sql instanceof Closure) {
+            $query = new Query;
+            $bind  = $args;
+            array_unshift($bind, $query);
+            call_user_func_array($sql, $bind);
+            $this->options['one'] && $query->limit(0, 1);
+            $this->_sql = (new Builder)->select($query->getOptions());
+        } elseif ($sql instanceof Query) {
+            $this->options['one'] && $sql->limit(0, 1);
+            $this->_sql = (new Builder)->select($sql->getOptions());
+        } elseif (is_string($sql)) {
+            // parse params
+            $params     = self::_parseParams($sql, $this->options['bind'] ?? null);
+            $this->_sql = self::_parseSql($sql, $params);
+            // record bind
+            if (!empty($this->options['bind'])) {
+                Log::record("[DB BIND] " . preg_replace('/\s+/', ' ', var_export($params, true)), Log::INFO);
+            }
+        } else {
+            throw new Exception("Error \$sql", 1);
         }
+        echo $this->_sql;exit;
         // get cache
         if (
             !empty($this->options['cache'])
@@ -334,6 +356,57 @@ class Mysql
         $this->options = [];
         // return
         return $result;
+    }
+
+    public function insert(array $data = [], $query)
+    {
+        if (empty($data)) {
+            throw new Exception("Empty data", 1);
+        }
+        if ($query instanceof Closure) {
+            $q = new Query;
+            call_user_func_array($query, [$q]);
+            $sql = (new Builder)->insert($data, $q->getOptions());
+        } elseif ($query instanceof Query) {
+            $sql = (new Builder)->insert($data, $query->getOptions());
+        } else {
+            throw new Exception("Error \$query", 1);
+        }
+        echo $sql . "\n";exit;
+        return $this->execute($sql);
+    }
+
+    public function update(array $data = [], $query)
+    {
+        if (empty($data)) {
+            throw new Exception("Empty data", 1);
+        }
+        if ($query instanceof Closure) {
+            $q = new Query;
+            call_user_func_array($query, [$q]);
+            $sql = (new Builder)->update($data, $q->getOptions());
+        } elseif ($query instanceof Query) {
+            $sql = (new Builder)->update($data, $query->getOptions());
+        } else {
+            throw new Exception("Error \$query", 1);
+        }
+        echo $sql . "\n";exit;
+        return $this->execute($sql);
+    }
+
+    public function delete($query)
+    {
+        if ($query instanceof Closure) {
+            $q = new Query;
+            call_user_func_array($query, [$q]);
+            $sql = (new Builder)->delete($q->getOptions());
+        } elseif ($query instanceof Query) {
+            $sql = (new Builder)->delete($query->getOptions());
+        } else {
+            throw new Exception("Error \$query", 1);
+        }
+        echo $sql . "\n";exit;
+        return $this->execute($sql);
     }
 
     /**

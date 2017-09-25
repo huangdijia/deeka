@@ -240,7 +240,7 @@ class Query
     public function limit(int $offset = 0, int $length = null)
     {
         if (is_null($length)) {
-            [$offset, $length] = [0, $length];
+            [$offset, $length] = [0, $offset];
         }
         $this->options['limit'] = [$offset, $length];
         return $this;
