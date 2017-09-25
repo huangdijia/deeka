@@ -25,6 +25,38 @@ class Query
         //
     }
 
+    public function __call($method, $args)
+    {
+        // andWhere|orWhere|xorWhere
+        if (preg_match('/^(?P<logic>and|or|xor)where$/i', $method, $matches)) {
+            $logic    = $matches['logic'];
+            if (isset($args[2])) {
+                [$field, $operator, $value] = $args;
+            } else {
+                [$field, $operator, $value] = [$args[0] ?? '', '=', $args[1] ?? ''];
+            }
+            return $this->where($field, $operator, $value, $logic);
+        } elseif (preg_match('/^where(?P<operator>[a-z]+)$/i', $method, $matches)) {
+            $operator = $matches['operator'];
+            if (isset($args[2])) {
+                [$field, $value, $logic] = $args;
+            } else {
+                [$field, $value, $logic] = [$args[0] ?? '', $args[1] ?? '', 'AND'];
+            }
+            return $this->where($field, $operator, $value, $logic);
+        } elseif (preg_match('/^(?P<logic>and|or|xor)where(?P<operator>[a-z]+)$/i', $method, $matches)) {
+            $logic    = $matches['logic'];
+            $operator = $matches['operator'];
+            $field    = $args[0] ?? '';
+            $value    = $args[1] ?? '';
+            return $this->where($field, $operator, $value, $logic);
+        } elseif (preg_match('/^(?P<type>left|right|inner|cross)join$/i', $method, $matches)) {
+            [$table, $condition, $type] = [$args[0] ?? '', $args[1] ?? '', $matches['type']];
+            return $this->join($table, $condition, $type);
+        }
+        throw new Exception(__CLASS__ . "::{$method}() is not exists", 1);
+    }
+
     public function distinct(bool $distinct)
     {
         $this->options['distinct'] = $distinct;
@@ -86,31 +118,6 @@ class Query
         return $this;
     }
 
-    public function leftJoin(string $table = '', string $condition = '')
-    {
-        return $this->join($table, $condition, 'LEFT');
-    }
-
-    public function rightJoin(string $table = '', string $condition = '')
-    {
-        return $this->join($table, $condition, 'RIGHT');
-    }
-
-    public function innerJoin(string $table = '', string $condition = '')
-    {
-        return $this->join($table, $condition, 'INNER');
-    }
-
-    public function outerJoin(string $table = '', string $condition = '')
-    {
-        return $this->join($table, $condition, 'OUTER');
-    }
-
-    public function crossJoin(string $table = '', string $condition = '')
-    {
-        return $this->join($table, $condition, 'CROSS');
-    }
-
     public function where($field = '', $operator = null, $value = null, string $logic = 'AND')
     {
         if (!isset($this->options['where'])) {
@@ -146,76 +153,6 @@ class Query
         }
         $this->options['where'][] = [strtoupper($logic), $field, strtoupper($operator), $value];
         return $this;
-    }
-
-    public function orWhere($field = '', $operator = null, $value = null)
-    {
-        return $this->where($field, $operator, $value, 'OR');
-    }
-
-    public function xorWhere($field = '', $operator = null, $value = null)
-    {
-        return $this->where($field, $operator, $value, 'XOR');
-    }
-
-    public function andWhere($field = '', $operator = null, $value = null)
-    {
-        return $this->where($field, $operator, $value, 'AND');
-    }
-
-    public function whereIn(string $field = '', $value = '', string $logic = 'AND')
-    {
-        return $this->where($field, 'IN', $value, $logic);
-    }
-
-    public function whereNotIn(string $field = '', $value = '', string $logic = 'AND')
-    {
-        return $this->where($field, 'NOT IN', $value, $logic);
-    }
-
-    public function whereLike(string $field = '', $value = '', string $logic = 'AND')
-    {
-        return $this->where($field, 'LIKE', $value, $logic);
-    }
-
-    public function whereNotLike(string $field = '', $value = '', string $logic = 'AND')
-    {
-        return $this->where($field, 'NOT LIKE', $value, $logic);
-    }
-
-    public function whereExists(string $field = '', $value = '', string $logic = 'AND')
-    {
-        return $this->where($field, 'EXISTS', $value, $logic);
-    }
-
-    public function whereNotExists(string $field = '', $value = '', string $logic = 'AND')
-    {
-        return $this->where($field, 'NOT EXISTS', $value, $logic);
-    }
-
-    public function whereBetween(string $field = '', $value = '', string $logic = 'AND')
-    {
-        return $this->where($field, 'BETWEEN', $value, $logic);
-    }
-
-    public function whereNotBetween(string $field = '', $value = '', string $logic = 'AND')
-    {
-        return $this->where($field, 'NOT BETWEEN', $value, $logic);
-    }
-
-    public function whereNull(string $field = '', string $logic = 'AND')
-    {
-        return $this->where($field, 'IS NULL', null, $logic);
-    }
-
-    public function whereNotNull(string $field = '', string $logic = 'AND')
-    {
-        return $this->where($field, 'IS NOT NULL', null, $logic);
-    }
-
-    public function whereExp(string $file = '', string $logic = 'AND')
-    {
-        return $this->where($field, 'exp', null, $logic);
     }
 
     public function groupBy(string $group = '')
