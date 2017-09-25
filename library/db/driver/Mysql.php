@@ -300,10 +300,10 @@ class Mysql
             $bind  = $args;
             array_unshift($bind, $query);
             call_user_func_array($sql, $bind);
-            $this->options['one'] && $query->limit(0, 1);
+            $this->options['one'] && $query->limit(1);
             $this->_sql = (new Builder)->select($query->getOptions());
         } elseif ($sql instanceof Query) {
-            $this->options['one'] && $sql->limit(0, 1);
+            $this->options['one'] && $sql->limit(1);
             $this->_sql = (new Builder)->select($sql->getOptions());
         } elseif (is_string($sql)) {
             // parse params
@@ -316,7 +316,6 @@ class Mysql
         } else {
             throw new Exception("Error \$sql", 1);
         }
-        echo $this->_sql;exit;
         // get cache
         if (
             !empty($this->options['cache'])
@@ -372,7 +371,6 @@ class Mysql
         } else {
             throw new Exception("Error \$query", 1);
         }
-        echo $sql . "\n";exit;
         return $this->execute($sql);
     }
 
@@ -390,7 +388,6 @@ class Mysql
         } else {
             throw new Exception("Error \$query", 1);
         }
-        echo $sql . "\n";exit;
         return $this->execute($sql);
     }
 
@@ -405,7 +402,6 @@ class Mysql
         } else {
             throw new Exception("Error \$query", 1);
         }
-        echo $sql . "\n";exit;
         return $this->execute($sql);
     }
 
