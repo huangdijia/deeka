@@ -192,6 +192,9 @@ class Mysql implements builderInterface
         }
         foreach ($options as $options) {
             [$logic, $field, $operator, $value] = [$options[0] ?? '', $options[1] ?? '', $options[2] ?? '', $options[3] ?? ''];
+            if (empty($field)) {
+                continue;
+            }
             if (is_array($field)) {
                 $where .= (empty($where) ? '' : " {$logic} ") . "({$this->buildWhere($field, true)})";
             } else {
