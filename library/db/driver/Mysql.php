@@ -58,6 +58,7 @@ class Mysql
      * @var int
      */
     private $_insertid = 0;
+    private $_query = null;
 
     /**
      * 构造
@@ -90,6 +91,15 @@ class Mysql
             $config
         );
         $this->config = $config;
+    }
+
+    public function __call($method, $args)
+    {
+        if (is_null($this->_query)) {
+            $this->_query = Query::instance();
+        }
+        call_user_func_array([$this->_query, $method], $args);
+        return $this;
     }
 
     /**
@@ -225,8 +235,9 @@ class Mysql
      */
     public function selectOne()
     {
-        $args                 = func_get_args();
-        $sql                  = array_shift($args);
+        $args = func_get_args();
+        $sql  = array_shift($args);
+        // one
         $this->options['one'] = 1;
         if (!empty($args)) {
             $this->options['bind'] = $args;
@@ -242,8 +253,9 @@ class Mysql
      */
     public function selectAll()
     {
-        $args                 = func_get_args();
-        $sql                  = array_shift($args);
+        $args = func_get_args();
+        $sql  = array_shift($args);
+        // one
         $this->options['one'] = 0;
         if (!empty($args)) {
             $this->options['bind'] = $args;
@@ -259,8 +271,9 @@ class Mysql
      */
     public function select()
     {
-        $args                 = func_get_args();
-        $sql                  = array_shift($args);
+        $args = func_get_args();
+        $sql  = array_shift($args);
+        // one
         $this->options['one'] = 0;
         if (!empty($args)) {
             $this->options['bind'] = $args;
@@ -288,6 +301,11 @@ class Mysql
         // args
         $args = func_get_args();
         $sql  = array_shift($args);
+        // 劫持链式操作
+        if (empty($sql) && $this->_query instanceof Query) {
+            [$sql, $this->_query] = [$this->_query, null];
+        }
+        // 处理参数绑定
         if (!empty($args) && empty($this->options['bind'])) {
             $this->options['bind'] = $args;
         } elseif (empty($args) && !empty($this->options['bind'])) {
@@ -295,21 +313,22 @@ class Mysql
         } else {
             $args = [];
         }
+        // 解析Query
         if ($sql instanceof Closure) {
             $query = new Query;
             $bind  = $args;
             array_unshift($bind, $query);
             call_user_func_array($sql, $bind);
             $this->options['one'] && $query->limit(1);
-            $this->_sql = (new Builder)->select($query->getOptions());
+            $this->_sql = Builder::instance()->select($query->getOptions());
         } elseif ($sql instanceof Query) {
             $this->options['one'] && $sql->limit(1);
-            $this->_sql = (new Builder)->select($sql->getOptions());
+            $this->_sql = Builder::instance()->select($sql->getOptions());
         } elseif (is_string($sql)) {
-            // parse params
+            // 参数绑定
             $params     = self::_parseParams($sql, $this->options['bind'] ?? null);
             $this->_sql = self::_parseSql($sql, $params);
-            // record bind
+            // 记录参数
             if (!empty($this->options['bind'])) {
                 Log::record("[DB BIND] " . preg_replace('/\s+/', ' ', var_export($params, true)), Log::INFO);
             }
@@ -357,48 +376,57 @@ class Mysql
         return $result;
     }
 
-    public function insert(array $data = [], $query)
+    public function insert(array $data = [], $query = null)
     {
+        if (is_null($query) && $this->_query instanceof Query) {
+            [$query, $this->_query] = [$this->_query, null];
+        }
         if (empty($data)) {
             throw new Exception("Empty data", 1);
         }
         if ($query instanceof Closure) {
             $q = new Query;
             call_user_func_array($query, [$q]);
-            $sql = (new Builder)->insert($data, $q->getOptions());
+            $sql = Builder::instance()->insert($data, $q->getOptions());
         } elseif ($query instanceof Query) {
-            $sql = (new Builder)->insert($data, $query->getOptions());
+            $sql = Builder::instance()->insert($data, $query->getOptions());
         } else {
             throw new Exception("Error \$query", 1);
         }
         return $this->execute($sql);
     }
 
-    public function update(array $data = [], $query)
+    public function update(array $data = [], $query = null)
     {
+        if (is_null($query) && $this->_query instanceof Query) {
+            [$query, $this->_query] = [$this->_query, null];
+        }
         if (empty($data)) {
             throw new Exception("Empty data", 1);
         }
         if ($query instanceof Closure) {
             $q = new Query;
             call_user_func_array($query, [$q]);
-            $sql = (new Builder)->update($data, $q->getOptions());
+            $sql = Builder::instance()->update($data, $q->getOptions());
         } elseif ($query instanceof Query) {
-            $sql = (new Builder)->update($data, $query->getOptions());
+            $sql = Builder::instance()->update($data, $query->getOptions());
         } else {
             throw new Exception("Error \$query", 1);
         }
         return $this->execute($sql);
     }
 
-    public function delete($query)
+    public function delete($query = null)
     {
+        if (is_null($query) && $this->_query instanceof Query) {
+            [$query, $this->_query] = [$this->_query, null];
+        }
         if ($query instanceof Closure) {
             $q = new Query;
             call_user_func_array($query, [$q]);
-            $sql = (new Builder)->delete($q->getOptions());
+            $sql = Builder::instance()->delete($q->getOptions());
         } elseif ($query instanceof Query) {
-            $sql = (new Builder)->delete($query->getOptions());
+            $sql = Builder::instance()->delete($query->getOptions());
         } else {
             throw new Exception("Error \$query", 1);
         }

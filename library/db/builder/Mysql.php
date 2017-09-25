@@ -12,6 +12,11 @@ class Mysql implements builderInterface
     protected $updateSql    = 'UPDATE %TABLE% SET %SET%%JOIN%%WHERE%%ORDER%%LIMIT%%LOCK%%COMMENT%';
     protected $deleteSql    = 'DELETE FROM %TABLE%%USING%%JOIN%%WHERE%%ORDER%%LIMIT%%LOCK%%COMMENT%';
 
+    public static function instance()
+    {
+        return new self;
+    }
+
     public function __construct()
     {
     }
