@@ -3,7 +3,7 @@ namespace deeka\db;
 
 interface BuilderInterface
 {
-    public function instance();
+    public static function instance();
     public function __construct();
     public function select(array $options);
     public function insert(array $data, array $options, $replace);

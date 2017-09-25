@@ -326,10 +326,8 @@ class Mysql
             $bind  = $args;
             array_unshift($bind, $query);
             call_user_func_array($sql, $bind);
-            $this->options['one'] && $query->limit(1);
             $this->_sql = Builder::instance()->select($query->getOptions());
         } elseif ($sql instanceof Query) {
-            $this->options['one'] && $sql->limit(1);
             $this->_sql = Builder::instance()->select($sql->getOptions());
         } elseif (is_string($sql)) {
             // 参数绑定
