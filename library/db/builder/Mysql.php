@@ -66,7 +66,6 @@ class Mysql implements builderInterface
             return 0;
         }
         $fields = array_keys($data[0]);
-        var_dump($fields);
         $values = [];
         foreach ($data as $rows) {
             $_row = [];
@@ -116,7 +115,7 @@ class Mysql implements builderInterface
         }
         $set = [];
         foreach ($data as $key => $val) {
-            $set[] = $key . '=' . $val;
+            $set[] = $key . ' = ' . $val;
         }
         $sql = str_replace(
             ['%TABLE%', '%SET%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
@@ -321,6 +320,11 @@ class Mysql implements builderInterface
     public function parseData($data)
     {
         return $data;
+    }
+
+    protected function parseKey($key)
+    {
+        return $key;
     }
 
     public function parseValue($value = null)
