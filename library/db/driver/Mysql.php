@@ -98,6 +98,9 @@ class Mysql
         if (is_null($this->_query)) {
             $this->_query = Query::instance();
         }
+        if (!method_exists($this->_query, $method)) {
+            throw new Exception("Method " . get_class($this->_query) . "::{$method}() is not exists", 1);
+        }
         call_user_func_array([$this->_query, $method], $args);
         return $this;
     }
@@ -302,7 +305,11 @@ class Mysql
         $args = func_get_args();
         $sql  = array_shift($args);
         // 劫持链式操作
-        if (empty($sql) && $this->_query instanceof Query) {
+        if ((empty($sql) || is_bool($sql)) && $this->_query instanceof Query) {
+            // 获取SQL
+            if (false === $sql) {
+                return Builder::instance()->select($this->_query->getOptions());
+            }
             [$sql, $this->_query] = [$this->_query, null];
         }
         // 处理参数绑定
@@ -378,7 +385,11 @@ class Mysql
 
     public function insert(array $data = [], $query = null)
     {
-        if (is_null($query) && $this->_query instanceof Query) {
+        if ((is_null($query) || is_bool($query)) && $this->_query instanceof Query) {
+            // 获取SQL
+            if (false === $query) {
+                return Builder::instance()->insert($data, $this->_query->getOptions());
+            }
             [$query, $this->_query] = [$this->_query, null];
         }
         if (empty($data)) {
@@ -398,7 +409,11 @@ class Mysql
 
     public function update(array $data = [], $query = null)
     {
-        if (is_null($query) && $this->_query instanceof Query) {
+        if ((is_null($query) || is_bool($query)) && $this->_query instanceof Query) {
+            // 获取SQL
+            if (false === $query) {
+                return Builder::instance()->update($data, $this->_query->getOptions());
+            }
             [$query, $this->_query] = [$this->_query, null];
         }
         if (empty($data)) {
@@ -418,7 +433,11 @@ class Mysql
 
     public function delete($query = null)
     {
-        if (is_null($query) && $this->_query instanceof Query) {
+        if ((is_null($query) || is_bool($query)) && $this->_query instanceof Query) {
+            // 获取SQL
+            if (false === $query) {
+                return Builder::instance()->delete($this->_query->getOptions());
+            }
             [$query, $this->_query] = [$this->_query, null];
         }
         if ($query instanceof Closure) {

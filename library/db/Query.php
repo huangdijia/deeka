@@ -128,16 +128,18 @@ class Query
         if (empty($field)) {
             throw new Exception("Field can not be empty.", 1);
         }
+        // 表达式
         if (is_null($operator)) {
-            $operator = 'exp';
+            [$operator, $value] = ['EXP', null];
         }
         if (in_array(strtoupper($operator), array_keys($this->expMaps))) {
             $operator = $this->expMaps[strtoupper($operator)];
-        }
-        if (!in_array(strtoupper($operator), array_keys($this->operatorMaps)) ) {
-            is_null($value) && [$value, $operator] = [$operator, '='];
-        } else {
+        } elseif (in_array(strtoupper($operator), array_keys($this->operatorMaps))) {
             $operator = $this->operatorMaps[strtoupper($operator)];
+        } elseif (strtoupper($operator) == 'EXP') {
+            //
+        } else {
+            is_null($value) && [$value, $operator] = [$operator, '='];
         }
         if (!in_array(strtoupper($logic), ['AND', 'OR', 'XOR'])) {
             $logic = 'AND';
