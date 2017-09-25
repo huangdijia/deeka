@@ -305,7 +305,10 @@ class Mysql
         $args = func_get_args();
         $sql  = array_shift($args);
         // 劫持链式操作
-        if ((empty($sql) || is_bool($sql)) && $this->_query instanceof Query) {
+        if (
+            (empty($sql) || is_bool($sql)) 
+            && $this->_query instanceof Query
+        ) {
             // 获取SQL
             if (false === $sql) {
                 return Builder::instance()->select($this->_query->getOptions());
@@ -329,7 +332,7 @@ class Mysql
             $this->_sql = Builder::instance()->select($query->getOptions());
         } elseif ($sql instanceof Query) {
             $this->_sql = Builder::instance()->select($sql->getOptions());
-        } elseif (is_string($sql)) {
+        } elseif (is_string($sql) && !empty($sql)) {
             // 参数绑定
             $params     = self::_parseParams($sql, $this->options['bind'] ?? null);
             $this->_sql = self::_parseSql($sql, $params);
@@ -338,7 +341,7 @@ class Mysql
                 Log::record("[DB BIND] " . preg_replace('/\s+/', ' ', var_export($params, true)), Log::INFO);
             }
         } else {
-            throw new Exception("Error \$sql", 1);
+            throw new Exception("Parse SQL faild", 1);
         }
         // get cache
         if (
@@ -383,7 +386,10 @@ class Mysql
 
     public function insert(array $data = [], $query = null)
     {
-        if ((is_null($query) || is_bool($query)) && $this->_query instanceof Query) {
+        if (
+            (is_null($query) || is_bool($query)) 
+            && $this->_query instanceof Query
+        ) {
             // 获取SQL
             if (false === $query) {
                 return Builder::instance()->insert($data, $this->_query->getOptions());
@@ -391,7 +397,7 @@ class Mysql
             [$query, $this->_query] = [$this->_query, null];
         }
         if (empty($data)) {
-            throw new Exception("Empty data", 1);
+            throw new Exception("Insert data is empty", 1);
         }
         if ($query instanceof Closure) {
             $q = new Query;
@@ -400,14 +406,17 @@ class Mysql
         } elseif ($query instanceof Query) {
             $sql = Builder::instance()->insert($data, $query->getOptions());
         } else {
-            throw new Exception("Error \$query", 1);
+            throw new Exception("Invalid query type", 1);
         }
         return $this->execute($sql);
     }
 
     public function update(array $data = [], $query = null)
     {
-        if ((is_null($query) || is_bool($query)) && $this->_query instanceof Query) {
+        if (
+            (is_null($query) || is_bool($query)) 
+            && $this->_query instanceof Query
+        ) {
             // 获取SQL
             if (false === $query) {
                 return Builder::instance()->update($data, $this->_query->getOptions());
@@ -415,7 +424,7 @@ class Mysql
             [$query, $this->_query] = [$this->_query, null];
         }
         if (empty($data)) {
-            throw new Exception("Empty data", 1);
+            throw new Exception("Update data is empty", 1);
         }
         if ($query instanceof Closure) {
             $q = new Query;
@@ -424,14 +433,17 @@ class Mysql
         } elseif ($query instanceof Query) {
             $sql = Builder::instance()->update($data, $query->getOptions());
         } else {
-            throw new Exception("Error \$query", 1);
+            throw new Exception("Invalid query type", 1);
         }
         return $this->execute($sql);
     }
 
     public function delete($query = null)
     {
-        if ((is_null($query) || is_bool($query)) && $this->_query instanceof Query) {
+        if (
+            (is_null($query) || is_bool($query)) 
+            && $this->_query instanceof Query
+        ) {
             // 获取SQL
             if (false === $query) {
                 return Builder::instance()->delete($this->_query->getOptions());
@@ -445,7 +457,7 @@ class Mysql
         } elseif ($query instanceof Query) {
             $sql = Builder::instance()->delete($query->getOptions());
         } else {
-            throw new Exception("Error \$query", 1);
+            throw new Exception("Invalid query type", 1);
         }
         return $this->execute($sql);
     }
