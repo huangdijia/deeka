@@ -171,7 +171,13 @@ class Query
         return $this;
     }
 
-    public function comment($comment = '')
+    public function duplicate(string $duplicate = '')
+    {
+        $this->options['duplicate'] = $duplicate;
+        return $this;
+    }
+
+    public function comment(string $comment = '')
     {
         $this->options['comment'] = $comment;
         return $this;

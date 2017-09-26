@@ -7,7 +7,7 @@ class Mysql implements builderInterface
 {
     protected $options      = [];
     protected $selectSql    = 'SELECT%DISTINCT% %FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %LOCK%%COMMENT%';
-    protected $insertSql    = '%INSERT% INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
+    protected $insertSql    = '%INSERT% INTO %TABLE% (%FIELD%) VALUES (%DATA%)%DUPLICATE%%COMMENT%';
     protected $insertAllSql = '%INSERT% INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
     protected $updateSql    = 'UPDATE %TABLE% SET %SET%%JOIN%%WHERE%%ORDER%%LIMIT%%LOCK%%COMMENT%';
     protected $deleteSql    = 'DELETE FROM %TABLE%%USING%%JOIN%%WHERE%%ORDER%%LIMIT%%LOCK%%COMMENT%';
@@ -113,12 +113,13 @@ class Mysql implements builderInterface
         $fields = array_keys($data);
         $values = array_values($data);
         $sql    = str_replace(
-            ['%INSERT%', '%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
+            ['%INSERT%', '%TABLE%', '%FIELD%', '%DATA%', '%DUPLICATE%', '%COMMENT%'],
             [
                 $replace ? 'REPLACE' : 'INSERT',
                 $this->parseTable($options['table'] ?? ''),
                 join(', ', $fields),
                 join(', ', $values),
+                $this->parseDuplicate($options['duplicate'] ?? ''),
                 $this->parseComment($options['comment'] ?? ''),
             ], $this->insertSql);
         return $sql;
@@ -314,6 +315,11 @@ class Mysql implements builderInterface
         } else {
             return " LIMIT {$limit}";
         }
+    }
+
+    public function parseDuplicate($duplicate)
+    {
+        return !empty($duplicate) ? " ON DUPLICATE KEY UPDATE {$duplicate}" : '';
     }
 
     public function parseComment($comment)
