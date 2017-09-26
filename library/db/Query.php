@@ -5,15 +5,8 @@ use Exception;
 
 class Query
 {
-    private $options      = [];
-    private $expMaps      = ['EQ' => '=', 'NEQ' => '<>', 'GT' => '>', 'EGT' => '>=', 'LT' => '<', 'ELT' => '<='];
-    private $operatorMaps = [
-        'ISNULL'     => 'IS NULL',
-        'NULL'       => 'IS NULL',
-        'NOTNULL'    => 'IS NOT NULL',
-        'ISNOTNULL'  => 'IS NOT NULL',
-        'NOTBETWEEN' => 'NOT BETWEEN',
-    ];
+    private $options   = [];
+    private $operators = 'eq|neq|gt|egt|lt|elt|in|notin|between|notbetween|like|notlike|exists|notexists|null|isnull|notnull|isnotnull|exp';
 
     public static function instance()
     {
@@ -28,31 +21,27 @@ class Query
     public function __call($method, $args)
     {
         // andWhere|orWhere|xorWhere
-        if (preg_match('/^(?P<logic>and|or|xor)where$/i', $method, $matches)) {
-            $logic    = $matches['logic'];
+        if (preg_match("/^(?P<logic>and|or|xor)where$/i", $method, $matches)) {
             if (isset($args[2])) {
                 [$field, $operator, $value] = $args;
             } else {
                 [$field, $operator, $value] = [$args[0] ?? '', '=', $args[1] ?? ''];
             }
-            return $this->where($field, $operator, $value, $logic);
-        } elseif (preg_match('/^where(?P<operator>[a-z]+)$/i', $method, $matches)) {
-            $operator = $matches['operator'];
+            return $this->where($field, $operator, $value, $matches['logic']);
+        } elseif (preg_match("/^where(?P<operator>{$this->operators})$/i", $method, $matches)) {
             if (isset($args[2])) {
                 [$field, $value, $logic] = $args;
             } else {
                 [$field, $value, $logic] = [$args[0] ?? '', $args[1] ?? '', 'AND'];
             }
-            return $this->where($field, $operator, $value, $logic);
-        } elseif (preg_match('/^(?P<logic>and|or|xor)where(?P<operator>[a-z]+)$/i', $method, $matches)) {
-            $logic    = $matches['logic'];
-            $operator = $matches['operator'];
-            $field    = $args[0] ?? '';
-            $value    = $args[1] ?? '';
-            return $this->where($field, $operator, $value, $logic);
+            return $this->where($field, $matches['operator'], $value, $logic);
+        } elseif (preg_match("/^(?P<logic>and|or|xor)where(?P<operator>{$this->operators})$/i", $method, $matches)) {
+            $field = $args[0] ?? '';
+            $value = $args[1] ?? '';
+            return $this->where($field, $matches['operator'], $value, $matches['logic']);
         } elseif (preg_match('/^(?P<type>left|right|inner|cross)join$/i', $method, $matches)) {
-            [$table, $condition, $type] = [$args[0] ?? '', $args[1] ?? '', $matches['type']];
-            return $this->join($table, $condition, $type);
+            [$table, $condition] = [$args[0] ?? '', $args[1] ?? ''];
+            return $this->join($table, $condition, $matches['type']);
         }
         throw new Exception(__CLASS__ . "::{$method}() is not exists", 1);
     }
@@ -135,22 +124,13 @@ class Query
         if (empty($field)) {
             throw new Exception("Field can not be empty.", 1);
         }
-        // 表达式
-        if (is_null($operator)) {
-            [$operator, $value] = ['EXP', null];
-        }
-        if (in_array(strtoupper($operator), array_keys($this->expMaps))) {
-            $operator = $this->expMaps[strtoupper($operator)];
-        } elseif (in_array(strtoupper($operator), array_keys($this->operatorMaps))) {
-            $operator = $this->operatorMaps[strtoupper($operator)];
-        } elseif (strtoupper($operator) == 'EXP') {
-            //
-        } else {
-            is_null($value) && [$value, $operator] = [$operator, '='];
-        }
-        if (!in_array(strtoupper($logic), ['AND', 'OR', 'XOR'])) {
-            $logic = 'AND';
-        }
+        // 缺省 operator 和 value
+        is_null($operator) && [$operator, $value] = ['EXP', null];
+        // 缺省 operator
+        is_null($value) && [$value, $operator] = [$operator, '='];
+        // 纠正逻辑
+        !in_array(strtoupper($logic), ['AND', 'OR', 'XOR']) && $logic = 'AND';
+        // 标准化
         $this->options['where'][] = [strtoupper($logic), $field, strtoupper($operator), $value];
         return $this;
     }

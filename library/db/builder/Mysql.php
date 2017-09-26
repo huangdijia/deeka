@@ -11,6 +11,19 @@ class Mysql implements builderInterface
     protected $insertAllSql = '%INSERT% INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
     protected $updateSql    = 'UPDATE %TABLE% SET %SET%%JOIN%%WHERE%%ORDER%%LIMIT%%LOCK%%COMMENT%';
     protected $deleteSql    = 'DELETE FROM %TABLE%%USING%%JOIN%%WHERE%%ORDER%%LIMIT%%LOCK%%COMMENT%';
+    protected $alias        = [
+        'EQ'         => '=',
+        'NEQ'        => '<>',
+        'GT'         => '>',
+        'EGT'        => '>=',
+        'LT'         => '<',
+        'ELT'        => '<=',
+        'ISNULL'     => 'IS NULL',
+        'NULL'       => 'IS NULL',
+        'NOTNULL'    => 'IS NOT NULL',
+        'ISNOTNULL'  => 'IS NOT NULL',
+        'NOTBETWEEN' => 'NOT BETWEEN',
+    ];
 
     public static function instance()
     {
@@ -211,6 +224,9 @@ class Mysql implements builderInterface
 
     public function parseWhereItem($field = '', $operator = null, $value = null)
     {
+        if (in_array($operator, array_keys($this->alias))) {
+            $operator = $this->alias[$operator];
+        }
         switch ($operator) {
             case '>':
             case '>=':
