@@ -15,10 +15,12 @@ use PDOException;
 class Mysql
 {
     /**
+     * 链接 ID
      * @var mixed
      */
     private $linkid = null;
     /**
+     * 当前 PDO
      * @var mixed
      */
     private $dbh = null;
@@ -27,40 +29,54 @@ class Mysql
      */
     private $stmt = null;
     /**
+     * SQL
      * @var mixed
      */
     private $_sql = null;
     /**
+     * PDO 集合
      * @var array
      */
     private $dbhs = [];
     /**
+     * 配置
      * @var array
      */
     private $config = [];
     /**
+     * 选项
      * @var array
      */
     private $options = [];
     /**
+     * 错误信息
      * @var mixed
      */
     private $_error = null;
     /**
+     * 错误编码
      * @var mixed
      */
     private $_errno = null;
     /**
+     * 影响行数
      * @var int
      */
     private $_affectrows = 0;
     /**
+     * 最后插入ID
      * @var int
      */
-    private $_insertid    = 0;
-    // 查询器
-    private $_query       = null;
-    // 方法别名
+    private $_insertid = 0;
+    /**
+     * 查询器
+     * @var mixed
+     */
+    private $_query = null;
+    /**
+     * 方法别名
+     * @var array
+     */
     private $_methodAlias = [
         'selectOne' => 'find',
         'first'     => 'find',
@@ -100,6 +116,10 @@ class Mysql
         $this->config = $config;
     }
 
+    /**
+     * @param $method
+     * @param $args
+     */
     public function __call($method, $args)
     {
         if (in_array($method, array_keys($this->_methodAlias))) {
@@ -199,7 +219,7 @@ class Mysql
     public function ping()
     {
         try {
-            $this->selectOne("SELECT 1");
+            $this->find("SELECT 1");
         } catch (PDOException $e) {
             $this->connect(true);
         }
@@ -209,7 +229,7 @@ class Mysql
     /**
      * 设置缓存参数
      * @param $cache
-     * @return mixed
+     * @return $this
      */
     public function cache($cache = null)
     {
@@ -221,7 +241,7 @@ class Mysql
      * 绑定参数
      * @param $name
      * @param $value
-     * @return mixed
+     * @return $this
      */
     public function bind($name = '', $value = '')
     {
@@ -245,6 +265,7 @@ class Mysql
      * @return mixed
      * Db::find('select * from table where id = ?', 123);
      * Db::find('select * from table where id = :id', ['id'=>123]);
+     * Db::find(function($query){ $query->table('table')->where('id', 1); });
      */
     public function find()
     {
@@ -263,6 +284,7 @@ class Mysql
      * @return mixed
      * Db::select('select * from table where id = ?', 123);
      * Db::select('select * from table where id = :id', ['id'=>123]);
+     * Db::select(function($query){ $query->table('table')->where('id', 1); });
      */
     public function select()
     {
@@ -376,6 +398,11 @@ class Mysql
         return $result;
     }
 
+    /**
+     * @param array $data
+     * @param $query
+     * @return mixed
+     */
     public function insert(array $data = [], $query = null)
     {
         if (
@@ -403,6 +430,11 @@ class Mysql
         return $this->execute($sql);
     }
 
+    /**
+     * @param array $data
+     * @param $query
+     * @return mixed
+     */
     public function update(array $data = [], $query = null)
     {
         if (
@@ -430,6 +462,10 @@ class Mysql
         return $this->execute($sql);
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function delete($query = null)
     {
         if (
@@ -636,5 +672,14 @@ class Mysql
     public function getLastError()
     {
         return $this->_error;
+    }
+
+    /**
+     * 返回 PDO 对象
+     * @return mixed
+     */
+    public function getPdo()
+    {
+        return $this->dbh;
     }
 }
