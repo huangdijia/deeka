@@ -57,8 +57,15 @@ class Mysql
     /**
      * @var int
      */
-    private $_insertid = 0;
-    private $_query = null;
+    private $_insertid    = 0;
+    // 查询器
+    private $_query       = null;
+    // 方法别名
+    private $_methodAlias = [
+        'selectOne' => 'find',
+        'first'     => 'find',
+        'selectAll' => 'select',
+    ];
 
     /**
      * 构造
@@ -95,6 +102,9 @@ class Mysql
 
     public function __call($method, $args)
     {
+        if (in_array($method, array_keys($this->_methodAlias))) {
+            return call_user_func_array([$this, $this->_methodAlias[$method]], $args);
+        }
         if (is_null($this->_query)) {
             $this->_query = Query::instance();
         }
@@ -233,33 +243,15 @@ class Mysql
      * 查询一条记录
      * @param string $sql
      * @return mixed
-     * Db::selectOne('select * from table where id = ?', 123);
-     * Db::selectOne('select * from table where id = :id', ['id'=>123]);
+     * Db::find('select * from table where id = ?', 123);
+     * Db::find('select * from table where id = :id', ['id'=>123]);
      */
-    public function selectOne()
+    public function find()
     {
         $args = func_get_args();
         $sql  = array_shift($args);
         // one
         $this->options['one'] = 1;
-        if (!empty($args)) {
-            $this->options['bind'] = $args;
-        }
-        return $this->query($sql);
-    }
-
-    /**
-     * @param string $sql
-     * @return mixed
-     * Db::selectAll('select * from table where id = ?', 123);
-     * Db::selectAll('select * from table where id = :id', ['id'=>123]);
-     */
-    public function selectAll()
-    {
-        $args = func_get_args();
-        $sql  = array_shift($args);
-        // one
-        $this->options['one'] = 0;
         if (!empty($args)) {
             $this->options['bind'] = $args;
         }
@@ -306,7 +298,7 @@ class Mysql
         $sql  = array_shift($args);
         // 劫持链式操作
         if (
-            (empty($sql) || is_bool($sql)) 
+            (empty($sql) || is_bool($sql))
             && $this->_query instanceof Query
         ) {
             // 获取SQL
@@ -387,7 +379,7 @@ class Mysql
     public function insert(array $data = [], $query = null)
     {
         if (
-            (is_null($query) || is_bool($query)) 
+            (is_null($query) || is_bool($query))
             && $this->_query instanceof Query
         ) {
             // 获取SQL
@@ -414,7 +406,7 @@ class Mysql
     public function update(array $data = [], $query = null)
     {
         if (
-            (is_null($query) || is_bool($query)) 
+            (is_null($query) || is_bool($query))
             && $this->_query instanceof Query
         ) {
             // 获取SQL
@@ -441,7 +433,7 @@ class Mysql
     public function delete($query = null)
     {
         if (
-            (is_null($query) || is_bool($query)) 
+            (is_null($query) || is_bool($query))
             && $this->_query instanceof Query
         ) {
             // 获取SQL
