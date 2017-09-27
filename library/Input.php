@@ -137,7 +137,7 @@ class Input
             }
         }
         // 返回全部参数
-        if (!isset($name) || '' == $name) {
+        if (empty($name)) {
             return $input;
         }
         // 变量不存在则返回默认值
