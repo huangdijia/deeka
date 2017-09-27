@@ -6,7 +6,7 @@ use deeka\db\builderInterface;
 class Mysql implements builderInterface
 {
     protected $options      = [];
-    protected $selectSql    = 'SELECT%DISTINCT% %FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %LOCK%%COMMENT%';
+    protected $selectSql    = 'SELECT%DISTINCT%%FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %LOCK%%COMMENT%';
     protected $insertSql    = '%INSERT% INTO %TABLE% (%FIELD%) VALUES (%DATA%)%DUPLICATE%%COMMENT%';
     protected $insertAllSql = '%INSERT% INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
     protected $updateSql    = 'UPDATE %TABLE% SET %SET%%JOIN%%WHERE%%ORDER%%LIMIT%%LOCK%%COMMENT%';
@@ -170,14 +170,15 @@ class Mysql implements builderInterface
 
     protected function parseDistinct($distinct)
     {
-        return !empty($distinct) ? ' DISTINCT ' : '';
+        return !empty($distinct) ? ' DISTINCT' : '';
     }
 
     public function parseField($field = '')
     {
         is_object($field) && $field = get_object_vars($field);
         is_array($field) && $field  = join(', ', $field);
-        return $field ?: '*';
+        $field = $field ?: '*';
+        return " {$field}";
     }
 
     public function parseTable($table)

@@ -122,16 +122,19 @@ class Mysql
      */
     public function __call($method, $args)
     {
+        // 方法别名
         if (in_array($method, array_keys($this->_methodAlias))) {
             return call_user_func_array([$this, $this->_methodAlias[$method]], $args);
         }
+        // 实例化查询器
         if (is_null($this->_query)) {
             $this->_query = Query::instance();
         }
-        if (!method_exists($this->_query, $method)) {
-            throw new Exception("Method " . get_class($this->_query) . "::{$method}() is not exists", 1);
+        try {
+            call_user_func_array([$this->_query, $method], $args);
+        } catch (Exception $e) {
+            throw new Exception(__CLASS__ . "::{$method}() is not exists", 1);
         }
-        call_user_func_array([$this->_query, $method], $args);
         return $this;
     }
 
@@ -403,7 +406,7 @@ class Mysql
      * @param $query
      * @return mixed
      */
-    public function insert(array $data = [], $query = null)
+    public function insert(array $data = [], $query = null, $replace = false)
     {
         if (
             (is_null($query) || is_bool($query))
@@ -411,7 +414,7 @@ class Mysql
         ) {
             // 获取SQL
             if (false === $query) {
-                return Builder::instance()->insert($data, $this->_query->getOptions());
+                return Builder::instance()->insert($data, $this->_query->getOptions(), $replace);
             }
             [$query, $this->_query] = [$this->_query, null];
         }
@@ -421,9 +424,9 @@ class Mysql
         if ($query instanceof Closure) {
             $q = new Query;
             call_user_func_array($query, [$q]);
-            $sql = Builder::instance()->insert($data, $q->getOptions());
+            $sql = Builder::instance()->insert($data, $q->getOptions(), $replace);
         } elseif ($query instanceof Query) {
-            $sql = Builder::instance()->insert($data, $query->getOptions());
+            $sql = Builder::instance()->insert($data, $query->getOptions(), $replace);
         } else {
             throw new Exception("Invalid query type", 1);
         }
