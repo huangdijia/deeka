@@ -494,6 +494,28 @@ class Mysql
     }
 
     /**
+     * 统计数量
+     * @param string $field 字段名
+     * @param bool $distinct 是否去重
+     * @return mixed
+     */
+    public function count(string $field = '1', bool $distinct = false)
+    {
+        $distinct = $distinct ? 'DISTINCT ' : '';
+        return $this->field("COUNT({$distinct}{$field}) AS count")->find()['count'] ?? 0;
+    }
+
+    /**
+     * 统计和
+     * @param string $field 字段名
+     * @return mixed
+     */
+    public function sum(string $field = '')
+    {
+        return $this->field("SUM({$field}) AS sum")->find()['sum'] ?? 0;
+    }
+
+    /**
      * 执行SQL
      * @param string $sql
      * @return mixed
