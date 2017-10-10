@@ -525,6 +525,10 @@ class Mysql
         return $this->field($field)->limit(1)->find()[$field] ?? null;
     }
 
+    /**
+     * 返回字段列
+     * @return mixed
+     */
     public function column()
     {
         $argc = func_num_args();
