@@ -525,6 +525,18 @@ class Mysql
         return $this->field($field)->limit(1)->find()[$field] ?? null;
     }
 
+    public function column()
+    {
+        $argc = func_num_args();
+        $args = func_get_args();
+        if (!$argc) {
+            $field = '*';
+        } else {
+            $field = join(', ', $args);
+        }
+        return $this->field($field)->select();
+    }
+
     /**
      * 执行SQL
      * @param string $sql
