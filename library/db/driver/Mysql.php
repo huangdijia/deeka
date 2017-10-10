@@ -1,8 +1,11 @@
 <?php
 namespace deeka\db\driver;
 
+use Closure;
 use deeka\Cache;
 use deeka\Db;
+use deeka\db\builder\Mysql as Builder;
+use deeka\db\Query;
 use deeka\Debug;
 use deeka\Log;
 use Exception;
@@ -12,10 +15,12 @@ use PDOException;
 class Mysql
 {
     /**
+     * 链接 ID
      * @var mixed
      */
     private $linkid = null;
     /**
+     * 当前 PDO
      * @var mixed
      */
     private $dbh = null;
@@ -24,37 +29,59 @@ class Mysql
      */
     private $stmt = null;
     /**
+     * SQL
      * @var mixed
      */
     private $_sql = null;
     /**
+     * PDO 集合
      * @var array
      */
     private $dbhs = [];
     /**
+     * 配置
      * @var array
      */
     private $config = [];
     /**
+     * 选项
      * @var array
      */
     private $options = [];
     /**
+     * 错误信息
      * @var mixed
      */
     private $_error = null;
     /**
+     * 错误编码
      * @var mixed
      */
     private $_errno = null;
     /**
+     * 影响行数
      * @var int
      */
     private $_affectrows = 0;
     /**
+     * 最后插入ID
      * @var int
      */
     private $_insertid = 0;
+    /**
+     * 查询器
+     * @var mixed
+     */
+    private $_query = null;
+    /**
+     * 方法别名
+     * @var array
+     */
+    private $_methodAlias = [
+        'selectOne' => 'find',
+        'first'     => 'find',
+        'selectAll' => 'select',
+    ];
 
     /**
      * 构造
@@ -87,6 +114,28 @@ class Mysql
             $config
         );
         $this->config = $config;
+    }
+
+    /**
+     * @param $method
+     * @param $args
+     */
+    public function __call($method, $args)
+    {
+        // 方法别名
+        if (in_array($method, array_keys($this->_methodAlias))) {
+            return call_user_func_array([$this, $this->_methodAlias[$method]], $args);
+        }
+        // 实例化查询器
+        if (is_null($this->_query)) {
+            $this->_query = Query::instance();
+        }
+        try {
+            call_user_func_array([$this->_query, $method], $args);
+        } catch (Exception $e) {
+            throw new Exception(__CLASS__ . "::{$method}() is not exists", 1);
+        }
+        return $this;
     }
 
     /**
@@ -173,7 +222,7 @@ class Mysql
     public function ping()
     {
         try {
-            $this->selectOne("SELECT 1");
+            $this->find("SELECT 1");
         } catch (PDOException $e) {
             $this->connect(true);
         }
@@ -183,7 +232,7 @@ class Mysql
     /**
      * 设置缓存参数
      * @param $cache
-     * @return mixed
+     * @return $this
      */
     public function cache($cache = null)
     {
@@ -195,7 +244,7 @@ class Mysql
      * 绑定参数
      * @param $name
      * @param $value
-     * @return mixed
+     * @return $this
      */
     public function bind($name = '', $value = '')
     {
@@ -217,31 +266,16 @@ class Mysql
      * 查询一条记录
      * @param string $sql
      * @return mixed
-     * Db::selectOne('select * from table where id = ?', 123);
-     * Db::selectOne('select * from table where id = :id', ['id'=>123]);
+     * Db::find('select * from table where id = ?', 123);
+     * Db::find('select * from table where id = :id', ['id'=>123]);
+     * Db::find(function($query){ $query->table('table')->where('id', 1); });
      */
-    public function selectOne()
+    public function find()
     {
         $args = func_get_args();
         $sql  = array_shift($args);
+        // one
         $this->options['one'] = 1;
-        if (!empty($args)) {
-            $this->options['bind'] = $args;
-        }
-        return $this->query($sql);
-    }
-
-    /**
-     * @param string $sql
-     * @return mixed
-     * Db::selectAll('select * from table where id = ?', 123);
-     * Db::selectAll('select * from table where id = :id', ['id'=>123]);
-     */
-    public function selectAll()
-    {
-        $args = func_get_args();
-        $sql  = array_shift($args);
-        $this->options['one'] = 0;
         if (!empty($args)) {
             $this->options['bind'] = $args;
         }
@@ -253,11 +287,13 @@ class Mysql
      * @return mixed
      * Db::select('select * from table where id = ?', 123);
      * Db::select('select * from table where id = :id', ['id'=>123]);
+     * Db::select(function($query){ $query->table('table')->where('id', 1); });
      */
     public function select()
     {
         $args = func_get_args();
         $sql  = array_shift($args);
+        // one
         $this->options['one'] = 0;
         if (!empty($args)) {
             $this->options['bind'] = $args;
@@ -285,15 +321,44 @@ class Mysql
         // args
         $args = func_get_args();
         $sql  = array_shift($args);
-        if (!empty($args)) {
-            $this->options['bind'] = $args;
+        // 劫持链式操作
+        if (
+            (empty($sql) || is_bool($sql))
+            && $this->_query instanceof Query
+        ) {
+            // 获取SQL
+            if (false === $sql) {
+                return Builder::instance()->select($this->_query->getOptions());
+            }
+            [$sql, $this->_query] = [$this->_query, null];
         }
-        // parse params
-        $params     = self::_parseParams($sql, $this->options['bind'] ?? null);
-        $this->_sql = self::_parseSql($sql, $params);
-        // record bind
-        if (!empty($this->options['bind'])) {
-            Log::record("[DB BIND] " . preg_replace('/\s+/', ' ', var_export($params, true)), Log::INFO);
+        // 处理参数绑定
+        if (!empty($args) && empty($this->options['bind'])) {
+            $this->options['bind'] = $args;
+        } elseif (empty($args) && !empty($this->options['bind'])) {
+            $args = $this->options['bind'];
+        } else {
+            $args = [];
+        }
+        // 解析Query
+        if ($sql instanceof Closure) {
+            $query = new Query;
+            $bind  = $args;
+            array_unshift($bind, $query);
+            call_user_func_array($sql, $bind);
+            $this->_sql = Builder::instance()->select($query->getOptions());
+        } elseif ($sql instanceof Query) {
+            $this->_sql = Builder::instance()->select($sql->getOptions());
+        } elseif (is_string($sql) && !empty($sql)) {
+            // 参数绑定
+            $params     = self::_parseParams($sql, $this->options['bind'] ?? null);
+            $this->_sql = self::_parseSql($sql, $params);
+            // 记录参数
+            if (!empty($this->options['bind'])) {
+                Log::record("[DB BIND] " . preg_replace('/\s+/', ' ', var_export($params, true)), Log::INFO);
+            }
+        } else {
+            throw new Exception("Parse SQL faild", 1);
         }
         // get cache
         if (
@@ -334,6 +399,98 @@ class Mysql
         $this->options = [];
         // return
         return $result;
+    }
+
+    /**
+     * @param array $data
+     * @param $query
+     * @return mixed
+     */
+    public function insert(array $data = [], $query = null, $replace = false)
+    {
+        if (
+            (is_null($query) || is_bool($query))
+            && $this->_query instanceof Query
+        ) {
+            // 获取SQL
+            if (false === $query) {
+                return Builder::instance()->insert($data, $this->_query->getOptions(), $replace);
+            }
+            [$query, $this->_query] = [$this->_query, null];
+        }
+        if (empty($data)) {
+            throw new Exception("Insert data is empty", 1);
+        }
+        if ($query instanceof Closure) {
+            $q = new Query;
+            call_user_func_array($query, [$q]);
+            $sql = Builder::instance()->insert($data, $q->getOptions(), $replace);
+        } elseif ($query instanceof Query) {
+            $sql = Builder::instance()->insert($data, $query->getOptions(), $replace);
+        } else {
+            throw new Exception("Invalid query type", 1);
+        }
+        return $this->execute($sql);
+    }
+
+    /**
+     * @param array $data
+     * @param $query
+     * @return mixed
+     */
+    public function update(array $data = [], $query = null)
+    {
+        if (
+            (is_null($query) || is_bool($query))
+            && $this->_query instanceof Query
+        ) {
+            // 获取SQL
+            if (false === $query) {
+                return Builder::instance()->update($data, $this->_query->getOptions());
+            }
+            [$query, $this->_query] = [$this->_query, null];
+        }
+        if (empty($data)) {
+            throw new Exception("Update data is empty", 1);
+        }
+        if ($query instanceof Closure) {
+            $q = new Query;
+            call_user_func_array($query, [$q]);
+            $sql = Builder::instance()->update($data, $q->getOptions());
+        } elseif ($query instanceof Query) {
+            $sql = Builder::instance()->update($data, $query->getOptions());
+        } else {
+            throw new Exception("Invalid query type", 1);
+        }
+        return $this->execute($sql);
+    }
+
+    /**
+     * @param $query
+     * @return mixed
+     */
+    public function delete($query = null)
+    {
+        if (
+            (is_null($query) || is_bool($query))
+            && $this->_query instanceof Query
+        ) {
+            // 获取SQL
+            if (false === $query) {
+                return Builder::instance()->delete($this->_query->getOptions());
+            }
+            [$query, $this->_query] = [$this->_query, null];
+        }
+        if ($query instanceof Closure) {
+            $q = new Query;
+            call_user_func_array($query, [$q]);
+            $sql = Builder::instance()->delete($q->getOptions());
+        } elseif ($query instanceof Query) {
+            $sql = Builder::instance()->delete($query->getOptions());
+        } else {
+            throw new Exception("Invalid query type", 1);
+        }
+        return $this->execute($sql);
     }
 
     /**
@@ -518,5 +675,14 @@ class Mysql
     public function getLastError()
     {
         return $this->_error;
+    }
+
+    /**
+     * 返回 PDO 对象
+     * @return mixed
+     */
+    public function getPdo()
+    {
+        return $this->dbh;
     }
 }

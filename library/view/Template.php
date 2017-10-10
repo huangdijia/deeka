@@ -208,12 +208,10 @@ class Template
     {
         $includeFile = self::stripslashes($includeFile);
         // 兼容PHP動態include
-        /**
-        if(strpos($includeFile, '$') > 0){
-        if(null==$includeTag) $includeTag = 'include';
-            return $includeTag.'('.$includeFile.'); ';
-        }
-         */
+        // if(strpos($includeFile, '$') > 0){
+        // if(null==$includeTag) $includeTag = 'include';
+        //     return $includeTag.'('.$includeFile.'); ';
+        // }
         // 替換includeFile
         $replaces = [
             ' '              => '',
@@ -316,7 +314,6 @@ class Template
         if (isset($_varParseList[$varStr])) {
             return $_varParseList[$varStr];
         }
-
         $parseStr  = '';
         $varExists = true;
         if (!empty($varStr)) {
@@ -343,7 +340,7 @@ class Template
 
                         break;
                     default: // 自动判断数组或对象 只支持二维
-                        $name = 'is_array($' . $var . ')?$' . $var . '["' . $vars[0] . '"]:$' . $var . '->' . $vars[0];
+                        $name = 'is_array($' . $var . ') ? $' . $var . '["' . $vars[0] . '"] : $' . $var . '->' . $vars[0];
                 }
             } elseif (false !== strpos($var, '[')) {
                 //支持 {$var['key']} 方式输出数组
@@ -382,7 +379,7 @@ class Template
             $fun = strtolower(trim($args[0]));
             switch ($fun) {
                 case 'default': // 特殊模板函数
-                    $name = '(' . $name . ')?(' . $name . '):' . $args[1];
+                    $name = '(' . $name . ') ? (' . $name . ') : ' . $args[1];
                     break;
                 default: // 通用模板函数
                     if (!in_array($fun, $template_deny_funs)) {
@@ -391,7 +388,7 @@ class Template
                                 $args[1] = str_replace('###', $name, $args[1]);
                                 $name    = "$fun($args[1])";
                             } else {
-                                $name = "$fun($name,$args[1])";
+                                $name = "$fun($name, $args[1])";
                             }
                         } else if (!empty($args[0])) {
                             $name = "$fun($name)";
@@ -436,10 +433,13 @@ class Template
             $content = str_replace($matches[0], '', $content);
             //解析Layout标签
             $array = $this->parseXmlAttrs($matches[1]);
-            if (!$this->config['layout_on'] || $this->config['layout_name'] != $array['name']) {
+            if (
+                !$this->config['layout_on']
+                || $this->config['layout_name'] != $array['name']
+            ) {
                 // 读取布局模板
                 $layoutFile = $this->config['tmpl_path'] . $array['name'] . $this->config['tmpl_suffix'];
-                $replace    = isset($array['replace']) ? $array['replace'] : $this->config['layout_item'];
+                $replace    = $array['replace'] ?? $this->config['layout_item'];
                 // 替换布局的主体内容
                 $content = str_replace($replace, $content, file_get_contents($layoutFile));
             }
@@ -571,18 +571,22 @@ class Template
                 switch ($tag) {
                     case 'if':
                     case 'elseif':
-                        $condition = isset($attr['condition']) ? $attr['condition'] : '';
+                        $condition = $attr['condition'] ?? '';
                         if ('' == $condition) {
                             throw new Exception("'condition' of IF is undefined");
                         }
-                        $condition = str_ireplace(array_keys($this->comparison), array_values($this->comparison), $condition);
+                        $condition = str_ireplace(
+                            array_keys($this->comparison),
+                            array_values($this->comparison),
+                            $condition
+                        );
                         $replace   = '<?php ' . $tag . '(' . $condition . '):?>';
                         break;
                     case 'foreach':
-                        $name = isset($attr['name']) ? $attr['name'] : '';
-                        $as   = isset($attr['as']) ? $attr['as'] : 'vo';
-                        $key  = (isset($attr['key']) && $attr['key']) ? $attr['key'] : 'key';
-                        $loop = (isset($attr['loop']) && $attr['loop']) ? $attr['loop'] : '_i';
+                        $name = $attr['name'] ?? '';
+                        $as   = $attr['as'] ?? 'vo';
+                        $key  = $attr['key'] ?? '' ?: 'key';
+                        $loop = $attr['loop'] ?? '' ?: '_i';
                         if ('' == $name) {
                             throw new Exception("'name' of FOREACH is undefined");
                         }
@@ -592,19 +596,19 @@ class Template
                         $replace = '<?php $' . $loop . '=0;foreach((array)$' . $name . ' as $' . $key . '=>$' . $as . '):$' . $loop . '++;?>';
                         break;
                     case 'for':
-                        $name  = (isset($attr['name']) && $attr['name']) ? $attr['name'] : 'i';
-                        $start = (isset($attr['start']) && $attr['start']) ? $attr['start'] : 0;
-                        $end   = isset($attr['end']) ? $attr['end'] : '';
+                        $name  = $attr['name'] ?? '' ?: 'i';
+                        $start = $attr['start'] ?? '' ?: 0;
+                        $end   = $attr['end'] ?? '' ?: '';
                         if ('' == $end) {
                             throw new Exception("'end' of FOR is undefined");
                         }
-                        $step       = (isset($attr['step']) && $attr['step']) ? $attr['step'] : 1;
-                        $comparison = (isset($attr['comparison']) && $attr['comparison']) ? $attr['comparison'] : 'lt';
+                        $step       = $attr['step'] ?? '' ?: 1;
+                        $comparison = $attr['comparison'] ?? '' ?: 'lt';
                         $comparison = $this->comparison[' ' . $comparison . ' '];
                         $replace    = '<?php for($' . $name . ' = ' . $start . '; $' . $name . $comparison . $end . '; $' . $name . '+=' . $step . '):?>';
                         break;
                     case 'switch':
-                        $name = isset($attr['name']) ? $attr['name'] : '';
+                        $name = $attr['name'] ?? '';
                         if ('' == $name) {
                             throw new Exception("'name' of SWITCH is undefined");
                         }
@@ -628,7 +632,7 @@ class Template
                     case 'elt':
                     case 'heq':
                     case 'nheq':
-                        $name = isset($attr['name']) ? $attr['name'] : '';
+                        $name = $attr['name'] ?? '';
                         if ('' == $name) {
                             throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
@@ -641,7 +645,7 @@ class Template
                         break;
                     case 'in':
                     case 'notin':
-                        $name = isset($attr['name']) ? $attr['name'] : '';
+                        $name = $attr['name'] ?? '';
                         if ('' == $name) {
                             throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
@@ -654,7 +658,7 @@ class Template
                         break;
                     case 'between':
                     case 'notbetween':
-                        $name = isset($attr['name']) ? $attr['name'] : '';
+                        $name = $attr['name'] ?? '';
                         if ('' == $name) {
                             throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
@@ -666,14 +670,14 @@ class Template
                         $replace  = '<?php ' . $rangeVar . ' if(' . ($tag == 'notbetween' ? '!' : '') . '($_RANGE_VAR[0]<$' . $name . ' && $' . $name . '<$_RANGE_VAR[1])):?>';
                         break;
                     case 'defined':
-                        $name = isset($attr['name']) ? $attr['name'] : '';
+                        $name = $attr['name'] ?? '';
                         if ('' == $name) {
                             throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
                         $replace = '<?php if(defined(' . $name . ')):?>';
                         break;
                     case 'notdefined':
-                        $name = isset($attr['name']) ? $attr['name'] : '';
+                        $name = $attr['name'] ?? '';
                         if ('' == $name) {
                             throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
@@ -683,7 +687,7 @@ class Template
                         $tag = 'isset';
                     case 'empty':
                     case 'isset':
-                        $name = isset($attr['name']) ? $attr['name'] : '';
+                        $name = $attr['name'] ?? '';
                         if ('' == $name) {
                             throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
@@ -693,14 +697,14 @@ class Template
                         $tag = 'notisset';
                     case 'notempty':
                     case 'notisset':
-                        $name = isset($attr['name']) ? $attr['name'] : '';
+                        $name = $attr['name'] ?? '';
                         if ('' == $name) {
                             throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
                         $replace = '<?php if(!' . str_replace('not', '', $tag) . '($' . $name . ')):?>';
                         break;
                     case 'assign':
-                        $name = isset($attr['name']) ? $attr['name'] : '';
+                        $name = $attr['name'] ?? '';
                         if ('' == $name) {
                             throw new Exception("'name' of " . strtoupper($tag) . " is undefined");
                         }
@@ -711,21 +715,20 @@ class Template
                         $replace = '<?php $' . $name . '="' . $value . '";?>';
                         break;
                     case 'js':
-                        $href = $attr['href'];
+                        $href = $attr['href'] ?? '';
                         if ('' == $href) {
                             throw new Exception("'href' of " . strtoupper($tag) . " is undefined");
                         }
-                        $type    = (isset($attr['type']) && $attr['type']) ? $attr['type'] : "text/javascript";
+                        $type    = $attr['type'] ?? '' ?: "text/javascript";
                         $replace = '<script type="' . $type . '" src="' . $href . '"></script>';
                         break;
                     case 'css':
-                        $href = $attr['href'];
-                        $href = $attr['href'];
+                        $href = $attr['href'] ?? '';
                         if ('' == $href) {
                             throw new Exception("'href' of " . strtoupper($tag) . " is undefined");
                         }
-                        $rel     = (isset($attr['rel']) && $attr['rel']) ? $attr['rel'] : "stylesheet";
-                        $type    = (isset($attr['type']) && $attr['type']) ? $attr['type'] : "text/css";
+                        $rel     = $attr['rel'] ?? '' ?: "stylesheet";
+                        $type    = $attr['type'] ?? '' ?: "text/css";
                         $replace = '<link href="' . $href . '" rel="' . $rel . '" type="' . $type . '">';
                         break;
                 }

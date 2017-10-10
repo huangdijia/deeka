@@ -35,8 +35,8 @@ class Validate
     {
         if ('is' == substr($name, 0, 2)) {
             $rule      = strtolower(substr($name, 2));
-            $value     = isset($args[0]) ? $args[0] : '';
-            $condition = isset($args[1]) ? $args[1] : '';
+            $value     = $args[0] ?? '';
+            $condition = $args[1] ?? '';
             return self::check($value, $rule, $condition);
         }
     }
@@ -55,9 +55,9 @@ class Validate
                 }
                 // 准备数据
                 $var_name  = $item[0];
-                $rule      = isset($item[2]) ? $item[2] : 'require';
-                $condition = isset($item[3]) ? $item[3] : '';
-                $error     = (isset($item[1]) && !empty($item[1])) ? $item[1] : "參數[{$var_name}]不正確";
+                $rule      = $item[2] ?? 'require';
+                $condition = $item[3] ?? '';
+                $error     = $item[1] ?? '' ?? "參數[{$var_name}]不正確";
                 // 必須檢測
                 if ($rule == 'require' && !isset($data[$var_name])) {
                     $data[$var_name] = '';
@@ -126,10 +126,9 @@ class Validate
                 break;
             case 'between':
                 if (is_array($condition) && count($condition) > 1) {
-                    $min = $condition[0];
-                    $max = $condition[1];
+                    [$min, $max] = $condition;
                 } else {
-                    list($min, $max) = explode(',', $condition);
+                    [$min, $max] = explode(',', $condition);
                 }
                 if (!($min <= $value && $value <= $max)) {
                     return false;
@@ -137,10 +136,9 @@ class Validate
                 break;
             case 'notbetween':
                 if (is_array($condition)) {
-                    $min = $condition[0];
-                    $max = $condition[1];
+                    [$min, $max] = $condition;
                 } else {
-                    list($min, $max) = explode(',', $condition);
+                    [$min, $max] = explode(',', $condition);
                 }
                 if (($min <= $value && $value <= $max)) {
                     return false;
@@ -184,7 +182,7 @@ class Validate
             case 'length':
                 $length = strlen($value);
                 if (false !== strpos($condition, ',')) {
-                    list($min, $max) = explode(',', $condition);
+                    [$min, $max] = explode(',', $condition);
                     if (!($min <= $length && $length <= $max)) {
                         return false;
                     }
@@ -212,9 +210,7 @@ class Validate
                 }
                 break;
             case 'date':
-                $year  = substr($value, 0, 4);
-                $month = substr($value, 5, 2);
-                $day   = substr($value, 8, 2);
+                [$year, $month, $day] = [substr($value, 0, 4), substr($value, 5, 2), substr($value, 8, 2)];
                 if (!checkdate($month, $day, $year)) {
                     return false;
                 }

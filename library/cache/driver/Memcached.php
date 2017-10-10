@@ -29,7 +29,7 @@ class Memcached extends Cache implements ICache
         $hosts = $this->options['host'];
         $ports = $this->options['port'];
         foreach ((array) $hosts as $i => $host) {
-            $port = isset($ports[$i]) ? $ports[$i] : (isset($ports[0]) ? $ports[0] : '11211');
+            $port = $ports[$i] ?? $ports[0] ?? '11211';
             $this->handler->addServer($host, $port);
         }
     }
