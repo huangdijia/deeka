@@ -502,7 +502,7 @@ class Mysql
     public function count(string $field = '1', bool $distinct = false)
     {
         $distinct = $distinct ? 'DISTINCT ' : '';
-        return $this->field("COUNT({$distinct}{$field}) AS count")->find()['count'] ?? 0;
+        return $this->field("COUNT({$distinct}{$field}) AS count")->limit(1)->find()['count'] ?? 0;
     }
 
     /**
@@ -512,7 +512,17 @@ class Mysql
      */
     public function sum(string $field = '')
     {
-        return $this->field("SUM({$field}) AS sum")->find()['sum'] ?? 0;
+        return $this->field("SUM({$field}) AS sum")->limit(1)->find()['sum'] ?? 0;
+    }
+
+    /**
+     * 返回某字段值
+     * @param string $field
+     * @return mixed
+     */
+    public function value(string $field = '')
+    {
+        return $this->field($field)->limit(1)->find()[$field] ?? null;
     }
 
     /**
