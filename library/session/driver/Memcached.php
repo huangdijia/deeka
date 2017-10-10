@@ -27,7 +27,7 @@ class Memcached implements SessionHandlerInterface
         // 实例化Memcache
         $this->handler = new \Memcached;
         foreach ($options['host'] as $i => $host) {
-            $port = isset($options['port'][$i]) ? $options['port'][$i] : $options['port'][0];
+            $port = $options['port'][$i] ?? $options['port'][0] ?? '11211';
             $this->handler->addServer($host, $port);
         }
         return true;
