@@ -1,9 +1,9 @@
 <?php
 namespace deeka\db\builder;
 
-use deeka\db\builderInterface;
+use deeka\db\BuilderInterface;
 
-class Mysql implements builderInterface
+class Mysql implements BuilderInterface
 {
     protected $options      = [];
     protected $selectSql    = 'SELECT%DISTINCT%%FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %LOCK%%COMMENT%';
