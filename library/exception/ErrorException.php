@@ -25,7 +25,7 @@ class ErrorException extends Exception
      * @param integer $line     出错行号
      * @param mixed   $context  错误上下文，会包含错误触发处作用域内所有变量的数组
      */
-    public function __construct($severity, $message, $file, $line, $context)
+    public function __construct($severity, $message, $file, $line, $context = '')
     {
         $this->severity = $severity;
         $this->message  = $message;
