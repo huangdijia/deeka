@@ -528,17 +528,70 @@ class Mysql
     /**
      * 返回字段列
      * @return mixed
+     * Db::table()->column('id');
+     * Db::table()->column('id', 'name');
+     * Db::table()->column(['id', 'name']);
+     * Db::table()->column('id', true);
+     * Db::table()->column('id', 'name', true);
+     * Db::table()->column(['id', 'name'], true);
      */
     public function column()
     {
-        $argc = func_num_args();
-        $args = func_get_args();
-        if (!$argc) {
+        $argc    = func_num_args();
+        $args    = func_get_args();
+        $combine = false;
+        if (
+            isset($args[$argc - 1])
+            && is_bool($args[$argc - 1])
+        ) {
+            $combine = array_pop($args);
+        }
+        if (
+            is_array($args[0])
+            && !empty($args[0])
+        ) {
+            $args = $args[0];
+        }
+        $args = array_filter($args);
+        $argc = count($args);
+        if (0 == $argc) {
             $field = '*';
         } else {
             $field = join(', ', $args);
         }
-        return $this->field($field)->select();
+        $rows = $this->field(join(', ', $args))->select();
+        if (
+            empty($rows) 
+            || !$combine 
+            || !$argc
+        ) {
+            return $rows;
+        }
+        $data = [];
+        switch ($argc) {
+            case 1:
+                $pk = $args[0];
+                foreach ($rows as $row) {
+                    $data[] = $row[$pk];
+                }
+                break;
+            case 2:
+                $pk = $args[0];
+                $vk = $args[1];
+                foreach ($rows as $row) {
+                    $data[$row[$pk]] = $row[$vk];
+                }
+                break;
+            default:
+                $pk = $args[0];
+                foreach ($rows as $row) {
+                    $key = $row[$pk];
+                    unset($row[$pk]);
+                    $data[$key] = $row;
+                }
+                break;
+        }
+        return $data;
     }
 
     /**
