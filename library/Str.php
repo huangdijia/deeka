@@ -12,7 +12,10 @@ class Str
     {
         //
     }
-    // 判断是否 utf8
+    /**
+     * 判断是否UTF8
+     * @param string $string
+     */
     public static function isUtf8(string $string)
     {
         return preg_match('%^(?:
@@ -27,7 +30,28 @@ class Str
         )*$%xs', $string);
     }
 
-    // 编码转换
+    /**
+     * 修复UTF8
+     * @param $string
+     * @return mixed
+     */
+    public function repairUtf8(string $string = '')
+    {
+        $len = mb_strlen($string);
+        $end = mb_substr($string, $len - 1, 1);
+        if (json_decode(json_encode($end)) == $end) {
+            return $string;
+        }
+        return mb_substr($string, 0, $len - 1);
+    }
+
+    /**
+     * 编码转换
+     * @param $string
+     * @param $from
+     * @param $to
+     * @return mixed
+     */
     public static function autoCharset($string, $from = 'gbk', $to = 'utf-8')
     {
         $from = strtoupper($from) == 'UTF8' ? 'utf-8' : $from;
@@ -62,7 +86,12 @@ class Str
         }
     }
 
-    //获取随机数
+    /**
+     * 获取随机数
+     * @param $len
+     * @param $mode
+     * @return mixed
+     */
     public static function rand($len = 10, $mode = 0)
     {
         switch ($mode) {
@@ -84,7 +113,10 @@ class Str
         return $str;
     }
 
-    //全角转为半角
+    /**
+     * 全角转为半角
+     * @param $str
+     */
     public static function toSemiangle($str)
     {
         $arr = [
@@ -191,7 +223,11 @@ class Str
         return strtr($str, $arr);
     }
 
-    // 去除空白
+    /**
+     * 去除空白
+     * @param string $content
+     * @return mixed
+     */
     public static function stripWhitespace(string $content)
     {
         $stripStr = '';
@@ -238,7 +274,11 @@ class Str
         return $stripStr;
     }
 
-    // 解析变量名
+    /**
+     * 解析变量名
+     * @param $name
+     * @param $type
+     */
     public static function parseName($name, $type = 0)
     {
         if ($type) {
