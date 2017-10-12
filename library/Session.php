@@ -118,31 +118,27 @@ class Session
         }
     }
 
-    private function get($name = '', $namespace = '')
+    private function get(string $name = '', string $namespace = null)
     {
-        if ($namespace == '') {
-            $namespace = self::$config['namespace'];
-        }
+        $namespace = $namespace ?? self::$config['namespace'];
         if ($namespace) {
             if ('' === $name) {
-                return isset($_SESSION[$namespace]) ? $_SESSION[$namespace] : null;
+                return $_SESSION[$namespace] ?? null;
             } else {
-                return isset($_SESSION[$namespace][$name]) ? $_SESSION[$namespace][$name] : null;
+                return $_SESSION[$namespace][$name] ?? null;
             }
         } else {
             if ('' === $name) {
                 return $_SESSION;
             } else {
-                return isset($_SESSION[$name]) ? $_SESSION[$name] : null;
+                return $_SESSION[$name] ?? null;
             }
         }
     }
 
-    private function set($name, $value = '', $namespace = '')
+    private function set(string $name, $value = '', string $namespace = null): bool
     {
-        if ($namespace == '') {
-            $namespace = self::$config['namespace'];
-        }
+        $namespace = $namespace ?? self::$config['namespace'];
         if ($namespace) {
             if (!isset($_SESSION[$namespace])) {
                 $_SESSION[$namespace] = [];
@@ -154,62 +150,53 @@ class Session
         return true;
     }
 
-    private function del($name, $namespace = '')
+    private function del(string $name, string $namespace = null): bool
     {
-        if ($namespace == '') {
-            $namespace = self::$config['namespace'];
-        }
+        $namespace = $namespace ?? self::$config['namespace'];
         if ($namespace) {
             if (isset($_SESSION[$namespace][$name])) {
                 unset($_SESSION[$namespace][$name]);
             }
-        } else {
-            if (isset($_SESSION[$name])) {
-                unset($_SESSION[$name]);
-            }
+            return true;
+        }
+        if (isset($_SESSION[$name])) {
+            unset($_SESSION[$name]);
         }
         return true;
     }
 
-    private function has($name, $namespace = '')
+    private function has(string $name, string $namespace = null): bool
     {
-        if ($namespace == '') {
-            $namespace = self::$config['namespace'];
-        }
+        $namespace = $namespace ?? self::$config['namespace'];
         if ($namespace) {
             return isset($_SESSION[$namespace][$name]);
-        } else {
-            return isset($_SESSION[$name]);
         }
+        return isset($_SESSION[$name]);
     }
 
-    private function all($namespace = '')
+    private function all(string $namespace = null)
     {
-        if ($namespace == '') {
-            $namespace = self::$config['namespace'];
-        }
+        $namespace = $namespace ?? self::$config['namespace'];
         if ($namespace) {
-            return isset($_SESSION[$namespace]) ? $_SESSION[$namespace] : null;
-        } else {
-            return $_SESSION;
+            return $_SESSION[$namespace] ?? null;
         }
+        return $_SESSION;
     }
 
-    private function clear($namespace = '')
+    private function clear(string $namespace = null): bool
     {
-        if ($namespace == '') {
-            $namespace = self::$config['namespace'];
-        }
+        $namespace = $namespace ?? self::$config['namespace'];
         if ($namespace) {
             if (isset($_SESSION[$namespace])) {
                 unset($_SESSION[$namespace]);
             }
-        } else {
-            $_SESSION = [];
+            return true;
         }
+        $_SESSION = [];
+        return true;
     }
 
-    private function operate($name)
+    private function operate(string $name = ''): bool
     {
         switch ($name) {
             case 'start':
@@ -227,6 +214,7 @@ class Session
                 session_regenerate_id();
                 break;
         }
+        return true;
     }
 
     public static function encode($array, $safe = true, $method = '')
@@ -244,7 +232,7 @@ class Session
         }
     }
 
-    public static function serializePhp($array, $safe = true)
+    public static function serializePhp($array, bool $safe = true)
     {
         if ($safe) {
             $array = unserialize(serialize($array));
@@ -266,7 +254,7 @@ class Session
         return $raw;
     }
 
-    private static function serializePhpbinary($array, $safe = true)
+    private static function serializePhpbinary($array, bool $safe = true)
     {
         return '';
     }

@@ -44,7 +44,7 @@ class Cookie
         self::$config = array_merge(self::$config, $config);
     }
 
-    private function prefix($prefix = null)
+    private function prefix(string $prefix = null)
     {
         if (is_null($prefix)) {
             return self::$config['prefix'];
@@ -75,46 +75,40 @@ class Cookie
         return true;
     }
 
-    private function get($name = '', $prefix = '')
+    private function get(string $name = '', string $prefix = null)
     {
-        if ($prefix == '') {
-            $prefix = self::$config['prefix'];
-        }
+        $prefix = $prefix ?? self::$config['prefix'];
         if ($name == '') {
             return self::all($prefix);
         }
         $name = $prefix . $name;
-        if (isset($_COOKIE[$name])) {
-            $value = $_COOKIE[$name];
-            if (0 === strpos($value, 'array:')) {
-                $value = substr($value, 6);
-                return array_map('urldecode', json_decode($value, true));
-            }
-            return $value;
+        if (!isset($_COOKIE[$name])) {
+            return null;
         }
-        return null;
+        $value = $_COOKIE[$name];
+        if (0 === strpos($value, 'array:')) {
+            $value = substr($value, 6);
+            return array_map('urldecode', json_decode($value, true));
+        }
+        return $value;
     }
 
-    private function del($name, $prefix = '')
+    private function del(string $name, string $prefix = null)
     {
-        if ($prefix == '') {
-            $prefix = self::$config['prefix'];
-        }
-        $name = $prefix . $name;
+        $prefix = $prefix ?? self::$config['prefix'];
+        $name   = $prefix . $name;
         setcookie($name, '', time() - 3600, self::$config['path'], self::$config['domain']);
         unset($_COOKIE[$name]);
     }
 
-    private function has($name, $prefix = '')
+    private function has(string $name, string $prefix = null)
     {
-        if ($prefix == '') {
-            $prefix = self::$config['prefix'];
-        }
-        $name = $prefix . $name;
+        $prefix = $prefix ?? self::$config['prefix'];
+        $name   = $prefix . $name;
         return isset($_COOKIE[$name]);
     }
 
-    private function all($prefix = '')
+    private function all(string $prefix = null)
     {
         if ($prefix == '') {
             return $_COOKIE;
@@ -128,14 +122,12 @@ class Cookie
         return $cookie;
     }
 
-    private function clear($prefix = '')
+    private function clear(string $prefix = null)
     {
         if (empty($_COOKIE)) {
             return true;
         }
-        if ($prefix == '') {
-            $prefix = self::$config['prefix'];
-        }
+        $prefix = $prefix ?? self::$config['prefix'];
         if ($prefix) {
             foreach ($_COOKIE as $key => $val) {
                 if (0 === strpos($key, $prefix)) {
