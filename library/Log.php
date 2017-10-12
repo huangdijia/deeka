@@ -19,20 +19,20 @@ class Log
     const LOG    = 'LOG';
 
     protected static $map = [
-        1     => 'ERR', // E_ERROR
-        2     => 'WARN', // E_WARNING
-        4     => 'ERR', // E_PARSE
-        8     => 'NOTICE', // E_NOTICE
-        16    => 'ERR', // E_CORE_ERROR
-        32    => 'WARN', // E_CORE_WARNING
-        64    => 'ERR', // E_COMPILE_ERROR
-        128   => 'WARN', // E_COMPILE_WARNING
-        256   => 'ERR', // E_USER_ERROR
-        512   => 'WARN', // E_USER_WARNING
-        1024  => 'NOTICE', // E_USER_NOTICE
-        2048  => 'ERR', // E_STRICT
-        4096  => 'ERR', // E_RECOVERABLE_ERROR
-        32767 => 'INFO', // E_ALL
+        E_ERROR             => 'ERR',
+        E_WARNING           => 'WARN',
+        E_PARSE             => 'ERR',
+        E_NOTICE            => 'NOTICE',
+        E_CORE_ERROR        => 'ERR',
+        E_CORE_WARNING      => 'WARN',
+        E_COMPILE_ERROR     => 'ERR',
+        E_COMPILE_WARNING   => 'WARN',
+        E_USER_ERROR        => 'ERR',
+        E_USER_WARNING      => 'WARN',
+        E_USER_NOTICE       => 'NOTICE',
+        E_STRICT            => 'ERR',
+        E_RECOVERABLE_ERROR => 'ERR',
+        E_ALL               => 'INFO',
     ];
     protected static $config   = [];
     protected static $handlers = [];
@@ -94,8 +94,8 @@ class Log
      */
     public static function level($level = '')
     {
-        if (is_numeric($level) && isset(self::$map[$level])) {
-            return self::$map[$level];
+        if (is_numeric($level)) {
+            return self::$map[$level] ?? self::ERR;
         }
         return strtoupper($level);
     }

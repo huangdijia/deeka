@@ -46,7 +46,7 @@ class Loader
         return;
     }
 
-    public static function addNamespace($name, $path = '')
+    public static function addNamespace($name, string $path = ''): bool
     {
         if (is_array($name)) {
             foreach ($name as $ns => $path) {
@@ -55,9 +55,10 @@ class Loader
         } else {
             self::$namespaces[$name] = $path;
         }
+        return true;
     }
 
-    public static function addClassMap($class, $path = '')
+    public static function addClassMap($class, $path = ''): bool
     {
         if (is_array($class)) {
             foreach ($class as $name => $path) {
@@ -66,6 +67,7 @@ class Loader
         } else {
             self::$maps[$class] = $path;
         }
+        return true;
     }
 
     public static function register($autoload = '')
@@ -73,7 +75,7 @@ class Loader
         spl_autoload_register($autoload ? $autoload : [__CLASS__, 'autoload']);
     }
 
-    public static function import($file)
+    public static function import(string $file = '')
     {
         static $files = [];
         if (isset($files[$file])) {
@@ -87,7 +89,7 @@ class Loader
         return $files[$file];
     }
 
-    public static function controller($name, $args = [])
+    public static function controller(string $name, $args = [])
     {
         static $controller = [];
         $class             = $name;
@@ -103,7 +105,7 @@ class Loader
         return false;
     }
 
-    public static function action($controller_name, $action_name, $args = [])
+    public static function action(string $controller_name, string $action_name, $args = [])
     {
         $controller = self::controller($controller_name);
         if ($controller) {

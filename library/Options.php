@@ -52,7 +52,7 @@ class Options
         return $argv;
     }
 
-    private function has($name = ''): bool
+    private function has(string $name = ''): bool
     {
         return isset(self::all()[$name]) ? true : false;
     }
