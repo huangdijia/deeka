@@ -40,7 +40,10 @@ class Lang
 
     private function detect()
     {
-        $range = $_GET[Config::get('lang.detect_var', self::$detectVar)] ?? $_COOKIE[Config::get('lang.cookie_var', self::$cookieVar)] ?? self::acceptLanguage() ?? self::$range;
+        $range = $_GET[Config::get('lang.detect_var', self::$detectVar)]
+            ?? $_COOKIE[Config::get('lang.cookie_var', self::$cookieVar)]
+            ?? self::acceptLanguage()
+            ?? self::$range;
         if (!in_array($range, Config::get('lang.accept'))) {
             $range = Config::get('default.lang', 'zh-cn');
         }
@@ -59,7 +62,6 @@ class Lang
         if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             return null;
         }
-
         preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
         return !empty($matches[1]) ? strtolower($matches[1]) : null;
     }
@@ -85,13 +87,13 @@ class Lang
             foreach ($key as $k => $v) {
                 self::set($k, $v, $range);
             }
-        } else {
-            $key = strtolower($key);
-            if (!isset(self::$lang[$range])) {
-                self::$lang[$range] = [];
-            }
-            self::$lang[$range][$key] = $value;
+            return true;
         }
+        $key = strtolower($key);
+        if (!isset(self::$lang[$range])) {
+            self::$lang[$range] = [];
+        }
+        self::$lang[$range][$key] = $value;
         return true;
     }
 
@@ -104,9 +106,8 @@ class Lang
             $args = array_slice(func_get_args(), 2);
             if (!empty($args)) {
                 return vsprintf(self::$lang[$range][$key], $args);
-            } else {
-                return self::$lang[$range][$key];
             }
+            return self::$lang[$range][$key];
         }
         Log::record("lang '{$default}' is undefined in {$range}.", Log::NOTICE);
         return $default;

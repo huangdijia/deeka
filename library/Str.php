@@ -72,7 +72,8 @@ class Str
             } else {
                 return $string;
             }
-        } elseif (is_array($string)) {
+        }
+        if (is_array($string)) {
             foreach ($string as $key => $val) {
                 $_key          = self::autoCharset($key, $from, $to);
                 $string[$_key] = self::autoCharset($val, $from, $to);
@@ -81,18 +82,17 @@ class Str
                 }
             }
             return $string;
-        } else {
-            return $string;
         }
+        return $string;
     }
 
     /**
      * 获取随机数
-     * @param $len
-     * @param $mode
-     * @return mixed
+     * @param int $len
+     * @param int $mode
+     * @return string
      */
-    public static function rand($len = 10, $mode = 0)
+    public static function rand(int $len = 10, int $mode = 0): string
     {
         switch ($mode) {
             case 2:
@@ -117,9 +117,9 @@ class Str
      * 全角转为半角
      * @param $str
      */
-    public static function toSemiangle($str)
+    public static function toSemiangle(string $str): string
     {
-        $arr = [
+        return strtr($str, [
             '０' => '0',
             '１' => '1',
             '２' => '2',
@@ -219,8 +219,7 @@ class Str
             '｜' => '|',
             '〃' => '"',
             '　' => ' ',
-        ];
-        return strtr($str, $arr);
+        ]);
     }
 
     /**
@@ -228,7 +227,7 @@ class Str
      * @param string $content
      * @return mixed
      */
-    public static function stripWhitespace(string $content)
+    public static function stripWhitespace(string $content = ''): string
     {
         $stripStr = '';
         //分析php源码
@@ -279,14 +278,13 @@ class Str
      * @param $name
      * @param $type
      */
-    public static function parseName($name, $type = 0)
+    public static function parseName(string $name, int $type = 0): string
     {
         if ($type) {
             return ucfirst(preg_replace_callback("/_([a-zA-Z])/", function ($m) {
                 return strtoupper($m[1]);
             }, $name));
-        } else {
-            return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
         }
+        return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
     }
 }
