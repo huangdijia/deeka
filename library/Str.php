@@ -35,7 +35,7 @@ class Str
      * @param $string
      * @return mixed
      */
-    public function repairUtf8(string $string = '')
+    public static function repairUtf8(string $string = '')
     {
         $len = mb_strlen($string);
         $end = mb_substr($string, $len - 1, 1);
