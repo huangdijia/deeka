@@ -74,7 +74,12 @@ class Config
             $tmp = &$tmp[$key];
         }
         // 兼容 array
-        if (is_array($tmp) && is_array($value)) {
+        if (
+            is_array($tmp)
+            && !self::isScalarArray($tmp)
+            && is_array($value)
+            && !self::isScalarArray($value)
+        ) {
             $tmp = array_merge($tmp, $value);
         } else {
             $tmp = $value;
@@ -137,5 +142,10 @@ class Config
             }
         }
         return array_change_key_case($vars, $case);
+    }
+
+    private static function isScalarArray($array)
+    {
+        return $array == array_values($array) ? true : false;
     }
 }
