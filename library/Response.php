@@ -230,7 +230,7 @@ class Response
     {
         if ($encode) {
             $options = [
-                'json_encode_param' => Config::get('response.json_param', JSON_UNESCAPED_UNICODE),
+                'json_encode_param' => Config::get('response.json_param'),
             ];
             $data = JsonResponse::instance($options)->render($data);
         }
@@ -249,7 +249,7 @@ class Response
         }
         if ($encode) {
             $options = [
-                'json_encode_param' => Config::get('response.json_param', JSON_UNESCAPED_UNICODE),
+                'json_encode_param' => Config::get('response.json_param'),
                 'jsonp_handler'     => $callback,
             ];
             $data = JsonpResponse::instance($options)->render($data);
