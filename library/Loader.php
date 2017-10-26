@@ -29,20 +29,18 @@ class Loader
         }
         // namespace
         list($root_ns, $sub_ns) = explode('\\', $class, 2);
-        if (isset(self::$namespaces[$root_ns])) {
-            $ns_path = self::$namespaces[$root_ns];
-        } else {
-            $ns_path = $root_ns;
+        if (!isset(self::$namespaces[$root_ns])) {
+            return;
         }
-        $path = $ns_path . $sub_ns . ".php";
-        $path = strtr($path, '\\', DS);
+        $ns_path = self::$namespaces[$root_ns];
+        $path    = $ns_path . $sub_ns . ".php";
+        $path    = strtr($path, '\\', DS);
         if (is_file($path)) {
             include $path;
             self::$maps[$class] = $path;
             return;
-        } else {
-            error_log("{$path} is not exists\n", 3, LOG_PATH . 'loader.log');
         }
+        error_log("{$path} is not exists\n", 3, LOG_PATH . 'loader.log');
         return;
     }
 
