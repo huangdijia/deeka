@@ -32,7 +32,7 @@ class Loader
         if (isset(self::$namespaces[$root_ns])) {
             $ns_path = self::$namespaces[$root_ns];
         } else {
-            throw new Exception("Namespace root {$root_ns} is undefined", 1);
+            $ns_path = $root_ns;
         }
         $path = $ns_path . $sub_ns . ".php";
         $path = strtr($path, '\\', DS);
