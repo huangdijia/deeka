@@ -97,13 +97,13 @@ class Input
     {
         switch (strtolower(self::server('REQUEST_METHOD'))) {
             case 'put':
-                $input = Request::content(true);
+                $input = array_merge((array) $_GET, (array) Request::content(true));
                 break;
             case 'post':
                 if (empty($_POST)) {
                     $_POST = Request::content(true);
                 }
-                $input = $_POST;
+                $input = array_merge((array) $_GET, (array) $_POST);
                 break;
             case 'delete':
             case 'get':
