@@ -230,7 +230,8 @@ class Response
     {
         if ($encode) {
             $options = [
-                'json_encode_param' => Config::get('response.json_param'),
+                'json_encode_param'  => Config::get('response.json_param'),
+                'json_empty_to_null' => Config::get('response.empty_to_null'),
             ];
             $data = JsonResponse::instance($options)->render($data);
         }
@@ -249,8 +250,9 @@ class Response
         }
         if ($encode) {
             $options = [
-                'json_encode_param' => Config::get('response.json_param'),
-                'jsonp_handler'     => $callback,
+                'json_encode_param'  => Config::get('response.json_param'),
+                'json_empty_to_null' => Config::get('response.empty_to_null'),
+                'jsonp_handler'      => $callback,
             ];
             $data = JsonpResponse::instance($options)->render($data);
         } else {
