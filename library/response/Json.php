@@ -14,7 +14,7 @@ class Json extends Response
     {
         $json = json_encode($data, $this->options['json_encode_param']);
         if (\json_last_error()) {
-            Log::record(\json_last_error_msg());
+            Log::record(\json_last_error_msg(), Log::ERR);
         }
         // fix json php for java
         $json = str_replace(['[]', '{}', '""'], ['null', 'null', 'null'], $json);
