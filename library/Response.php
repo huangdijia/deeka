@@ -299,4 +299,19 @@ class Response
         $this->body    = '';
         return $this;
     }
+
+    protected static function emptyToNull($data)
+    {
+        if (empty($data)) {
+            return null;
+        }
+        foreach ($data as & $val) {
+            if (empty($val)) {
+                $val = null;
+            } elseif (is_array($val)) {
+                $val = self::emptyToNull($val);
+            }
+        }
+        return $data;
+    }
 }
