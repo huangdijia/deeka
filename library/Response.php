@@ -308,9 +308,7 @@ class Response
             return null;
         }
         foreach ($data as & $val) {
-            if (empty($val)) {
-                $val = null;
-            } elseif (is_array($val)) {
+            if (is_array($val)) {
                 $val = self::emptyToNull($val);
             }
         }
