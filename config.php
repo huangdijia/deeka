@@ -108,6 +108,7 @@
     'response' => [
         'json_param'     => JSON_UNESCAPED_UNICODE,
         'jsonp_callback' => 'callback',
+        'empty_to_null'  => false,
     ],
     // ssdb
     'ssdb'     => [
