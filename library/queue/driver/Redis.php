@@ -26,7 +26,9 @@ class Redis extends Queue
         try {
             $this->handler = new \Redis();
             $this->handler->connect($this->options['host'], $this->options['port']);
-        } catch (RedisException | Exception $e) {
+        } catch (RedisException $e) {
+            throw $e;
+        } catch (Exception $e) {
             throw $e;
         }
     }
