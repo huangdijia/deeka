@@ -31,7 +31,9 @@ class Ssdb extends Cache implements ICache
             } else {
                 $this->handler = new \SimpleSSDB($this->options['host'], $this->options['port']);
             }
-        } catch (\SSDBException | Exception $e) {
+        } catch (\SSDBException $e) {
+            throw $e;
+        } catch (Exception $e) {
             throw $e;
         }
     }
