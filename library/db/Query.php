@@ -23,16 +23,16 @@ class Query
         // andWhere|orWhere|xorWhere
         if (preg_match("/^(?P<logic>and|or|xor)where$/i", $method, $matches)) {
             if (isset($args[2])) {
-                [$field, $operator, $value] = $args;
+                list($field, $operator, $value) = $args;
             } else {
-                [$field, $operator, $value] = [$args[0] ?? '', '=', $args[1] ?? ''];
+                list($field, $operator, $value) = [$args[0] ?? '', '=', $args[1] ?? ''];
             }
             return $this->where($field, $operator, $value, $matches['logic']);
         } elseif (preg_match("/^where(?P<operator>{$this->operators})$/i", $method, $matches)) {
             if (isset($args[2])) {
-                [$field, $value, $logic] = $args;
+                list($field, $value, $logic) = $args;
             } else {
-                [$field, $value, $logic] = [$args[0] ?? '', $args[1] ?? '', 'AND'];
+                list($field, $value, $logic) = [$args[0] ?? '', $args[1] ?? '', 'AND'];
             }
             return $this->where($field, $matches['operator'], $value, $logic);
         } elseif (preg_match("/^(?P<logic>and|or|xor)where(?P<operator>{$this->operators})$/i", $method, $matches)) {
@@ -40,7 +40,7 @@ class Query
             $value = $args[1] ?? '';
             return $this->where($field, $matches['operator'], $value, $matches['logic']);
         } elseif (preg_match('/^(?P<type>left|right|inner|cross)join$/i', $method, $matches)) {
-            [$table, $condition] = [$args[0] ?? '', $args[1] ?? ''];
+            list($table, $condition) = [$args[0] ?? '', $args[1] ?? ''];
             return $this->join($table, $condition, $matches['type']);
         }
         throw new Exception(__CLASS__ . "::{$method}() is not exists", 1);
@@ -125,9 +125,9 @@ class Query
             throw new Exception("Field can not be empty.", 1);
         }
         // 缺省 operator 和 value
-        is_null($operator) && [$operator, $value] = ['EXP', null];
+        is_null($operator) && list($operator, $value) = ['EXP', null];
         // 缺省 operator
-        is_null($value) && [$value, $operator] = [$operator, '='];
+        is_null($value) && list($value, $operator) = [$operator, '='];
         // 纠正逻辑
         !in_array(strtoupper($logic), ['AND', 'OR', 'XOR']) && $logic = 'AND';
         // 标准化
@@ -159,7 +159,7 @@ class Query
     public function limit(int $offset = 0, int $length = null)
     {
         if (is_null($length)) {
-            [$offset, $length] = [0, $offset];
+            list($offset, $length) = [0, $offset];
         }
         $this->options['limit'] = [$offset, $length];
         return $this;

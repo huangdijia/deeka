@@ -46,8 +46,8 @@ class Options
     {
         static $argv = null;
         if (is_null($argv)) {
-            [$shortopts, $longopts] = $this->parse();
-            $argv                   = getopt($shortopts, $longopts);
+            list($shortopts, $longopts) = $this->parse();
+            $argv                       = getopt($shortopts, $longopts);
         }
         return $argv;
     }
