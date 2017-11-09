@@ -90,7 +90,9 @@ class App
         // 加载控制器
         try {
             $controller = Reflect::invokeClass($controller_name, $args);
-        } catch (ReflectionException | Exception $e) {
+        } catch (ReflectionException $e) {
+            throw $e;
+        } catch (Exception $e) {
             throw $e;
         }
         // 参数绑定, 参数绑定类型 0 = 变量名, 1 = 顺序
@@ -107,7 +109,9 @@ class App
             } else {
                 throw new Exception("Action {$controller_name}::{$action_name}() is not exists", 1);
             }
-        } catch (ReflectionException | Exception $e) {
+        } catch (ReflectionException $e) {
+            throw $e;
+        } catch (Exception $e) {
             throw $e;
         }
         return;
