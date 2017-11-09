@@ -215,6 +215,13 @@ class Validate
                     return false;
                 }
                 break;
+            case 'function':
+            case 'callback':
+                if (!is_callable($condition)) {
+                    return false;
+                }
+                return call_user_func_array($condition, []) ? true : false;
+                break;
         }
         return true;
     }
