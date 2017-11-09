@@ -330,7 +330,7 @@ class Mysql
             if (false === $sql) {
                 return Builder::instance()->select($this->_query->getOptions());
             }
-            [$sql, $this->_query] = [$this->_query, null];
+            list($sql, $this->_query) = [$this->_query, null];
         }
         // 处理参数绑定
         if (!empty($args) && empty($this->options['bind'])) {
