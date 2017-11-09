@@ -177,7 +177,7 @@ class Mysql implements BuilderInterface
     {
         is_object($field) && $field = get_object_vars($field);
         is_array($field) && $field  = join(', ', $field);
-        $field = $field ?: '*';
+        $field                      = $field ?: '*';
         return " {$field}";
     }
 
@@ -193,7 +193,7 @@ class Mysql implements BuilderInterface
         }
         $joinStr = '';
         foreach ($join as $item) {
-            [$type, $table, $condition] = $item;
+            list($type, $table, $condition) = $item;
             $joinStr .= " {$type} JOIN {$table} ON {$condition}";
         }
         return $joinStr;
@@ -211,7 +211,7 @@ class Mysql implements BuilderInterface
             return $where;
         }
         foreach ($options as $options) {
-            [$logic, $field, $operator, $value] = [$options[0] ?? '', $options[1] ?? '', $options[2] ?? '', $options[3] ?? ''];
+            list($logic, $field, $operator, $value) = [$options[0] ?? '', $options[1] ?? '', $options[2] ?? '', $options[3] ?? ''];
             if (empty($field)) {
                 continue;
             }
@@ -285,8 +285,8 @@ class Mysql implements BuilderInterface
         }
         $items = [];
         foreach ($order as $item) {
-            [$field, $order] = $item;
-            $items[]         = "{$field} {$order}";
+            list($field, $order) = $item;
+            $items[]             = "{$field} {$order}";
         }
         return " ORDER BY " . join(', ', $items);
     }
@@ -307,7 +307,7 @@ class Mysql implements BuilderInterface
             return '';
         }
         if (is_array($limit)) {
-            [$offset, $limit] = $limit;
+            list($offset, $limit) = $limit;
             if (empty($limit)) {
                 return " LIMIT {$offset}";
             } else {
