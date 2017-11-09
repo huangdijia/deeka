@@ -49,19 +49,23 @@ class Config
             $name = get_object_vars($name);
         }
         // 批量导入 Config::set([]);
-        if (is_array($name) && !empty($name)) {
+        if (is_array($name)) {
+            if (empty($name)) {
+                return true;
+            }
             $name = (array) self::arrayChangeKeyCase($name);
             foreach ($name as $key => $value) {
                 self::set($key, $value);
             }
             return true;
         }
-        // 错误类型
-        if (!is_string($name)) {
-            throw new Exception("Error type of \$name of " . __METHOD__ . "()", 1);
-        }
+        // 判断是否name为空
         if (empty($name)) {
             throw new Exception("\$name cannot be empty", 1);
+        }
+        // 错误类型
+        if (!is_string($name)) {
+            throw new Exception("\$name must be string for " . __METHOD__ . "(\$name, \$value)", 1);
         }
         // 单个设置
         $name = strtolower($name);
