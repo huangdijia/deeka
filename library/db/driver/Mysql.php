@@ -416,7 +416,7 @@ class Mysql
             if (false === $query) {
                 return Builder::instance()->insert($data, $this->_query->getOptions(), $replace);
             }
-            [$query, $this->_query] = [$this->_query, null];
+            list($query, $this->_query) = [$this->_query, null];
         }
         if (empty($data)) {
             throw new Exception("Insert data is empty", 1);
@@ -448,7 +448,7 @@ class Mysql
             if (false === $query) {
                 return Builder::instance()->update($data, $this->_query->getOptions());
             }
-            [$query, $this->_query] = [$this->_query, null];
+            list($query, $this->_query) = [$this->_query, null];
         }
         if (empty($data)) {
             throw new Exception("Update data is empty", 1);
@@ -479,7 +479,7 @@ class Mysql
             if (false === $query) {
                 return Builder::instance()->delete($this->_query->getOptions());
             }
-            [$query, $this->_query] = [$this->_query, null];
+            list($query, $this->_query) = [$this->_query, null];
         }
         if ($query instanceof Closure) {
             $q = new Query;
