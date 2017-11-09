@@ -49,7 +49,7 @@ if (\deeka\Config::get('lang.accept')) {
 // DEBUG
 APP_DEBUG && \deeka\Config::set('log.level', 'all');
 // 加载验证规则
-\deeka\Validate::addRule([]);
+// \deeka\Validate::addRule([]);
 // 加载助手函数
 is_file(CORE_PATH . 'hook' . EXT) && require_once CORE_PATH . 'hook' . EXT;
 // 加载钩子
