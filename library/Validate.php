@@ -126,9 +126,9 @@ class Validate
                 break;
             case 'between':
                 if (is_array($condition) && count($condition) > 1) {
-                    [$min, $max] = $condition;
+                    list($min, $max) = $condition;
                 } else {
-                    [$min, $max] = explode(',', $condition);
+                    list($min, $max) = explode(',', $condition);
                 }
                 if (!($min <= $value && $value <= $max)) {
                     return false;
@@ -136,9 +136,9 @@ class Validate
                 break;
             case 'notbetween':
                 if (is_array($condition)) {
-                    [$min, $max] = $condition;
+                    list($min, $max) = $condition;
                 } else {
-                    [$min, $max] = explode(',', $condition);
+                    list($min, $max) = explode(',', $condition);
                 }
                 if (($min <= $value && $value <= $max)) {
                     return false;
@@ -182,7 +182,7 @@ class Validate
             case 'length':
                 $length = strlen($value);
                 if (false !== strpos($condition, ',')) {
-                    [$min, $max] = explode(',', $condition);
+                    list($min, $max) = explode(',', $condition);
                     if (!($min <= $length && $length <= $max)) {
                         return false;
                     }
@@ -210,7 +210,7 @@ class Validate
                 }
                 break;
             case 'date':
-                [$year, $month, $day] = [substr($value, 0, 4), substr($value, 5, 2), substr($value, 8, 2)];
+                list($year, $month, $day) = [substr($value, 0, 4), substr($value, 5, 2), substr($value, 8, 2)];
                 if (!checkdate($month, $day, $year)) {
                     return false;
                 }
