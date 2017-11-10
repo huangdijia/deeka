@@ -33,7 +33,7 @@ trait Ajax
         } else {
             Response::instance()->json($data);
         }
-        Log::record(var_export($data, 1), 'RETURN');
+        Log::record(preg_replace('/\s+/', ' ', var_export($data, 1)), 'RETURN');
         exit;
     }
 
