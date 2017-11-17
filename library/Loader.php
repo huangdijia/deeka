@@ -1,13 +1,14 @@
 <?php
 namespace deeka;
 
-use Exception;
 use deeka\Reflect;
 
 class Loader
 {
     protected static $namespaces = [];
     protected static $maps       = [];
+
+    const DS = '\\';
 
     private function __construct()
     {
@@ -21,26 +22,38 @@ class Loader
 
     public static function autoload($class)
     {
-        $class = ltrim($class, '\\');
+        $class    = ltrim($class, self::DS);
+        $log_file = LOG_PATH . 'loader.log';
         // map
         if (isset(self::$maps[$class])) {
             include self::$maps[$class];
             return;
         }
-        // namespace
-        list($root_ns, $sub_ns) = explode('\\', $class, 2);
-        if (!isset(self::$namespaces[$root_ns])) {
+        // 由右至左匹配
+        $ns_prefix = $class;
+        while (false !== $pos = strrpos($ns_prefix, self::DS)) {
+            $ns_prefix = substr($ns_prefix, 0, $pos);
+            $ns_index  = $ns_prefix . self::DS;
+            if (isset(self::$namespaces[$ns_index])) {
+                $ns_path = self::$namespaces[$ns_index];
+                $ns_sub  = substr($class, $pos + 1);
+                break;
+            }
+        }
+        // 未匹配到
+        if (!isset($ns_path)) {
+            error_log("ns_path is not exists\n", 3, $log_file);
             return;
         }
-        $ns_path = self::$namespaces[$root_ns];
-        $path    = $ns_path . $sub_ns . ".php";
-        $path    = strtr($path, '\\', DS);
+        // error_log("ns_prefix:{$ns_index}, ns_sub:{$ns_sub}, ns_path:{$ns_path}\n", 3, $log_file);
+        $path = $ns_path . $ns_sub . ".php";
+        $path = strtr($path, self::DS, DS);
         if (is_file($path)) {
             include $path;
-            self::$maps[$class] = $path;
+            // self::$maps[$class] = $path;
             return;
         }
-        error_log("{$path} is not exists\n", 3, LOG_PATH . 'loader.log');
+        error_log("{$path} is not exists\n", 3, $log_file);
         return;
     }
 
@@ -50,9 +63,18 @@ class Loader
             foreach ($name as $ns => $path) {
                 self::addNamespace($ns, $path);
             }
-        } else {
-            self::$namespaces[$name] = $path;
+            return true;
         }
+        // 兼容未以\结束的name
+        $name = trim($name);
+        $name = ltrim($name, self::DS);
+        if (empty($name)) {
+            return false;
+        }
+        if (self::DS != substr($name, -1, 1)) {
+            $name .= self::DS;
+        }
+        self::$namespaces[$name] = $path;
         return true;
     }
 
@@ -62,9 +84,13 @@ class Loader
             foreach ($class as $name => $path) {
                 self::addClassMap($name, $path);
             }
-        } else {
-            self::$maps[$class] = $path;
+            return true;
         }
+        $class = trim($class);
+        if (empty($class)) {
+            return false;
+        }
+        self::$maps[$class] = $path;
         return true;
     }
 
@@ -97,7 +123,7 @@ class Loader
         if (class_exists($class)) {
             is_string($args) && parse_str($args, $args);
             is_object($args) && $args = get_object_vars($args);
-            $controller[$class] = Reflect::invokeClass($class, $vars);
+            $controller[$class]       = Reflect::invokeClass($class, $vars);
             return $controller[$class];
         }
         return false;
