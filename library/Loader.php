@@ -2,6 +2,7 @@
 namespace deeka;
 
 use deeka\Reflect;
+use deeka\Log;
 
 class Loader
 {
@@ -23,7 +24,6 @@ class Loader
     public static function autoload($class)
     {
         $class    = ltrim($class, self::DS);
-        $log_file = LOG_PATH . 'loader.log';
         // map
         if (isset(self::$maps[$class])) {
             include self::$maps[$class];
@@ -42,10 +42,10 @@ class Loader
         }
         // 未匹配到
         if (!isset($ns_path)) {
-            error_log("ns_path is not exists\n", 3, $log_file);
+            Log::write("ns_path is not exists", Log::EMERG);
             return;
         }
-        // error_log("ns_prefix:{$ns_index}, ns_sub:{$ns_sub}, ns_path:{$ns_path}\n", 3, $log_file);
+        // Log::write("ns_prefix:{$ns_index}, ns_sub:{$ns_sub}, ns_path:{$ns_path}", Log::EMERG);
         $path = $ns_path . $ns_sub . ".php";
         $path = strtr($path, self::DS, DS);
         if (is_file($path)) {
@@ -53,7 +53,7 @@ class Loader
             // self::$maps[$class] = $path;
             return;
         }
-        error_log("{$path} is not exists\n", 3, $log_file);
+        Log::write("{$path} is not exists", Log::EMERG);
         return;
     }
 
