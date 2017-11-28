@@ -96,8 +96,16 @@ class File extends Log implements LoggerInterface
             return;
         }
         $level     = Log::level($level);
-        $log_level = strtoupper(self::$config['level']);
-        if ($log_level != 'ALL' && false === strpos($log_level, $level)) {
+        $log_level = self::$config['level'];
+        if ($log_level == 'ALL' || $log_level == '') {
+            $log_level = Log::getConstants(true);
+        } else {
+            if (strpos($log_level, ',')) {
+                $log_level = strtoupper($log_level);
+                $log_level = explode(',', $log_level);
+            }
+        }
+        if (false === in_array($level, $log_level)) {
             return;
         }
         if (!is_scalar($message)) {

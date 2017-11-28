@@ -109,13 +109,20 @@ class Log
     public static function level($level = '')
     {
         if (is_numeric($level)) {
-            return self::$levelMapping[$level] ?? self::ERR;
+            return self::$levelMapping[$level] ?? self::INFO;
         }
         return strtoupper($level);
     }
 
-    public static function getConstants()
+    public static function getConstants($fetch_keys = false)
     {
-        return (new ReflectionClass(__CLASS__))->getConstants();
+        static $constants = null;
+        if (is_null($constants)) {
+            $constants = (new ReflectionClass(__CLASS__))->getConstants();
+        }
+        if ($fetch_keys) {
+            return array_keys($constants);
+        }
+        return $constants;
     }
 }
