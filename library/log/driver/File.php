@@ -99,11 +99,9 @@ class File extends Log implements LoggerInterface
         $log_level = self::$config['level'];
         if ($log_level == 'ALL' || $log_level == '') {
             $log_level = Log::getConstants(true);
-        } else {
-            if (strpos($log_level, ',')) {
-                $log_level = strtoupper($log_level);
-                $log_level = explode(',', $log_level);
-            }
+        } elseif (is_scalar($log_level)) {
+            $log_level = strtoupper($log_level);
+            $log_level = explode(',', $log_level);
         }
         if (false === in_array($level, $log_level)) {
             return;
