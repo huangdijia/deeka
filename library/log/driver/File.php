@@ -100,7 +100,9 @@ class File extends Log implements LoggerInterface
         if ($log_level != 'ALL' && false === strpos($log_level, $level)) {
             return;
         }
-        $message     = is_scalar($message) ? $message : var_export($message, 1);
+        if (!is_scalar($message)) {
+            $message = var_export($message, 1);
+        }
         self::$log[] = sprintf("%s: %s\n", $level, $message);
         return;
     }
