@@ -54,7 +54,6 @@ class Redis extends Cache implements CacheInterface
 
     public function getMultiple($keys, $default = null)
     {
-        // return $this->handler->mGet($keys);
         $resp = [];
         foreach ((array) $keys as $key) {
             $resp[$key] = $this->get($key) ?? $default;
@@ -64,7 +63,6 @@ class Redis extends Cache implements CacheInterface
 
     public function setMultiple($values, $ttl = null)
     {
-        // return $this->handler->mset($values);
         foreach ((array) $values as $key => $value) {
             $this->set($key, $value, $ttl);
         }

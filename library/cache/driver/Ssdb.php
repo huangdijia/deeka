@@ -66,7 +66,6 @@ class Ssdb extends Cache implements CacheInterface
 
     public function setMultiple($values, $ttl = null)
     {
-        // return $this->handler->multi_set($values);
         foreach ((array) $values as $key => $value) {
             $this->set($key, $value, $ttl);
         }
