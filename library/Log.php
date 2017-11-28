@@ -4,35 +4,42 @@ namespace deeka;
 use deeka\Config;
 use Exception;
 use ReflectionClass;
+use Psr\Log\LogLevel;
 
 class Log
 {
-    const EMERG  = 'EMERG';
-    const ALERT  = 'ALERT';
-    const CRIT   = 'CRIT';
-    const ERR    = 'ERR';
-    const WARN   = 'WARN';
-    const NOTICE = 'NOTICE';
-    const INFO   = 'INFO';
-    const DEBUG  = 'DEBUG';
-    const SQL    = 'SQL';
-    const LOG    = 'LOG';
+    const EMERGENCY = 'emergency';
+    const ALERT     = 'alert';
+    const CRITICAL  = 'critical';
+    const ERROR     = 'error';
+    const WARNING   = 'warning';
+    const NOTICE    = 'notice';
+    const INFO      = 'info';
+    const DEBUG     = 'debug';
+    const SQL       = 'sql';
+    const LOG       = 'log';
 
     protected static $map = [
-        E_ERROR             => 'ERR',
-        E_WARNING           => 'WARN',
-        E_PARSE             => 'ERR',
-        E_NOTICE            => 'NOTICE',
-        E_CORE_ERROR        => 'ERR',
-        E_CORE_WARNING      => 'WARN',
-        E_COMPILE_ERROR     => 'ERR',
-        E_COMPILE_WARNING   => 'WARN',
-        E_USER_ERROR        => 'ERR',
-        E_USER_WARNING      => 'WARN',
-        E_USER_NOTICE       => 'NOTICE',
-        E_STRICT            => 'ERR',
-        E_RECOVERABLE_ERROR => 'ERR',
-        E_ALL               => 'INFO',
+        E_ERROR             => LogLevel::ERROR,
+        E_WARNING           => LogLevel::WARNING,
+        E_PARSE             => LogLevel::ERROR,
+        E_NOTICE            => LogLevel::NOTICE,
+        E_CORE_ERROR        => LogLevel::ERROR,
+        E_CORE_WARNING      => LogLevel::WARNING,
+        E_COMPILE_ERROR     => LogLevel::ERROR,
+        E_COMPILE_WARNING   => LogLevel::WARNING,
+        E_USER_ERROR        => LogLevel::ERROR,
+        E_USER_WARNING      => LogLevel::WARNING,
+        E_USER_NOTICE       => LogLevel::NOTICE,
+        E_STRICT            => LogLevel::ERROR,
+        E_RECOVERABLE_ERROR => LogLevel::ERROR,
+        E_ALL               => LogLevel::INFO,
+    ];
+    protected static $mapping  = [
+        'crit'  => 'critical',
+        'emerg' => 'emergency',
+        'err'   => 'error',
+        'warn'  => 'warning',
     ];
     protected static $config   = [];
     protected static $handlers = [];
@@ -54,6 +61,10 @@ class Log
 
     public static function __callStatic($name, $args)
     {
+        // 旧方法兼容
+        if (isset(self::$mapping[$name])) {
+            $name = self::$mapping[$name];
+        }
         return call_user_func_array([self::connect(), $name], $args);
     }
 
