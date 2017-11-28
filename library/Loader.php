@@ -42,10 +42,10 @@ class Loader
         }
         // 未匹配到
         if (!isset($ns_path)) {
-            Log::write("ns_path is not exists", Log::EMERG);
+            Log::write("ns_path is not exists", Log::EMERGENCY);
             return;
         }
-        // Log::write("ns_prefix:{$ns_index}, ns_sub:{$ns_sub}, ns_path:{$ns_path}", Log::EMERG);
+        // Log::write("ns_prefix:{$ns_index}, ns_sub:{$ns_sub}, ns_path:{$ns_path}", Log::EMERGENCY);
         $path = $ns_path . $ns_sub . ".php";
         $path = strtr($path, self::DS, DS);
         if (is_file($path)) {
@@ -53,7 +53,7 @@ class Loader
             // self::$maps[$class] = $path;
             return;
         }
-        Log::write("{$path} is not exists", Log::EMERG);
+        Log::write("{$path} is not exists", Log::EMERGENCY);
         return;
     }
 

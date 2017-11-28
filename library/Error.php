@@ -98,7 +98,7 @@ class Error
             $e->getTraceAsString()
         );
         // 记录日志
-        Log::record($log, is_callable([$e, 'getSeverity']) ? $e->getSeverity() : Log::ERR);
+        Log::record($log, is_callable([$e, 'getSeverity']) ? $e->getSeverity() : Log::ERROR);
         Log::save();
         ob_get_length() && ob_end_clean();
         if (APP_DEBUG) {

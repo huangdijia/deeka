@@ -24,21 +24,20 @@ class File extends Log implements LoggerInterface
         self::$config = array_merge(self::$config, $config);
     }
 
-    public function __call($name, $args)
-    {
-        $name = strtoupper($name);
-        // check it
-        if (!in_array($name, array_key(Log::getConstants()))) {
-            // throw new Exception('Log::' . strtoupper($name) . ' is not defined', 1);
-            $this->warning('Log::' . strtoupper($name) . ' is not defined');
-        }
-        // message is empty, return
-        if (empty($args[0])) {
-            return;
-        }
-        // record it
-        $this->record($args[0], $name);
-    }
+    // public function __call($name, $args)
+    // {
+    //     $name = strtoupper($name);
+    //     // check it
+    //     if (!in_array($name, array_key(Log::getConstants()))) {
+    //         $this->warning('Log::' . strtoupper($name) . ' is not defined');
+    //     }
+    //     // message is empty, return
+    //     if (empty($args[0])) {
+    //         return;
+    //     }
+    //     // record it
+    //     $this->record($args[0], $name);
+    // }
 
     public function emergency($message = '', array $contex = [])
     {
@@ -87,9 +86,10 @@ class File extends Log implements LoggerInterface
 
     public function log($level, $message = '', array $contex = [])
     {
-        $this->record($message, Log::LOG);
+        $this->record($message, $level);
     }
 
+    // 旧用法
     public function record($message = '', $level = Log::LOG)
     {
         if (!self::$config['on']) {

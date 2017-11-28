@@ -19,7 +19,7 @@ class Jsonp extends Response
         }
         $json = json_encode($data, $this->options['json_encode_param']);
         if (\json_last_error()) {
-            Log::record(\json_last_error_msg(), Log::ERR);
+            Log::record(\json_last_error_msg(), Log::ERROR);
         }
         return "{$this->options['jsonp_handler']}({$json});";
     }

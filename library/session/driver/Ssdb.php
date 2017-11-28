@@ -42,7 +42,7 @@ class Ssdb implements SessionHandlerInterface
                 $e->getLine(),
                 $e->getTraceAsString()
             );
-            Log::record($log, Log::ERR);
+            Log::record($log, Log::ERROR);
         }
         return true;
     }

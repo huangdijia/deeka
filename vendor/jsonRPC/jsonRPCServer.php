@@ -61,7 +61,7 @@ class jsonRPCServer
         $error['line']    = $e->getLine();
         $log              = "{$error['message']} in {$error['file']} on line {$error['line']}";
         $log .= PHP_EOL . PHP_EOL . 'Track:' . PHP_EOL . $trace;
-        Log::record($log, Log::ERR);
+        Log::record($log, Log::ERROR);
         $response = [
             'jsonrpc' => self::JSONRPC_VERSION,
             'result'  => null,

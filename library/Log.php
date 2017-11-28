@@ -3,8 +3,8 @@ namespace deeka;
 
 use deeka\Config;
 use Exception;
-use ReflectionClass;
 use Psr\Log\LogLevel;
+use ReflectionClass;
 
 class Log
 {
@@ -18,11 +18,11 @@ class Log
     const DEBUG     = 'debug';
     const SQL       = 'sql';
     const LOG       = 'log';
+    // 兼容
+    const EMERG = 'emergency';
+    const ERR   = 'error';
 
-    const EMERG     = 'emergency';
-    const ERR       = 'error';
-
-    protected static $map = [
+    protected static $levelMapping = [
         E_ERROR             => LogLevel::ERROR,
         E_WARNING           => LogLevel::WARNING,
         E_PARSE             => LogLevel::ERROR,
@@ -38,7 +38,7 @@ class Log
         E_RECOVERABLE_ERROR => LogLevel::ERROR,
         E_ALL               => LogLevel::INFO,
     ];
-    protected static $mapping  = [
+    protected static $methodMapping = [
         'crit'  => 'critical',
         'emerg' => 'emergency',
         'err'   => 'error',
@@ -65,8 +65,8 @@ class Log
     public static function __callStatic($name, $args)
     {
         // 旧方法兼容
-        if (isset(self::$mapping[$name])) {
-            $name = self::$mapping[$name];
+        if (isset(self::$methodMapping[$name])) {
+            $name = self::$methodMapping[$name];
         }
         return call_user_func_array([self::connect(), $name], $args);
     }
@@ -109,7 +109,7 @@ class Log
     public static function level($level = '')
     {
         if (is_numeric($level)) {
-            return self::$map[$level] ?? self::ERR;
+            return self::$levelMapping[$level] ?? self::ERR;
         }
         return strtoupper($level);
     }
