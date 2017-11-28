@@ -29,7 +29,7 @@ function cache(string $name, $value = '', $options = '')
     if ('' === $value) {
         return $cache->get($name);
     } elseif (is_null($value)) {
-        return $cache->rm($name);
+        return $cache->delete($name);
     } else {
         if (isset($options['expire'])) {
             $expire = $options['expire'];

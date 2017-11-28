@@ -2,10 +2,10 @@
 namespace deeka\cache\driver;
 
 use deeka\Cache;
-use deeka\cache\ICache;
 use deeka\Config;
+use Psr\SimpleCache\CacheInterface;
 
-class File extends Cache implements ICache
+class File extends Cache implements CacheInterface
 {
     // 构造函数
     public function __construct($options = [])
@@ -33,14 +33,14 @@ class File extends Cache implements ICache
         }
     }
 
-    private function filename($name)
+    private function filename($key)
     {
-        return rtrim($this->options['path'], '/') . '/' . $this->options['prefix'] . md5($name) . '.php';
+        return rtrim($this->options['path'], '/') . '/' . $this->options['prefix'] . md5($key) . '.php';
     }
 
-    public function get($name)
+    public function get($key, $default = null)
     {
-        $filename = $this->filename($name);
+        $filename = $this->filename($key);
         if (!is_file($filename)) {
             return false;
         }
@@ -69,12 +69,12 @@ class File extends Cache implements ICache
         return $content;
     }
 
-    public function set($name, $value, $expire = null)
+    public function set($key, $value, $ttl = null)
     {
-        if (is_null($expire)) {
-            $expire = $this->options['expire'];
+        if (is_null($ttl)) {
+            $ttl = $this->options['expire'];
         }
-        $filename = $this->filename($name);
+        $filename = $this->filename($key);
         $data     = serialize($value);
         // 生成校验码
         if ($this->options['check']) {
@@ -83,7 +83,7 @@ class File extends Cache implements ICache
             $check = '';
         }
         // 缓存内容
-        $content = "<?php\n//" . sprintf('%012d', $expire) . $check . $data . "\n?>";
+        $content = "<?php\n//" . sprintf('%012d', $ttl) . $check . $data . "\n?>";
         // 保存文件
         $result = file_put_contents($filename, $content);
         if ($result) {
@@ -93,9 +93,9 @@ class File extends Cache implements ICache
         return false;
     }
 
-    public function rm($name)
+    public function delete($key)
     {
-        $filename = $this->filename($name);
+        $filename = $this->filename($key);
         if (is_file($filename)) {
             return unlink($filename);
         }
@@ -118,5 +118,25 @@ class File extends Cache implements ICache
             return true;
         }
         return false;
+    }
+
+    public function getMultiple($keys, $default = null)
+    {
+        //
+    }
+
+    public function setMultiple($values, $ttl = null)
+    {
+        //
+    }
+
+    public function deleteMultiple($keys)
+    {
+        //
+    }
+
+    public function has($key)
+    {
+        //
     }
 }

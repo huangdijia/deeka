@@ -2,11 +2,11 @@
 namespace deeka\cache\driver;
 
 use deeka\Cache;
-use deeka\cache\ICache;
 use deeka\Config;
 use Exception;
+use Psr\SimpleCache\CacheInterface;
 
-class Memcache extends Cache implements ICache
+class Memcache extends Cache implements CacheInterface
 {
     protected $handler = null;
 
@@ -34,30 +34,46 @@ class Memcache extends Cache implements ICache
         }
     }
 
-    public function get($name)
+    public function get($key, $default = null)
     {
-        return $this->handler->get($this->options['prefix'] . $name);
+        return $this->handler->get($this->options['prefix'] . $key);
     }
 
-    public function set($name, $value, $expire = null)
+    public function set($key, $value, $ttl = null)
     {
-        if (is_null($expire)) {
-            $expire = $this->options['expire'];
+        if (is_null($ttl)) {
+            $ttl = $this->options['expire'];
         }
-        return $this->handler->set($this->options['prefix'] . $name, $value, MEMCACHE_COMPRESSED, $expire) ? true : false;
+        return $this->handler->set($this->options['prefix'] . $key, $value, MEMCACHE_COMPRESSED, $ttl) ? true : false;
     }
 
-    public function rm($name, $ttl = false)
+    public function delete($key)
     {
-        if (false === $ttl) {
-            return $this->handler->delete($this->options['prefix'] . $name);
-        } else {
-            return $this->handler->delete($this->options['prefix'] . $name, $ttl);
-        }
+        return $this->handler->delete($this->options['prefix'] . $key);
     }
 
     public function clear()
     {
         return $this->handler->flush();
+    }
+
+    public function getMultiple($keys, $default = null)
+    {
+        //
+    }
+
+    public function setMultiple($values, $ttl = null)
+    {
+        //
+    }
+
+    public function deleteMultiple($keys)
+    {
+        //
+    }
+
+    public function has($key)
+    {
+        //
     }
 }
