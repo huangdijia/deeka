@@ -36,7 +36,7 @@ class Memcached extends Cache implements CacheInterface
 
     public function get($key, $default = null)
     {
-        return $this->handler->get($this->options['prefix'] . $key);
+        return $this->handler->get($this->options['prefix'] . $key) ?? $default;
     }
 
     public function set($key, $value, $ttl = null)
@@ -56,21 +56,21 @@ class Memcached extends Cache implements CacheInterface
 
     public function getMultiple($keys, $default = null)
     {
-        //
+        return $this->handler->getMulti($keys);
     }
 
     public function setMultiple($values, $ttl = null)
     {
-        //
+        return $this->setMulti($values, $ttl);
     }
 
     public function deleteMultiple($keys)
     {
-        //
+        return $this->deleteMulti($keys);
     }
 
     public function has($key)
     {
-        //
+        return false === $this->get($key) ? false : true;
     }
 }

@@ -34,7 +34,7 @@ class Redis extends Cache implements CacheInterface
 
     public function get($key, $default = null)
     {
-        return $this->handler->get($this->options['prefix'] . $key);
+        return $this->handler->get($this->options['prefix'] . $key) ?? $default;
     }
 
     public function set($key, $value, $ttl = null)
@@ -54,21 +54,25 @@ class Redis extends Cache implements CacheInterface
 
     public function getMultiple($keys, $default = null)
     {
-        //
+        return $this->handler->getMultiple($keys);
     }
 
     public function setMultiple($values, $ttl = null)
     {
-        //
+        // return $this->handler->mset($values);
+        foreach ((array) $values as $key => $value) {
+            $this->set($key, $value, $ttl);
+        }
+        return true;
     }
 
     public function deleteMultiple($keys)
     {
-        //
+        return $this->handler->delete($keys);
     }
 
     public function has($key)
     {
-        //
+        return $this->handler->exists($key);
     }
 }

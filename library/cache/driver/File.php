@@ -66,7 +66,7 @@ class File extends Cache implements CacheInterface
         }
         // 反序列化
         $content = unserialize($content);
-        return $content;
+        return $content ?? $default;
     }
 
     public function set($key, $value, $ttl = null)
@@ -122,21 +122,32 @@ class File extends Cache implements CacheInterface
 
     public function getMultiple($keys, $default = null)
     {
-        //
+        $retval = [];
+        foreach ((array) $keys as $key) {
+            $retval[$key] = $this->get($key, $default);
+        }
+        return $retval;
     }
 
     public function setMultiple($values, $ttl = null)
     {
-        //
+        foreach ((array) $values as $key => $value) {
+            $this->set($key, $value, $ttl);
+        }
+        return true;
     }
 
     public function deleteMultiple($keys)
     {
-        //
+        foreach ((array) $keys as $key) {
+            $this->delete($key);
+        }
+        return true;
     }
 
     public function has($key)
     {
-        //
+        $filename = $this->filename($key);
+        return is_file($filename) ? true : false;
     }
 }

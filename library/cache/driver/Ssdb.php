@@ -38,15 +38,15 @@ class Ssdb extends Cache implements CacheInterface
         }
     }
 
-    public function set($key, $value, $ttl = null)
-    {
-        return $this->handler->setx($this->options['prefix'] . $key, serialize($value), $ttl ?? $this->options['expire']);
-    }
-
     public function get($key)
     {
         $data = $this->handler->get($this->options['prefix'] . $key);
-        return unserialize($data);
+        return unserialize($data) ?? $default;
+    }
+
+    public function set($key, $value, $ttl = null)
+    {
+        return $this->handler->setx($this->options['prefix'] . $key, serialize($value), $ttl ?? $this->options['expire']);
     }
 
     public function delete($key)
@@ -61,21 +61,25 @@ class Ssdb extends Cache implements CacheInterface
 
     public function getMultiple($keys, $default = null)
     {
-        //
+        return $this->handler->multi_get($keys);
     }
 
     public function setMultiple($values, $ttl = null)
     {
-        //
+        // return $this->handler->multi_set($values);
+        foreach ((array) $values as $key => $value) {
+            $this->set($key, $value, $ttl);
+        }
+        return true;
     }
 
     public function deleteMultiple($keys)
     {
-        //
+        return $this->handler->multi_del($keys);
     }
 
     public function has($key)
     {
-        //
+        return $this->handler->exists($key);
     }
 }
