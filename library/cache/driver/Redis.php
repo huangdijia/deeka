@@ -73,6 +73,6 @@ class Redis extends Cache implements CacheInterface
 
     public function has($key)
     {
-        return $this->handler->exists($key);
+        return $this->handler->exists($key) ? true : false;
     }
 }
