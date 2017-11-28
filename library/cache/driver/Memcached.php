@@ -61,12 +61,12 @@ class Memcached extends Cache implements CacheInterface
 
     public function setMultiple($values, $ttl = null)
     {
-        return $this->setMulti($values, $ttl);
+        return $this->handler->setMulti($values, $ttl);
     }
 
     public function deleteMultiple($keys)
     {
-        return $this->deleteMulti($keys);
+        return $this->handler->deleteMulti($keys);
     }
 
     public function has($key)
