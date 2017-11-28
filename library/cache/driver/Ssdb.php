@@ -2,12 +2,12 @@
 namespace deeka\cache\driver;
 
 use deeka\Cache;
-use deeka\cache\ICache;
 use deeka\Config;
 use deeka\Loader;
 use Exception;
+use Psr\SimpleCache\CacheInterface;
 
-class Ssdb extends Cache implements ICache
+class Ssdb extends Cache implements CacheInterface
 {
     protected $handler = null;
 
@@ -38,24 +38,47 @@ class Ssdb extends Cache implements ICache
         }
     }
 
-    public function set($name, $value, $expire = null)
+    public function get($key)
     {
-        return $this->handler->setx($this->options['prefix'] . $name, serialize($value), !is_null($expire) ? $expire : $this->options['expire']);
+        $data = $this->handler->get($this->options['prefix'] . $key);
+        return unserialize($data) ?? $default;
     }
 
-    public function get($name)
+    public function set($key, $value, $ttl = null)
     {
-        $data = $this->handler->get($this->options['prefix'] . $name);
-        return unserialize($data);
+        return $this->handler->setx($this->options['prefix'] . $key, serialize($value), $ttl ?? $this->options['expire']);
     }
 
-    public function rm($name)
+    public function delete($key)
     {
-        return $this->handler->del($this->options['prefix'] . $name);
+        return $this->handler->del($this->options['prefix'] . $key);
     }
 
     public function clear()
     {
         return true;
+    }
+
+    public function getMultiple($keys, $default = null)
+    {
+        return $this->handler->multi_get($keys);
+    }
+
+    public function setMultiple($values, $ttl = null)
+    {
+        foreach ((array) $values as $key => $value) {
+            $this->set($key, $value, $ttl);
+        }
+        return true;
+    }
+
+    public function deleteMultiple($keys)
+    {
+        return $this->handler->multi_del($keys);
+    }
+
+    public function has($key)
+    {
+        return $this->handler->exists($key);
     }
 }

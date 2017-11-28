@@ -15,6 +15,9 @@ class Cache
         'expire'  => 120,
         'timeout' => 0,
     ];
+    protected static $methodMapping = [
+        'rm' => 'delete',
+    ];
 
     public static function instance()
     {
