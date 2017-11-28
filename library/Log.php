@@ -19,6 +19,9 @@ class Log
     const SQL       = 'sql';
     const LOG       = 'log';
 
+    const EMERG     = 'emergency';
+    const ERR       = 'error';
+
     protected static $map = [
         E_ERROR             => LogLevel::ERROR,
         E_WARNING           => LogLevel::WARNING,
