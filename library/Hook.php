@@ -39,7 +39,7 @@ class Hook
         $hooks = self::$hooks[$name] ?? [];
         foreach ((array) $hooks as $key=>$callback) {
             if (!is_callable($callback)) {
-                Log::record("[HOOK] Error hook {$name}#{$key}", Log::ERR);
+                Log::record("[HOOK] Error hook {$name}#{$key}", Log::ERROR);
                 continue;
             }
             Debug::remark('hook_exec_start');

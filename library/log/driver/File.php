@@ -4,14 +4,11 @@ namespace deeka\log\driver;
 use deeka\Debug;
 use deeka\Input;
 use deeka\Log;
-use deeka\log\ILog;
 use Exception;
+use Psr\Log\LoggerInterface;
 
-class File extends Log implements ILog
+class File extends Log implements LoggerInterface
 {
-    /**
-     * @var array 配置
-     */
     protected static $config = [
         'on'          => true,
         'type'        => 'File',
@@ -27,104 +24,104 @@ class File extends Log implements ILog
         self::$config = array_merge(self::$config, $config);
     }
 
-    public function __call($name, $args)
+    // public function __call($name, $args)
+    // {
+    //     $name = strtoupper($name);
+    //     // check it
+    //     if (!in_array($name, array_key(Log::getConstants()))) {
+    //         $this->warning('Log::' . strtoupper($name) . ' is not defined');
+    //     }
+    //     // message is empty, return
+    //     if (empty($args[0])) {
+    //         return;
+    //     }
+    //     // record it
+    //     $this->record($args[0], $name);
+    // }
+
+    public function emergency($message = '', array $contex = [])
     {
-        $name = strtoupper($name);
-        // map
-        if ($name == 'ERROR') {
-            $name = 'ERR';
-        }
-        // check it
-        if (!in_array($name, array_key(Log::getConstants()))) {
-            throw new Exception('Log::' . strtoupper($name) . ' is not defined', 1);
-        }
-        // message is empty, return
-        if (empty($args[0])) {
-            return;
-        }
-        // record it
-        $this->record($args[0], $name);
+        $this->record($message, Log::EMERGENCY);
     }
 
-    public function emerg($message = '')
-    {
-        $this->record($message, Log::EMERG);
-    }
-
-    public function alert($message = '')
+    public function alert($message = '', array $contex = [])
     {
         $this->record($message, Log::ALERT);
     }
 
-    public function crit($message = '')
+    public function critical($message = '', array $contex = [])
     {
-        $this->record($message, Log::CRIT);
+        $this->record($message, Log::CRITICAL);
     }
 
-    public function err($message = '')
+    public function error($message = '', array $contex = [])
     {
-        $this->record($message, Log::ERR);
+        $this->record($message, Log::ERROR);
     }
 
-    public function error($message = '')
+    public function warning($message = '', array $contex = [])
     {
-        $this->record($message, Log::ERR);
+        $this->record($message, Log::WARNING);
     }
 
-    public function warn($message = '')
-    {
-        $this->record($message, Log::WARN);
-    }
-
-    public function notice($message = '')
+    public function notice($message = '', array $contex = [])
     {
         $this->record($message, Log::NOTICE);
     }
 
-    public function info($message = '')
+    public function info($message = '', array $contex = [])
     {
         $this->record($message, Log::INFO);
     }
 
-    public function debug($message = '')
+    public function debug($message = '', array $contex = [])
     {
         $this->record($message, Log::DEBUG);
     }
 
-    public function sql($message = '')
+    public function sql($message = '', array $contex = [])
     {
         $this->record($message, Log::SQL);
     }
 
-    public function log($message = '')
+    public function log($level, $message = '', array $contex = [])
     {
-        $this->record($message, Log::LOG);
+        $this->record($message, $level);
     }
 
-    /**
-     * @param $message 日志内容
-     * @param $level 级别
-     * @return null
-     */
+    // 旧用法
     public function record($message = '', $level = Log::LOG)
     {
         if (!self::$config['on']) {
             return;
         }
         $level     = Log::level($level);
-        $log_level = strtoupper(self::$config['level']);
-        if ($log_level != 'ALL' && false === strpos($log_level, $level)) {
+        $log_level = self::$config['level'];
+        // 任意类型
+        if (is_scalar($log_level) && in_array(strtoupper($log_level), ['ANY', 'ALL', ''])) {
+            $log_level = [$level];
+        } else {
+            if (is_scalar($log_level)) {
+                $log_level = explode(',', $log_level);
+            }
+            // 强转类型
+            if (is_object($log_level)) {
+                $log_level = (array) $log_level;
+            }
+            // 转大写
+            $log_level = array_map('strtoupper', $log_level);
+        }
+        // 判断是否记录
+        if (false === in_array($level, $log_level)) {
             return;
         }
-        $message     = is_scalar($message) ? $message : var_export($message, 1);
+        if (!is_scalar($message)) {
+            $message = var_export($message, 1);
+        }
         self::$log[] = sprintf("%s: %s\n", $level, $message);
         return;
     }
 
-    /**
-     * @param $dest 保存位置
-     * @return null
-     */
     public function save($dest = '')
     {
         if (
@@ -160,11 +157,6 @@ class File extends Log implements ILog
         self::clear();
     }
 
-    /**
-     * @param $message 日志内容
-     * @param $level 日志级别
-     * @param null
-     */
     public function write($message = '', $level = Log::LOG, $dest = '')
     {
         if (!is_scalar($message)) {
@@ -184,10 +176,6 @@ class File extends Log implements ILog
         }
     }
 
-    /**
-     * @param $dest 保存位置
-     * @return mixed
-     */
     protected function dest($dest = '')
     {
         if (!empty($dest)) {
@@ -204,9 +192,6 @@ class File extends Log implements ILog
         return $dest;
     }
 
-    /**
-     * 清空
-     */
     public function clear()
     {
         self::$log = [];

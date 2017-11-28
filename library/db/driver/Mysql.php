@@ -388,7 +388,7 @@ class Mysql
             $this->options = [];
             $this->_errno  = $e->getCode();
             $this->_error  = $e->getMessage();
-            Log::record("SQL:{$this->_sql}, ERROR:" . $e->getMessage(), Log::ERR);
+            Log::record("SQL:{$this->_sql}, ERROR:" . $e->getMessage(), Log::ERROR);
             return false;
         }
         // set cache
@@ -642,7 +642,7 @@ class Mysql
             $this->options = [];
             $this->_errno  = $e->getCode();
             $this->_error  = $e->getMessage();
-            Log::record($e->getMessage(), Log::ERR);
+            Log::record($e->getMessage(), Log::ERROR);
             return false;
         }
         // reset options

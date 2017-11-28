@@ -64,7 +64,7 @@
     'log'      => [
         'on'          => true,
         'type'        => 'File',
-        'level'       => 'MERG,ALERT,CRIT,ERR',
+        'level'       => 'EMERGENCY,ALERT,CRITICAL,ERROR',
         'alone_ip'    => '',
         'path'        => LOG_PATH,
         'time_format' => '[ Y-m-d H:i:s ]',
