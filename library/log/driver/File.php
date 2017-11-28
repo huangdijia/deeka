@@ -97,12 +97,21 @@ class File extends Log implements LoggerInterface
         }
         $level     = Log::level($level);
         $log_level = self::$config['level'];
-        if ($log_level == 'ALL' || $log_level == '') {
-            $log_level = Log::getConstants(true);
-        } elseif (is_scalar($log_level)) {
-            $log_level = strtoupper($log_level);
-            $log_level = explode(',', $log_level);
+        // 任意类型
+        if (is_scalar($log_level) && in_array(strtoupper($log_level), ['ANY', 'ALL', ''])) {
+            $log_level = [$level];
+        } else {
+            if (is_scalar($log_level)) {
+                $log_level = explode(',', $log_level);
+            }
+            // 强转类型
+            if (is_object($log_level)) {
+                $log_level = (array) $log_level;
+            }
+            // 转大写
+            $log_level = array_map('strtoupper', $log_level);
         }
+        // 判断是否记录
         if (false === in_array($level, $log_level)) {
             return;
         }
