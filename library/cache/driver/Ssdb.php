@@ -38,7 +38,7 @@ class Ssdb extends Cache implements CacheInterface
         }
     }
 
-    public function get($key)
+    public function get($key, $default = null)
     {
         $data = $this->handler->get($this->options['prefix'] . $key);
         return unserialize($data) ?? $default;
