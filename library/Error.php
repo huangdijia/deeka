@@ -61,7 +61,7 @@ class Error
             }
         }
         // 写入日志
-        Log::save();
+        !Defer::isDefered() && Log::save();
     }
 
     public static function errorHandler($errno, $errstr, $errfile, $errline, $errcontext = [])
@@ -100,7 +100,7 @@ class Error
         );
         // 记录日志
         Log::record($log, is_callable([$e, 'getSeverity']) ? $e->getSeverity() : Log::ERROR);
-        Log::save();
+        !Defer::isDefered() && Log::save();
         ob_get_length() && ob_end_clean();
         if (APP_DEBUG) {
             if (!Request::isCli()) {
