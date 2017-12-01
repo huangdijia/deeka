@@ -4,6 +4,7 @@ namespace deeka;
 class Defer
 {
     private $actions         = [];
+    private $count           = 0;
     private static $instance = null;
 
     private function __construct()
@@ -31,6 +32,12 @@ class Defer
     public function add(\Closure $action)
     {
         $this->actions[] = $action;
+        $this->count++;
+    }
+
+    public function getCount()
+    {
+        return $this->count;
     }
 
     public static function getInstance()
@@ -47,5 +54,10 @@ class Defer
             return;
         }
         self::getInstance()->add($action);
+    }
+
+    public static function isDefered()
+    {
+        return self::getInstance()->getCount() > 0;
     }
 }
