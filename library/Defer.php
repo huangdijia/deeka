@@ -8,6 +8,9 @@ class Defer
 
     public static function register(\Closure $action)
     {
+        if (!Config::get('defer.on', false)) {
+            return;
+        }
         self::$actions[] = $action;
     }
 

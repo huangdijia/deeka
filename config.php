@@ -56,6 +56,10 @@
         'use_sessname' => false,
         'options'      => [],
     ],
+    // defer
+    'defer'    => [
+        'on' => false,
+    ],
     // csrf
     'csrf'     => [
         'on' => false,
