@@ -3,29 +3,49 @@ namespace deeka;
 
 class Defer
 {
-    private static $actions  = [];
-    private static $executed = false;
+    private $actions         = [];
+    private static $instance = null;
+
+    private function __construct()
+    {
+        //
+    }
+
+    public function __destruct()
+    {
+        if (empty($this->actions)) {
+            return;
+        }
+        $this->actions = array_reverse($this->actions);
+        foreach ($this->actions as $action) {
+            call_user_func_array($action, []);
+        }
+        Log::save();
+    }
+
+    private function __clone()
+    {
+        //
+    }
+
+    public function add(\Closure $action)
+    {
+        $this->actions[] = $action;
+    }
+
+    public static function getInstance()
+    {
+        if (is_null(self::$instance)) {
+            self::$instance = new self;
+        }
+        return self::$instance;
+    }
 
     public static function register(\Closure $action)
     {
         if (!Config::get('defer.on', false)) {
             return;
         }
-        self::$actions[] = $action;
-    }
-
-    public static function exec()
-    {
-        if (empty(self::$actions)) {
-            return;
-        }
-        if (self::$executed) {
-            return;
-        }
-        self::$actions = array_reverse(self::$actions);
-        foreach (self::$actions as $action) {
-            call_user_func_array($action, []);
-        }
-        self::$executed = true;
+        self::getInstance()->add($action);
     }
 }
