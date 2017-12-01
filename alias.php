@@ -24,6 +24,7 @@
     'deeka\db\driver\Mysql'           => LIB_PATH . 'db' . DS . 'driver' . DS . 'Mysql' . EXT,
     'deeka\db\Query'                  => LIB_PATH . 'db' . DS . 'Query' . EXT,
     'deeka\Debug'                     => LIB_PATH . 'Debug' . EXT,
+    'deeka\Defer'                     => LIB_PATH . 'Defer' . EXT,
     'deeka\Env'                       => LIB_PATH . 'Env' . EXT,
     'deeka\Error'                     => LIB_PATH . 'Error' . EXT,
     'deeka\Exception'                 => LIB_PATH . 'Exception' . EXT,
