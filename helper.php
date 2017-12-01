@@ -8,6 +8,7 @@ use \deeka\Request;
 use \deeka\Response;
 use \deeka\response\Xml as XmlResponse;
 use \deeka\Session;
+use \deeka\Defer;
 
 function dump($var, $echo = true, $label = null)
 {
@@ -167,4 +168,9 @@ function __()
     $args = func_get_args();
     array_splice($args, 1, 0, [null]);
     return call_user_func_array('\deeka\Lang::get', $args);
+}
+
+function defer(\Closure $action)
+{
+    Defer::register($action);
 }

@@ -47,8 +47,6 @@ class Error
     public static function shutdownHandler()
     {
         self::$debug && Log::record(__METHOD__, Log::DEBUG);
-        // defer
-        Defer::exec();
         // exception
         if (
             !is_null($error = error_get_last())
