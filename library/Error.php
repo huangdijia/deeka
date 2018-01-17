@@ -3,9 +3,12 @@ namespace deeka;
 
 use deeka\exception\ErrorException;
 use deeka\Response;
+use deeka\traits\Singleton;
 
 class Error
 {
+    use Singleton;
+
     // protected static $errorTable = [
     //     E_ERROR             => 'Error',
     //     E_WARNING           => 'Warning',
@@ -25,16 +28,6 @@ class Error
     //     E_ALL               => 'All',
     // ];
     private static $debug = false;
-
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
 
     public static function register()
     {

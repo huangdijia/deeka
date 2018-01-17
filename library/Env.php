@@ -1,17 +1,11 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
+
 class Env
 {
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
+    use Singleton;
 
     /**
      * @param string $env_file

@@ -5,9 +5,12 @@ use deeka\Config;
 use Exception;
 use Psr\Log\LogLevel;
 use ReflectionClass;
+use deeka\traits\Singleton;
 
 class Log
 {
+    use Singleton;
+
     const EMERGENCY = 'emergency';
     const ALERT     = 'alert';
     const CRITICAL  = 'critical';
@@ -46,21 +49,6 @@ class Log
     ];
     protected static $config   = [];
     protected static $handlers = [];
-
-    public static function instance()
-    {
-        return self::connect();
-    }
-
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
 
     public static function __callStatic($name, $args)
     {

@@ -1,43 +1,22 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
+use deeka\traits\SingletonCallable;
+use deeka\traits\SingletonInstance;
+
 class Cookie
 {
+    use Singleton;
+    use SingletonInstance;
+    use SingletonCallable;
+
     protected static $config = [
         'prefix' => '',
         'expire' => 0,
         'path'   => '/',
         'domain' => '',
     ];
-    private static $instance = null;
-
-    public static function instance()
-    {
-        if (is_null(self::$instance)) {
-            self::$instance = new static;
-        }
-        return self::$instance;
-    }
-
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
-
-    public function __call($name, $args)
-    {
-        return call_user_func_array([self::instance(), $name], $args);
-    }
-
-    public static function __callStatic($name, $args)
-    {
-        return call_user_func_array([self::instance(), $name], $args);
-    }
 
     private function init(array $config = [])
     {

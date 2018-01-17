@@ -4,9 +4,12 @@ namespace deeka;
 use deeka\Debug;
 use deeka\Log;
 use deeka\Reflect;
+use deeka\traits\Singleton;
 
 class Hook
 {
+    use Singleton;
+
     private static $hooks = [];
 
     public static function import(array $hooks = [])
@@ -37,7 +40,7 @@ class Hook
         $args  = func_get_args();
         $name  = array_shift($args);
         $hooks = self::$hooks[$name] ?? [];
-        foreach ((array) $hooks as $key=>$callback) {
+        foreach ((array) $hooks as $key => $callback) {
             if (!is_callable($callback)) {
                 Log::record("[HOOK] Error hook {$name}#{$key}", Log::ERROR);
                 continue;

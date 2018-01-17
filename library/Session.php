@@ -1,10 +1,15 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
+use deeka\traits\SingletonInstance;
 use Exception;
 
 class Session
 {
+    use Singleton;
+    use SingletonInstance;
+
     protected static $config = [
         'type'           => '',
         'auto_start'     => 0,
@@ -20,40 +25,21 @@ class Session
         'cache_limiter'  => '',
         'cache_expire'   => '',
     ];
-    private static $instance = null;
-
-    public static function instance()
-    {
-        if (is_null(self::$instance)) {
-            self::$instance = new static;
-        }
-        return self::$instance;
-    }
-
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
 
     public function __call($name, $args)
     {
         if (in_array($name, ['start', 'pause', 'destroy', 'regenerate'])) {
-            return call_user_func_array([self::instance(), 'operate'], [$name]);
+            return call_user_func_array([self::getInstance(), 'operate'], [$name]);
         }
-        return call_user_func_array([self::instance(), $name], $args);
+        return call_user_func_array([self::getInstance(), $name], $args);
     }
 
     public static function __callStatic($name, $args)
     {
         if (in_array($name, ['start', 'pause', 'destroy', 'regenerate'])) {
-            return call_user_func_array([self::instance(), 'operate'], [$name]);
+            return call_user_func_array([self::getInstance(), 'operate'], [$name]);
         }
-        return call_user_func_array([self::instance(), $name], $args);
+        return call_user_func_array([self::getInstance(), $name], $args);
     }
 
     private function init(array $config = [])

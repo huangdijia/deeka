@@ -3,10 +3,13 @@ namespace deeka;
 
 use deeka\view\Template;
 use Exception;
+use deeka\traits\Singleton;
 
 // 視圖類
 class View
 {
+    use Singleton;
+
     protected $tVar   = [];
     protected $cVar   = [];
     protected $config = [
@@ -29,16 +32,6 @@ class View
         'tmpl_var_identify'   => 'array',
     ];
     protected static $handlers = [];
-
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
 
     public static function instance(array $config = [])
     {

@@ -1,19 +1,11 @@
 <?php
 namespace deeka;
 
-use Exception;
+use deeka\traits\Singleton;
 
 class Security
 {
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
+    use Singleton;
 
     private static function hash(): string
     {
@@ -36,11 +28,10 @@ class Security
     public static function checkCsrf(): bool
     {
         if (!Config::get('csrf.on', false)) {
-            return;
+            return true;
         }
         $name = Config::get('var.csrf', '__csrf__');
         if (Input::post($name) != Cookie::get($name)) {
-            // throw new Exception("csrf", 1);
             return false;
         }
         return true;

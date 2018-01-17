@@ -1,22 +1,16 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
+
 class Debug
 {
+    use Singleton;
+    
     // 区间时间信息
     protected static $info = [];
     // 区间内存信息
     protected static $mem = [];
-
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
 
     /**
      * 记录时间（微秒）和内存使用情况
@@ -176,5 +170,4 @@ class Debug
             return $output;
         }
     }
-
 }

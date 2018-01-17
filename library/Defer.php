@@ -1,16 +1,16 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
+use deeka\traits\SingletonInstance;
+
 class Defer
 {
-    private $actions         = [];
-    private $count           = 0;
-    private static $instance = null;
+    use Singleton;
+    use SingletonInstance;
 
-    private function __construct()
-    {
-        //
-    }
+    private $actions = [];
+    private $count   = 0;
 
     public function __destruct()
     {
@@ -24,11 +24,6 @@ class Defer
         Log::save();
     }
 
-    private function __clone()
-    {
-        //
-    }
-
     public function add(\Closure $action)
     {
         $this->actions[] = $action;
@@ -38,14 +33,6 @@ class Defer
     public function getCount()
     {
         return $this->count;
-    }
-
-    public static function getInstance()
-    {
-        if (is_null(self::$instance)) {
-            self::$instance = new self;
-        }
-        return self::$instance;
     }
 
     public static function register(\Closure $action)

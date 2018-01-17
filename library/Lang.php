@@ -1,49 +1,25 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
+use deeka\traits\SingletonCallable;
+use deeka\traits\SingletonInstance;
+
 class Lang
 {
+    use Singleton;
+    use SingletonCallable;
+    use SingletonInstance;
+
     private static $lang      = [];
     private static $range     = 'zh-cn';
     private static $detectVar = 'lang';
     private static $cookieVar = 'lang';
     private static $allowList = [];
-    private static $instance  = null;
-
-    public static function instance()
-    {
-        if (is_null(self::$instance)) {
-            self::$instance = new static;
-        }
-        return self::$instance;
-    }
-
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
-
-    public function __call($name, $args)
-    {
-        return call_user_func_array([self::instance(), $name], $args);
-    }
-
-    public static function __callStatic($name, $args)
-    {
-        return call_user_func_array([self::instance(), $name], $args);
-    }
 
     private function detect()
     {
-        $range = $_GET[Config::get('lang.detect_var', self::$detectVar)]
-            ?? $_COOKIE[Config::get('lang.cookie_var', self::$cookieVar)]
-            ?? self::acceptLanguage()
-            ?? self::$range;
+        $range = $_GET[Config::get('lang.detect_var', self::$detectVar)] ?? $_COOKIE[Config::get('lang.cookie_var', self::$cookieVar)] ?? self::acceptLanguage() ?? self::$range;
         if (!in_array($range, Config::get('lang.accept'))) {
             $range = Config::get('default.lang', 'zh-cn');
         }
