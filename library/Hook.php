@@ -27,7 +27,7 @@ class Hook
 
     public static function register(string $name = '', callable $callback = null, bool $priority = false)
     {
-        isset(self::$hooks[$name]) || self::$hooks[$name] = [];
+        self::$hooks[$name] ?? self::$hooks[$name] = [];
         if ($priority) {
             array_unshift(self::$hooks[$name], $callback);
         } else {
