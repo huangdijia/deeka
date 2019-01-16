@@ -5,7 +5,7 @@ use deeka\Config;
 use Predis\Client;
 use SessionHandlerInterface;
 
-class Redis implements SessionHandlerInterface
+class Predis implements SessionHandlerInterface
 {
     protected $lifeTime    = 3600;
     protected $sessionName = '';
