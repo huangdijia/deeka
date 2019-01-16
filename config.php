@@ -49,7 +49,8 @@
     // 会话
     'session'  => [
         'auto_start'   => false,
-        'type'         => '',
+        'connection'   => '', // redis.clusters.default
+        'type'         => '', // memcache,memcached,redis,predis,ssdb
         'namespace'    => '',
         'expire'       => 3600,
         'timeout'      => 0,
@@ -75,12 +76,13 @@
     ],
     // 缓存
     'cache'    => [
-        'type'    => 'File',
-        'path'    => CACHE_PATH,
-        'check'   => false,
-        'prefix'  => 'cache_',
-        'expire'  => 120,
-        'timeout' => 0,
+        'type'       => 'File', // file,memcache,memcached,redis,predis,ssdb
+        'connection' => '',
+        'path'       => CACHE_PATH,
+        'check'      => false,
+        'prefix'     => 'cache_',
+        'expire'     => 120,
+        'timeout'    => 0,
     ],
     // 队列
     'queue'    => [
@@ -121,8 +123,18 @@
     ],
     // redis
     'redis'    => [
-        'host' => '127.0.0.1',
-        'port' => 8888,
+        'host'     => '127.0.0.1',
+        'port'     => 6379,
+        'options'  => [
+            'cluster' => 'redis',
+        ],
+        'clusters' => [
+            'default' => [
+                // 'tcp://127.0.0.1:7000',
+                // 'tcp://127.0.0.1:7001',
+                // 'tcp://127.0.0.1:7002',
+            ],
+        ],
     ],
     // memcache
     'memcache' => [
