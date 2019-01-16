@@ -14,8 +14,8 @@ class Predis implements SessionHandlerInterface
     public function open($save_path, $session_name)
     {
         $options = [
-            'host'       => explode(',', Config::get('redis.host')),
-            'port'       => explode(',', Config::get('redis.port')),
+            // 'host'       => explode(',', Config::get('redis.host')),
+            // 'port'       => explode(',', Config::get('redis.port')),
             'timeout'    => Config::get('session.timeout', 10),
             'expire'     => Config::get('session.expire', 3600),
             'persistent' => Config::get('redis.persistent', 0),
@@ -28,7 +28,7 @@ class Predis implements SessionHandlerInterface
         // 集群
         if (Config::get('redis.cluster', false)) {
             $this->handler = new Client(
-                Config::get(Config::get('cache.connection', 'redis.clusters.default'), []),
+                Config::get(Config::get('session.connection', 'redis.clusters.default'), []),
                 [
                     'cluster' => Config::get('redis.options.cluster', 'redis'),
                 ]
