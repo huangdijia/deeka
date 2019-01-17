@@ -13,6 +13,7 @@ class File extends Cache implements CacheInterface
         if (is_array($options) && !empty($options)) {
             $this->options = $options;
         }
+
         $this->options = array_merge(
             [
                 'path'   => Config::get('cache.path'),
@@ -22,6 +23,7 @@ class File extends Cache implements CacheInterface
             ],
             $this->options
         );
+
         $this->init();
     }
 
@@ -41,19 +43,24 @@ class File extends Cache implements CacheInterface
     public function get($key, $default = null)
     {
         $filename = $this->filename($key);
+
         if (!is_file($filename)) {
             return false;
         }
+
         $content = file_get_contents($filename);
+
         if (false === $content) {
             return false;
         }
+
         // 有效期
         $expire = (int) substr($content, 8, 12);
         if ($expire > 0 && time() > filemtime($filename) + $expire) {
             unlink($filename);
             return false;
         }
+
         // 内容校验
         if ($this->options['check']) {
             $check   = substr($content, 20, 32);
@@ -64,8 +71,10 @@ class File extends Cache implements CacheInterface
         } else {
             $content = substr($content, 20, -3);
         }
+
         // 反序列化
         $content = unserialize($content);
+
         return $content ?? $default;
     }
 
@@ -74,31 +83,38 @@ class File extends Cache implements CacheInterface
         if (is_null($ttl)) {
             $ttl = $this->options['expire'];
         }
+
         $filename = $this->filename($key);
         $data     = serialize($value);
+
         // 生成校验码
         if ($this->options['check']) {
             $check = md5($data);
         } else {
             $check = '';
         }
+
         // 缓存内容
         $content = "<?php\n//" . sprintf('%012d', $ttl) . $check . $data . "\n?>";
         // 保存文件
         $result = file_put_contents($filename, $content);
+
         if ($result) {
             clearstatcache();
             return true;
         }
+
         return false;
     }
 
     public function delete($key)
     {
         $filename = $this->filename($key);
+
         if (is_file($filename)) {
             return unlink($filename);
         }
+
         return false;
     }
 
@@ -107,6 +123,7 @@ class File extends Cache implements CacheInterface
         $path   = $this->options['path'];
         $prefix = $this->options['prefix'];
         $files  = scandir($path);
+
         if ($files) {
             foreach ($files as $file) {
                 if ($file != '.' && $file != '..' && is_dir($path . $file)) {
@@ -115,17 +132,21 @@ class File extends Cache implements CacheInterface
                     unlink($path . $file);
                 }
             }
+
             return true;
         }
+
         return false;
     }
 
     public function getMultiple($keys, $default = null)
     {
         $retval = [];
+
         foreach ((array) $keys as $key) {
             $retval[$key] = $this->get($key, $default);
         }
+
         return $retval;
     }
 
@@ -134,6 +155,7 @@ class File extends Cache implements CacheInterface
         foreach ((array) $values as $key => $value) {
             $this->set($key, $value, $ttl);
         }
+
         return true;
     }
 
@@ -142,6 +164,7 @@ class File extends Cache implements CacheInterface
         foreach ((array) $keys as $key) {
             $this->delete($key);
         }
+
         return true;
     }
 

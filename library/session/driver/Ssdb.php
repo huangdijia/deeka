@@ -15,6 +15,7 @@ class Ssdb implements SessionHandlerInterface
     public function open($save_path, $session_name)
     {
         Loader::addClassMap('SimpleSSDB', CORE_PATH . '/vendor/ssdb/SSDB.php');
+
         $options = [
             'host'    => Config::get('ssdb.host', '127.0.0.1'),
             'port'    => Config::get('ssdb.port', '8888'),
@@ -22,10 +23,13 @@ class Ssdb implements SessionHandlerInterface
             'expire'  => Config::get('session.expire', 3600),
             'usesn'   => Config::get('session.use_sessname', false),
         ];
+
         // 有效时间
         $options['expire'] && $this->lifeTime = $options['expire'];
+
         // 是否使用sessionName
         $options['usesn'] && $this->sessionName = $sessName;
+
         // 是否设置超时
         try {
             if ($options['timeout'] > 0) {
@@ -44,6 +48,7 @@ class Ssdb implements SessionHandlerInterface
             );
             Log::record($log, Log::ERROR);
         }
+
         return true;
     }
 
@@ -52,12 +57,14 @@ class Ssdb implements SessionHandlerInterface
         $this->gc(ini_get('session.gc_maxlifetime'));
         $this->handler->close();
         $this->handler = null;
+
         return true;
     }
 
     public function read($session_id)
     {
         $data = $this->handler->get($this->sessionName . $session_id);
+
         return unserialize($data);
     }
 

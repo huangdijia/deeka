@@ -21,10 +21,13 @@ class Predis implements SessionHandlerInterface
             'persistent' => Config::get('redis.persistent', 0),
             'usesn'      => Config::get('session.use_sessname', false),
         ];
+
         // 有效时间
         $options['expire'] && $this->lifeTime = $options['expire'];
+
         // 是否使用sessionName
         $options['usesn'] && $this->sessionName = $sessName;
+
         // 集群
         if (Config::get('redis.cluster', false)) {
             $this->handler = new Client(
@@ -40,6 +43,7 @@ class Predis implements SessionHandlerInterface
                 'port'   => Config::get('redis.port', '6379'),
             ]);
         }
+
         return true;
     }
 
@@ -48,6 +52,7 @@ class Predis implements SessionHandlerInterface
         $this->gc(ini_get('session.gc_maxlifetime'));
         // $this->handler->close();
         $this->handler = null;
+
         return true;
     }
 

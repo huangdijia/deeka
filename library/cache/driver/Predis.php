@@ -62,9 +62,11 @@ class Predis extends Cache implements CacheInterface
     public function getMultiple($keys, $default = null)
     {
         $resp = [];
+
         foreach ((array) $keys as $key) {
             $resp[$key] = $this->get($key) ?? $default;
         }
+
         return $resp;
     }
 
@@ -73,6 +75,7 @@ class Predis extends Cache implements CacheInterface
         foreach ((array) $values as $key => $value) {
             $this->set($key, $value, $ttl);
         }
+        
         return true;
     }
 
