@@ -49,7 +49,7 @@
     // 会话
     'session'  => [
         'auto_start'   => false,
-        'connection'   => '', // redis.clusters.default
+        'connection'   => null, // redis.clusters.default
         'type'         => '', // memcache,memcached,redis,predis,ssdb
         'namespace'    => '',
         'expire'       => 3600,
@@ -77,7 +77,7 @@
     // 缓存
     'cache'    => [
         'type'       => 'File', // file,memcache,memcached,redis,predis,ssdb
-        'connection' => '',
+        'connection' => null,
         'path'       => CACHE_PATH,
         'check'      => false,
         'prefix'     => 'cache_',

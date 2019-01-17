@@ -15,6 +15,7 @@ class Redis extends Cache implements CacheInterface
         if (!extension_loaded('Redis')) {
             throw new Exception('NOT SUPPERT Redis', 1);
         }
+        
         $defaults = [
             'host'       => Config::get('redis.host', '127.0.0.1'),
             'port'       => Config::get('redis.port', '6379'),
@@ -23,8 +24,10 @@ class Redis extends Cache implements CacheInterface
             'prefix'     => Config::get('cache.prefix'),
             'expire'     => Config::get('cache.expire'),
         ];
+        
         $this->options = array_merge($defaults, $options);
         $this->handler = new \Redis;
+        
         if ($this->options['persistent']) {
             $this->handler->pconnect($this->options['host'], $this->options['port']);
         } else {
