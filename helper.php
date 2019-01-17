@@ -1,18 +1,26 @@
 <?php
-use \deeka\Cache;
-use \deeka\Config;
-use \deeka\Cookie;
-use \deeka\Debug;
-use \deeka\Queue;
-use \deeka\Request;
-use \deeka\Response;
-use \deeka\response\Xml as XmlResponse;
-use \deeka\Session;
-use \deeka\Defer;
+use Closure;
+use deeka\Cache;
+use deeka\Config;
+use deeka\Cookie;
+use deeka\Debug;
+use deeka\Defer;
+use deeka\Env;
+use deeka\Queue;
+use deeka\Request;
+use deeka\Response;
+use deeka\response\Xml as XmlResponse;
+use deeka\Session;
 
 function dump($var, $echo = true, $label = null)
 {
     return Debug::dump($var, $echo, $label);
+}
+
+function dd($var)
+{
+    Debug::dump($var, true);
+    exit();
 }
 
 function debug($start, $end = '', $dec = 4)
@@ -39,6 +47,7 @@ function cache(string $name, $value = '', $options = '')
         } else {
             $expire = null;
         }
+
         return $cache->set($name, $value, $expire);
     }
 }
@@ -79,10 +88,12 @@ function queue(string $name = '', $item = '', $options = [])
     } else {
         throw new \Exception("Queue command must! eg:</>/?", 1);
     }
+
     $options = array_merge(
         Config::get('queue'),
         Queue::parse($options)
     );
+
     return Queue::connect($options)->$func($name, $item, $options);
 }
 
@@ -167,10 +178,16 @@ function __()
 {
     $args = func_get_args();
     array_splice($args, 1, 0, [null]);
+
     return call_user_func_array('\deeka\Lang::get', $args);
 }
 
-function defer(\Closure $action)
+function defer(Closure $action)
 {
     Defer::register($action);
+}
+
+function env($name, $default = null)
+{
+    return Env::get($name, $default);
 }
