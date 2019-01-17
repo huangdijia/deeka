@@ -27,6 +27,7 @@ class Config
         if (is_object($name)) {
             $name = get_object_vars($name);
         }
+
         // 批量导入 Config::set([]);
         if (is_array($name)) {
             if (empty($name)) {
@@ -38,24 +39,29 @@ class Config
             }
             return true;
         }
+
         // 判断是否name为空
         if (empty($name)) {
             throw new Exception("\$name cannot be empty", 1);
         }
+
         // 错误类型
         if (!is_string($name)) {
             throw new Exception("\$name must be string for " . __METHOD__ . "(\$name, \$value)", 1);
         }
+
         // 单个设置
         $name = strtolower($name);
         $keys = explode(self::DELIMITER, $name);
         $tmp  = &self::$_config;
+
         foreach ($keys as $key) {
             if (!isset($tmp[$key])) {
                 $tmp[$key] = [];
             }
             $tmp = &$tmp[$key];
         }
+
         // 兼容 array
         if (
             is_array($tmp)
@@ -67,6 +73,7 @@ class Config
         } else {
             $tmp = $value;
         }
+
         return true;
     }
 
@@ -76,9 +83,11 @@ class Config
         if (empty($name)) {
             return false;
         }
+
         $name  = strtolower($name);
         $names = explode(self::DELIMITER, $name);
         $tmp   = self::$_config;
+
         foreach ($names as $key) {
             if (isset($tmp[$key])) {
                 $tmp = $tmp[$key];
@@ -86,6 +95,7 @@ class Config
                 return false;
             }
         }
+
         return true;
     }
 
@@ -95,10 +105,12 @@ class Config
         if (empty($name)) {
             return self::all();
         }
+
         // 转小写
         $name = strtolower($name);
         $keys = explode(self::DELIMITER, $name);
         $tmp  = self::$_config;
+
         // 分层获取
         foreach ($keys as $key) {
             // 存在则返回
@@ -111,6 +123,7 @@ class Config
                 return $default;
             }
         }
+
         return $tmp;
     }
 
@@ -124,6 +137,7 @@ class Config
                 $vars[$key] = self::arrayChangeKeyCase($value, $case);
             }
         }
+
         return array_change_key_case($vars, $case);
     }
 

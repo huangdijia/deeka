@@ -29,19 +29,19 @@ class Session
     public function __call($name, $args)
     {
         if (in_array($name, ['start', 'pause', 'destroy', 'regenerate'])) {
-            return call_user_func_array([self::instance(), 'operate'], [$name]);
+            return call_user_func_array([self::getInstance(), 'operate'], [$name]);
         }
 
-        return call_user_func_array([self::instance(), $name], $args);
+        return call_user_func_array([self::getInstance(), $name], $args);
     }
 
     public static function __callStatic($name, $args)
     {
         if (in_array($name, ['start', 'pause', 'destroy', 'regenerate'])) {
-            return call_user_func_array([self::instance(), 'operate'], [$name]);
+            return call_user_func_array([self::getInstance(), 'operate'], [$name]);
         }
 
-        return call_user_func_array([self::instance(), $name], $args);
+        return call_user_func_array([self::getInstance(), $name], $args);
     }
 
     private function init(array $config = [])

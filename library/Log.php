@@ -2,10 +2,10 @@
 namespace deeka;
 
 use deeka\Config;
+use deeka\traits\Singleton;
 use Exception;
 use Psr\Log\LogLevel;
 use ReflectionClass;
-use deeka\traits\Singleton;
 
 class Log
 {
@@ -56,6 +56,7 @@ class Log
         if (isset(self::$methodMapping[$name])) {
             $name = self::$methodMapping[$name];
         }
+
         return call_user_func_array([self::connect(), $name], $args);
     }
 
@@ -68,17 +69,21 @@ class Log
     {
         // 合拼默认配置
         $config = array_merge(Config::get('log'), self::$config, $config);
+
         // 解析类型
         $type = $config['type'] ?? 'file';
         if (false === strpos($type, '\\')) {
             $class = '\\deeka\\log\\driver\\' . ucfirst(strtolower($type));
         }
+
         // 驱动错误
         if (!class_exists($class)) {
             throw new Exception("Log driver '{$class}' is not exists", 1);
         }
+
         // 解析key
         $key = md5($class . serialize($config));
+
         // 单例实例化
         if (
             !isset(self::$handlers[$key])
@@ -87,6 +92,7 @@ class Log
             // 实例化驱动类
             self::$handlers[$key] = new $class($config);
         }
+
         // 返回对象
         return self::$handlers[$key];
     }
@@ -99,18 +105,22 @@ class Log
         if (is_numeric($level)) {
             return self::$levelMapping[$level] ?? self::INFO;
         }
+
         return strtoupper($level);
     }
 
     public static function getConstants($fetch_keys = false)
     {
         static $constants = null;
+
         if (is_null($constants)) {
             $constants = (new ReflectionClass(__CLASS__))->getConstants();
         }
+
         if ($fetch_keys) {
             return array_keys($constants);
         }
+
         return $constants;
     }
 }
