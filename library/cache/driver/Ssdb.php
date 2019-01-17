@@ -14,9 +14,11 @@ class Ssdb extends Cache implements CacheInterface
     public function __construct($options = [])
     {
         Loader::addClassMap('SimpleSSDB', CORE_PATH . '/vendor/ssdb/SSDB.php');
+
         if (!class_exists('SimpleSSDB')) {
             throw new Exception('Not suppert SimpleSSDB', 1);
         }
+
         $defaults = [
             'host'    => Config::get('ssdb.host', '127.0.0.1'),
             'port'    => Config::get('ssdb.port', '8888'),
@@ -24,7 +26,9 @@ class Ssdb extends Cache implements CacheInterface
             'expire'  => Config::get('cache.expire', 120),
             'timeout' => Config::get('cache.timeout', false),
         ];
+
         $this->options = array_merge($defaults, $this->options, $options);
+
         try {
             if ($this->options['timeout'] > 0) {
                 $this->handler = new \SimpleSSDB($this->options['host'], $this->options['port'], $this->options['timeout']);
@@ -41,6 +45,7 @@ class Ssdb extends Cache implements CacheInterface
     public function get($key, $default = null)
     {
         $data = $this->handler->get($this->options['prefix'] . $key);
+
         return unserialize($data) ?? $default;
     }
 
@@ -69,6 +74,7 @@ class Ssdb extends Cache implements CacheInterface
         foreach ((array) $values as $key => $value) {
             $this->set($key, $value, $ttl);
         }
+        
         return true;
     }
 

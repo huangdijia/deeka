@@ -15,6 +15,7 @@ class Memcache extends Cache implements CacheInterface
         if (!extension_loaded('memcache')) {
             throw new Exception('NOT SUPPERT Memcache', 1);
         }
+
         $defaults = [
             'host'       => explode(',', Config::get('memcache.host', '127.0.0.1')),
             'port'       => explode(',', Config::get('memcache.port', '11211')),
@@ -23,11 +24,14 @@ class Memcache extends Cache implements CacheInterface
             'prefix'     => Config::get('cache.prefix'),
             'expire'     => Config::get('cache.expire'),
         ];
+
         $this->options = array_merge($defaults, $options);
         $this->handler = new \Memcache;
+
         // 支持集群配置
         $hosts = $this->options['host'];
         $ports = $this->options['port'];
+
         foreach ((array) $hosts as $i => $host) {
             $port = $ports[$i] ?? $ports[0] ?? '11211';
             $this->handler->addServer($host, $port, $this->options['persistent']);
@@ -44,6 +48,7 @@ class Memcache extends Cache implements CacheInterface
         if (is_null($ttl)) {
             $ttl = $this->options['expire'];
         }
+
         return $this->handler->set($this->options['prefix'] . $key, $value, MEMCACHE_COMPRESSED, $ttl) ? true : false;
     }
 
@@ -60,9 +65,11 @@ class Memcache extends Cache implements CacheInterface
     public function getMultiple($keys, $default = null)
     {
         $retval = [];
+
         foreach ((array) $keys as $key) {
             $retval[$key] = $this->get($key, $default);
         }
+
         return $retval;
     }
 
@@ -71,6 +78,7 @@ class Memcache extends Cache implements CacheInterface
         foreach ((array) $values as $key => $value) {
             $this->set($key, $value, $ttl);
         }
+
         return true;
     }
 
@@ -79,6 +87,7 @@ class Memcache extends Cache implements CacheInterface
         foreach ((array) $keys as $key) {
             $this->delete($key);
         }
+
         return true;
     }
 

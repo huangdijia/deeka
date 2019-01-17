@@ -15,6 +15,7 @@ class Memcached extends Cache implements CacheInterface
         if (!extension_loaded('memcached')) {
             throw new Exception('NOT SUPPERT Memcached', 1);
         }
+
         $defaults = [
             'host'       => explode(',', Config::get('memcache.host', '127.0.0.1')),
             'port'       => explode(',', Config::get('memcache.port', '11211')),
@@ -23,11 +24,14 @@ class Memcached extends Cache implements CacheInterface
             'prefix'     => Config::get('cache.prefix'),
             'expire'     => Config::get('cache.expire'),
         ];
+
         $this->options = array_merge($defaults, $options);
         $this->handler = new \Memcached;
+
         // 支持集群配置
         $hosts = $this->options['host'];
         $ports = $this->options['port'];
+        
         foreach ((array) $hosts as $i => $host) {
             $port = $ports[$i] ?? $ports[0] ?? '11211';
             $this->handler->addServer($host, $port);
