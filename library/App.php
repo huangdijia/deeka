@@ -1,20 +1,13 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
 use Exception;
 use ReflectionException;
 
 class App
 {
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
+    use Singleton;
 
     public static function init()
     {

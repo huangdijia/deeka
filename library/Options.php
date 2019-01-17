@@ -1,9 +1,15 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
+use deeka\traits\SingletonCallable;
+use deeka\traits\SingletonInstance;
+
 class Options
 {
-    protected static $instance = null;
+    use Singleton;
+    use SingletonCallable;
+    use SingletonInstance;
 
     public static function instance()
     {
@@ -11,26 +17,6 @@ class Options
             self::$instance = new static;
         }
         return self::$instance;
-    }
-
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
-
-    public function __call($name, $args)
-    {
-        return call_user_func_array([self::instance(), $name], $args);
-    }
-
-    public static function __callStatic($name, $args)
-    {
-        return call_user_func_array([self::instance(), $name], $args);
     }
 
     private function get(string $name = '', $default = null)

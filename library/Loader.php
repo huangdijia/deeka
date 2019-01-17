@@ -1,29 +1,22 @@
 <?php
 namespace deeka;
 
-use deeka\Reflect;
 use deeka\Log;
+use deeka\Reflect;
+use deeka\traits\Singleton;
 
 class Loader
 {
+    use Singleton;
+
     protected static $namespaces = [];
     protected static $maps       = [];
 
     const DS = '\\';
 
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
-
     public static function autoload($class)
     {
-        $class    = ltrim($class, self::DS);
+        $class = ltrim($class, self::DS);
         // map
         if (isset(self::$maps[$class])) {
             include self::$maps[$class];

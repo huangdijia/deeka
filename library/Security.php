@@ -43,7 +43,6 @@ class Security
         $name = Config::get('var.csrf', '__csrf__');
 
         if (Input::post($name) != Cookie::get($name)) {
-            // throw new Exception("csrf", 1);
             return false;
         }
 

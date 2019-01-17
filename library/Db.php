@@ -1,10 +1,13 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
 use Exception;
 
 class Db
 {
+    use Singleton;
+
     /**
      * @var array 连接配置
      */
@@ -13,16 +16,6 @@ class Db
      * @var array 实例集合
      */
     private static $instances = [];
-
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
 
     /**
      * 初始化配置参数
@@ -58,26 +51,32 @@ class Db
      */
     public static function connect($config = '')
     {
-        if ('' == $config) { // 使用默认配置
+        if ('' == $config) {
+            // 使用默认配置
             $config = current(self::$configs);
-        } elseif (is_scalar($config)) { // 加载指定配置
+        } elseif (is_scalar($config)) {
+            // 加载指定配置
             if (!isset(self::$configs[$config])) { // 未找到配置
                 throw new Exception("Db config [{$config}] is not found", 1);
             }
             $config = self::$configs[$config];
         }
-        if (!is_array($config)) { // 配置类型不正确
+        if (!is_array($config)) {
+            // 配置类型不正确
             throw new Exception("Db config datatype error", 1);
         }
         $link_id = md5(serialize($config));
         $driver  = $config['type'] ?? 'mysql';
-        if (false === strpos($driver, '\\')) { // 兼容未指定命名空间驱动
+        if (false === strpos($driver, '\\')) {
+            // 兼容未指定命名空间驱动
             $driver = '\\deeka\\db\\driver\\' . ucfirst(strtolower($driver));
         }
-        if (!class_exists($driver)) { // 找不到驱动
+        if (!class_exists($driver)) {
+            // 找不到驱动
             throw new Exception("Db driver '{$driver}' is undefined", 1);
         }
-        if (!isset(self::$instances[$link_id])) { // 单例机制
+        if (!isset(self::$instances[$link_id])) {
+            // 单例机制
             self::$instances[$link_id] = new $driver($config);
         }
         return self::$instances[$link_id];
@@ -103,7 +102,7 @@ class Db
         $options = Cache::parse($options);
         $name    = $options['name'] ?? md5($sql) . '@' . $suffix;
         Debug::remark('sql_cache_begin');
-        $value   = Cache::connect($options)->get($name);
+        $value = Cache::connect($options)->get($name);
         Debug::remark('sql_cache_end');
         if (false !== $value) {
             Log::record(

@@ -1,10 +1,13 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
 use Exception;
 
 class Cache
 {
+    use Singleton;
+
     protected static $handlers = [];
     protected $options         = [
         'path'    => CACHE_PATH,
@@ -18,21 +21,6 @@ class Cache
     protected static $methodMapping = [
         'rm' => 'delete',
     ];
-
-    public static function instance()
-    {
-        return self::connect();
-    }
-
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
 
     public static function __callStatic($name, $args)
     {

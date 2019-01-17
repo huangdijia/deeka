@@ -1,17 +1,12 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
+
 class Str
 {
-    private function __construct()
-    {
-        //
-    }
+    use Singleton;
 
-    private function __clone()
-    {
-        //
-    }
     /**
      * 判断是否UTF8
      * @param string $string

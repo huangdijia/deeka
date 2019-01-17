@@ -1,26 +1,19 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
 use Exception;
 
 class Queue
 {
+    use Singleton;
+
     protected static $handlers = [];
     protected $options         = [
         'prefix' => 'queue_',
         'type'   => 'file',
-        'path'   => DATA_PATH
+        'path'   => DATA_PATH,
     ];
-
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
 
     public static function parse($options = '')
     {
@@ -77,7 +70,7 @@ class Queue
         $key = md5($class . join((array) $options));
         // 单例实例化
         if (
-            !isset(self::$handlers[$key]) 
+            !isset(self::$handlers[$key])
             || !is_object(self::$handlers[$key])
         ) {
             // 实例化驱动类

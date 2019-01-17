@@ -1,6 +1,8 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
+
 // 例子
 // 檢測$_GET參數
 // $rules  = [
@@ -16,19 +18,11 @@ namespace deeka;
 
 class Validate
 {
+    use Singleton;
+
     // 預定義規則
     private static $rules = [];
     private static $error = '';
-
-    private function __construct()
-    {
-        //
-    }
-
-    private function __clone()
-    {
-        //
-    }
 
     // 魔法方法
     public static function __callStatic($name, $args)

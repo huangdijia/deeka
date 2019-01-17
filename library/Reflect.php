@@ -1,14 +1,16 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
 use Exception;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionMethod;
-use ReflectionParameter;
 
 class Reflect
 {
+    use Singleton;
+
     /**
      * 调用反射执行类的实例化 支持依赖注入
      * @param array $vars 参数
