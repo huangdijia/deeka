@@ -151,10 +151,12 @@ class Debug
     public static function dump($var, $echo = true, $label = null)
     {
         $label = (null === $label) ? '' : rtrim($label) . ':';
+
         ob_start();
         var_dump($var);
         $output = ob_get_clean();
         $output = preg_replace('/\]\=\>\n(\s+)/m', '] => ', $output);
+
         if (Request::isCli()) {
             $output = PHP_EOL . $label . $output . PHP_EOL;
         } else {
@@ -163,6 +165,7 @@ class Debug
             }
             $output = '<pre>' . $label . $output . '</pre>';
         }
+        
         if ($echo) {
             echo ($output);
             return null;
