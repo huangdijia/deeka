@@ -1,15 +1,19 @@
 <?php
 namespace deeka;
 
-use deeka\Config;
-use deeka\traits\Singleton;
 use Exception;
-use Psr\Log\LogLevel;
+use deeka\Config;
 use ReflectionClass;
+use Psr\Log\LogLevel;
+use deeka\traits\Singleton;
+use deeka\traits\SingletonCallable;
+use deeka\traits\SingletonInstance;
 
 class Log
 {
     use Singleton;
+    use SingletonInstance;
+    use SingletonCallable;
 
     const EMERGENCY = 'emergency';
     const ALERT     = 'alert';
