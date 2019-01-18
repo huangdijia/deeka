@@ -13,7 +13,7 @@ trait SingletonCallable
     public static function __callStatic($name, $args)
     {
         $name = self::$methodMapping[$name] ?? $name;
-        
+
         return call_user_func_array([self::getInstance(), $name], $args);
     }
 }
