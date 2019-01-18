@@ -6,7 +6,7 @@ use deeka\traits\SingletonCallable;
 use deeka\traits\SingletonInstance;
 use Exception;
 
-class Config
+class Configure
 {
     use Singleton;
     use SingletonInstance;
