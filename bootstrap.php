@@ -26,13 +26,17 @@ define('LICENSE', 'MIT');
 ob_start();
 
 // 自动加载
-// require_once LIB_PATH . 'Loader' . EXT;
-// 增加核心类命名空间
-// \deeka\Loader::addNamespace(include CORE_PATH . 'namespace.php');
-// 导入别名
-// \deeka\Loader::addClassMap(include CORE_PATH . 'alias.php');
-// 注册自动加载
-// \deeka\Loader::register();
+if (!class_exists('\\Composer\\Autoload\\ClassLoader')) {
+    require_once LIB_PATH . 'Loader' . EXT;
+    // 增加核心类命名空间
+    \deeka\Loader::addNamespace(include CORE_PATH . 'namespace.php');
+    // 导入别名
+    \deeka\Loader::addClassMap(include CORE_PATH . 'alias.php');
+    // 注册自动加载
+    \deeka\Loader::register();
+}
+
+class_alias('deeka\\Configure', 'deeka\\Config'); // fix error in php7.3
 
 // 注册错误捕获
 \deeka\Error::register();
