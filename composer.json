@@ -19,7 +19,11 @@
         "psr-4": {
             "deeka\\": "library"
         },
-        "classmap" : ["vendor/jsonRPC", "vendor/ssdb"],
+        "classmap" : [
+            "library",
+            "vendor/jsonRPC",
+            "vendor/ssdb"
+        ],
         "files": [
             "bootstrap.php"
         ]
