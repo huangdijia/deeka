@@ -50,14 +50,9 @@ class Log
     protected static $config   = [];
     protected static $handlers = [];
 
-    public static function __callStatic($name, $args)
+    public static function getAccessor()
     {
-        // 旧方法兼容
-        if (isset(self::$methodMapping[$name])) {
-            $name = self::$methodMapping[$name];
-        }
-
-        return call_user_func_array([self::connect(), $name], $args);
+        return self::connect();
     }
 
     public static function init($config = [])
