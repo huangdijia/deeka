@@ -3,8 +3,6 @@ namespace deeka\traits;
 
 trait SingletonCallable
 {
-    protected static $methodMapping = [];
-
     public function __call($name, $args)
     {
         if (property_exists(self::class, 'methodMapping')) {
