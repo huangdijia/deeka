@@ -7,7 +7,7 @@ use deeka\traits\SingletonInstance;
 
 class Request
 {
-    use Singleton;
+    // use Singleton;
     use SingletonCallable;
     use SingletonInstance;
 
