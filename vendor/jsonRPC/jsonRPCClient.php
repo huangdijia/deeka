@@ -22,6 +22,11 @@ class jsonRPCClient
      * @var array 请求头部
      */
     private $header = array();
+    /**
+     *
+     * @var boolean 忽略ssl
+     */
+    private $isIgnoreSsl = false;
 
     /**
      * @param $url 請示地址
@@ -57,6 +62,16 @@ class jsonRPCClient
     public function setRPCNotification($notification)
     {
         empty($notification) ? $this->notification = false : $this->notification = true;
+    }
+
+    /**
+     * 是否忽略ssl
+     *
+     * @param boolean $bool
+     */
+    public function setIgnoreSsl($bool = false)
+    {
+        $this->isIgnoreSsl = $bool;
     }
 
     /**
@@ -105,6 +120,12 @@ class jsonRPCClient
                 'content' => $request,
             ),
         );
+        if ($this->isIgnoreSsl) {
+            $opts["ssl"] = array(
+                "verify_peer"      => false,
+                "verify_peer_name" => false,
+            );
+        }
         $context = stream_context_create($opts);
         if ($fp = fopen($this->url, 'r', false, $context)) {
             $response = '';
