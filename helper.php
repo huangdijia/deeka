@@ -1,5 +1,5 @@
 <?php
-use Closure;
+// use Closure;
 use deeka\Cache;
 use deeka\Config;
 use deeka\Cookie;
@@ -205,7 +205,7 @@ if (!function_exists('__')) {
 }
 
 if (!function_exists('defer')) {
-    function defer(Closure $action)
+    function defer(\Closure $action)
     {
         Defer::register($action);
     }
