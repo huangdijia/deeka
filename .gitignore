@@ -1,2 +1,4 @@
 .vscode
 .phpintel
+vendor
+/composer.lock

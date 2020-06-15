@@ -14,7 +14,7 @@ class Hook
 
     public static function import(array $hooks = [])
     {
-        foreach ($hooks as $name => $callable) {
+        foreach ($hooks as $name => $callback) {
             if (is_array($callback)) {
                 foreach ($callback as $cb) {
                     self::register($name, $cb);

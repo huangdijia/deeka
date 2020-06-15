@@ -5,6 +5,17 @@ use deeka\traits\Singleton;
 use deeka\traits\SingletonInstance;
 use Exception;
 
+/**
+ * @method static void init(array $config = [])
+ * @method static mixed get(string $name = '', string $namespace = null)
+ * @method static bool set(string $name, $value = '', string $namespace = null)
+ * @method static bool del(string $name, string $namespace = null)
+ * @method static bool has(string $name, string $namespace = null)
+ * @method static mixed all(string $namespace = null)
+ * @method static bool clear(string $namespace = null)
+ * @method static bool operate(string $name = '')
+ * @package deeka
+ */
 class Session
 {
     use Singleton;

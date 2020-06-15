@@ -5,6 +5,16 @@ use deeka\traits\Singleton;
 use deeka\traits\SingletonCallable;
 use deeka\traits\SingletonInstance;
 
+/**
+ * @method static string detect()
+ * @method static string|null acceptLanguage()
+ * @method static string range(string $range = null)
+ * @method static array all()
+ * @method static bool set($key = '', string $value = '', string $range = null)
+ * @method static string get(string $key = '', string $range = null)
+ * @method static bool has(string $key = '', string $range = null)
+ * @package deeka
+ */
 class Lang
 {
     use Singleton;

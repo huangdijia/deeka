@@ -6,7 +6,14 @@ use deeka\traits\SingletonCallable;
 use deeka\traits\SingletonInstance;
 use Exception;
 
-class Configure
+/**
+ * @method static bool set($name = '', $value = null)
+ * @method static mixed get($name = '', $default = null)
+ * @method static bool has($name = '')
+ * @method static array all()
+ * @package deeka
+ */
+class Config
 {
     use Singleton;
     use SingletonInstance;
@@ -21,6 +28,13 @@ class Configure
         return self::$_config;
     }
 
+    /**
+     * 设置
+     * @param string $name 
+     * @param mixed|null $value 
+     * @return true 
+     * @throws Exception 
+     */
     private function set($name = '', $value = null)
     {
         // Object to Array
@@ -77,6 +91,11 @@ class Configure
         return true;
     }
 
+    /**
+     * 判断
+     * @param string $name 
+     * @return bool 
+     */
     private function has(string $name = '')
     {
         // 错误类型
@@ -99,6 +118,12 @@ class Configure
         return true;
     }
 
+    /**
+     * 获取
+     * @param string $name 
+     * @param mixed|null $default 
+     * @return mixed 
+     */
     private function get(string $name = '', $default = null)
     {
         // 返回所有配置

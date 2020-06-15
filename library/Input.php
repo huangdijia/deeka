@@ -5,9 +5,20 @@ use deeka\traits\Singleton;
 use deeka\traits\SingletonCallable;
 use deeka\traits\SingletonInstance;
 
-/*
- * Input::setGlobalFilter('addslashes, htmlspecialchars');
- * Input::$fun([key], [default], [filter])
+/**
+ * @method static mixed server($name = '', $default = null, $filters = '')
+ * @method static mixed env($name = '', $default = null, $filters = '')
+ * @method static mixed cookie($name = '', $default = null, $filters = '')
+ * @method static mixed session($name = '', $default = null, $filters = '')
+ * @method static mixed globals($name = '', $default = null, $filters = '')
+ * @method static mixed request($name = '', $default = null, $filters = '')
+ * @method static mixed get($name = '', $default = null, $filters = '')
+ * @method static mixed post($name = '', $default = null, $filters = '')
+ * @method static mixed put($name = '', $default = null, $filters = '')
+ * @method static mixed param($name = '', $default = null, $filters = '')
+ * @method static mixed delete($name = '', $default = null, $filters = '')
+ * @method static mixed input($input = [], $name = '', $default = null, $filters = '')
+ * @package deeka
  */
 class Input
 {

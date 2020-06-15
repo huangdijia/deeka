@@ -5,6 +5,17 @@ use deeka\traits\Singleton;
 use deeka\traits\SingletonCallable;
 use deeka\traits\SingletonInstance;
 
+/**
+ * @method static void init(array $config = [])
+ * @method static mixed prefix(string $prefix = null)
+ * @method static bool set($name, $value = '', $option = null)
+ * @method static mixed get(string $name = '', string $prefix = null)
+ * @method static bool del(string $name, string $prefix = null)
+ * @method static bool has(string $name, string $prefix = null)
+ * @method static mixed all(string $prefix = null)
+ * @method static bool clear(string $prefix = null)
+ * @package deeka
+ */
 class Cookie
 {
     use Singleton;

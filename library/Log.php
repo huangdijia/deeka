@@ -9,6 +9,23 @@ use deeka\traits\Singleton;
 use deeka\traits\SingletonCallable;
 use deeka\traits\SingletonInstance;
 
+/**
+ * @method static void emergency($message = '', array $contex = [])
+ * @method static void alert($message = '', array $contex = [])
+ * @method static void critical($message = '', array $contex = [])
+ * @method static void error($message = '', array $contex = [])
+ * @method static void warning($message = '', array $contex = [])
+ * @method static void notice($message = '', array $contex = [])
+ * @method static void info($message = '', array $contex = [])
+ * @method static void debug($message = '', array $contex = [])
+ * @method static void sql($message = '', array $contex = [])
+ * @method static void log($level, $message = '', array $contex = [])
+ * @method static void record($message = '', $level = Log::LOG)
+ * @method static void save($dest = '')
+ * @method static void write($message = '', $level = Log::LOG, $dest = '')
+ * @method static void clear()
+ * @package deeka
+ */
 class Log
 {
     use Singleton;
