@@ -537,12 +537,12 @@ class Mysql
      */
     public function column()
     {
-        $argc    = func_num_args();
+        $c       = func_num_args();
         $args    = func_get_args();
         $combine = false;
         if (
-            isset($args[$argc - 1])
-            && is_bool($args[$argc - 1])
+            isset($args[$c - 1])
+            && is_bool($args[$c - 1])
         ) {
             $combine = array_pop($args);
         }
@@ -553,8 +553,8 @@ class Mysql
             $args = $args[0];
         }
         $args = array_filter($args);
-        $argc = count($args);
-        if (0 == $argc) {
+        $c = count($args);
+        if (0 == $c) {
             $field = '*';
         } else {
             $field = join(', ', $args);
@@ -563,12 +563,12 @@ class Mysql
         if (
             empty($rows) 
             || !$combine 
-            || !$argc
+            || !$c
         ) {
             return $rows;
         }
         $data = [];
-        switch ($argc) {
+        switch ($c) {
             case 1:
                 $pk = $args[0];
                 foreach ($rows as $row) {

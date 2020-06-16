@@ -5,6 +5,17 @@ use deeka\traits\Singleton;
 use deeka\traits\SingletonInstance;
 use Exception;
 
+/**
+ * @method static void init(array $config = [])
+ * @method static mixed get(string $name = '', string $namespace = null)
+ * @method static bool set(string $name, $value = '', string $namespace = null)
+ * @method static bool del(string $name, string $namespace = null)
+ * @method static bool has(string $name, string $namespace = null)
+ * @method static mixed all(string $namespace = null)
+ * @method static bool clear(string $namespace = null)
+ * @method static bool operate(string $name = '')
+ * @package deeka
+ */
 class Session
 {
     use Singleton;
@@ -44,6 +55,12 @@ class Session
         return call_user_func_array([self::getInstance(), $name], $args);
     }
 
+    /**
+     * Init
+     * @param array $config 
+     * @return void 
+     * @throws Exception 
+     */
     private function init(array $config = [])
     {
         // 缓存配置
@@ -118,6 +135,12 @@ class Session
         }
     }
 
+    /**
+     * Get
+     * @param string $name 
+     * @param string|null $namespace 
+     * @return mixed 
+     */
     private function get(string $name = '', string $namespace = null)
     {
         $namespace = $namespace ?? self::$config['namespace'];
@@ -137,6 +160,13 @@ class Session
         }
     }
 
+    /**
+     * Set
+     * @param string $name 
+     * @param string $value 
+     * @param string|null $namespace 
+     * @return bool 
+     */
     private function set(string $name, $value = '', string $namespace = null): bool
     {
         $namespace = $namespace ?? self::$config['namespace'];
@@ -153,6 +183,12 @@ class Session
         return true;
     }
 
+    /**
+     * Delete
+     * @param string $name 
+     * @param string|null $namespace 
+     * @return bool 
+     */
     private function del(string $name, string $namespace = null): bool
     {
         $namespace = $namespace ?? self::$config['namespace'];
@@ -171,6 +207,12 @@ class Session
         return true;
     }
 
+    /**
+     * Check
+     * @param string $name 
+     * @param string|null $namespace 
+     * @return bool 
+     */
     private function has(string $name, string $namespace = null): bool
     {
         $namespace = $namespace ?? self::$config['namespace'];
@@ -182,6 +224,11 @@ class Session
         return isset($_SESSION[$name]);
     }
 
+    /**
+     * Get all
+     * @param string|null $namespace 
+     * @return mixed 
+     */
     private function all(string $namespace = null)
     {
         $namespace = $namespace ?? self::$config['namespace'];
@@ -193,6 +240,11 @@ class Session
         return $_SESSION;
     }
 
+    /**
+     * Clear all
+     * @param string|null $namespace 
+     * @return bool 
+     */
     private function clear(string $namespace = null): bool
     {
         $namespace = $namespace ?? self::$config['namespace'];
@@ -209,6 +261,11 @@ class Session
         return true;
     }
 
+    /**
+     * Operate
+     * @param string $name 
+     * @return bool 
+     */
     private function operate(string $name = ''): bool
     {
         switch ($name) {
@@ -231,6 +288,14 @@ class Session
         return true;
     }
 
+    /**
+     * Encode
+     * @param mixed $array 
+     * @param bool $safe 
+     * @param string $method 
+     * @return string 
+     * @throws Exception 
+     */
     public static function encode($array, $safe = true, $method = '')
     {
         $method = empty($method) ? ini_get("session.serialize_handler") : $method;
@@ -247,6 +312,12 @@ class Session
         }
     }
 
+    /**
+     * serialize by php
+     * @param mixed $array 
+     * @param bool $safe 
+     * @return string 
+     */
     public static function serializePhp($array, bool $safe = true)
     {
         if ($safe) {
@@ -272,11 +343,24 @@ class Session
         return $raw;
     }
 
+    /**
+     * serialize by phpbinary
+     * @param mixed $array 
+     * @param bool $safe 
+     * @return string 
+     */
     private static function serializePhpbinary($array, bool $safe = true)
     {
         return '';
     }
 
+    /**
+     * Decode
+     * @param mixed $session_data 
+     * @param string $method 
+     * @return array 
+     * @throws Exception 
+     */
     public static function decode($session_data, $method = '')
     {
         $method = empty($method) ? ini_get("session.serialize_handler") : $method;
@@ -293,6 +377,12 @@ class Session
         }
     }
 
+    /**
+     * unserialize by php
+     * @param mixed $session_data 
+     * @return array 
+     * @throws Exception 
+     */
     private static function unserializePhp($session_data)
     {
         $return_data = [];
@@ -314,6 +404,11 @@ class Session
         return $return_data;
     }
 
+    /**
+     * unserialize by phpbinary
+     * @param mixed $session_data 
+     * @return array 
+     */
     private static function unserializePhpbinary($session_data)
     {
         $return_data = [];

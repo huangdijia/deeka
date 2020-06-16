@@ -8,6 +8,7 @@ class Env
     use Singleton;
 
     /**
+     * Set
      * @param string $env_file
      * @return null
      */
@@ -33,6 +34,7 @@ class Env
         }
     }
     /**
+     * Get
      * @param string $name
      * @param $default
      * @return mixed

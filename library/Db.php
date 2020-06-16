@@ -1,6 +1,7 @@
 <?php
 namespace deeka;
 
+use deeka\db\driver\Mysql;
 use deeka\traits\Singleton;
 use Exception;
 
@@ -20,6 +21,7 @@ class Db
     /**
      * 初始化配置参数
      * @param array $configs
+     * @return void
      */
     public static function init(array $configs = null)
     {
@@ -33,21 +35,23 @@ class Db
      * @param string $name 配置名
      * @param array $config 配置参数
      * @param bool $replace 是否覆盖已存在配置
+     * @return bool
      */
     public static function addConfig(string $name = '', array $config = [], bool $replace = false)
     {
         if (isset(self::$configs[$name]) && !$replace) {
             return false;
         }
+
         self::$configs[$name] = $config;
+
         return true;
     }
 
     /**
      * 实例化数据库对象
      * @param $config 连接配置
-     * $db = Db::connect('local');
-     * $data = $db->select();
+     * @return Mysql
      */
     public static function connect($config = '')
     {
@@ -124,6 +128,7 @@ class Db
      * @param string $sql SQL语句
      * @param $result 缓存结果
      * @param $options 缓存配置
+     * @return bool
      */
     public static function setCache(string $sql = '', $result = '', $options = '', $suffix = '')
     {

@@ -58,6 +58,12 @@ class Cache
         return $parse;
     }
 
+    /**
+     * Connect
+     * @param string $options 
+     * @return \Psr\SimpleCache\CacheInterface 
+     * @throws Exception 
+     */
     public static function connect($options = '')
     {
         if (empty($options)) {

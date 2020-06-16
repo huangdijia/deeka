@@ -8,7 +8,25 @@ use Psr\Log\LogLevel;
 use deeka\traits\Singleton;
 use deeka\traits\SingletonCallable;
 use deeka\traits\SingletonInstance;
+use Psr\SimpleCache\CacheInterface;
 
+/**
+ * @method static void emergency($message = '', array $contex = [])
+ * @method static void alert($message = '', array $contex = [])
+ * @method static void critical($message = '', array $contex = [])
+ * @method static void error($message = '', array $contex = [])
+ * @method static void warning($message = '', array $contex = [])
+ * @method static void notice($message = '', array $contex = [])
+ * @method static void info($message = '', array $contex = [])
+ * @method static void debug($message = '', array $contex = [])
+ * @method static void sql($message = '', array $contex = [])
+ * @method static void log($level, $message = '', array $contex = [])
+ * @method static void record($message = '', $level = Log::LOG)
+ * @method static void save($dest = '')
+ * @method static void write($message = '', $level = Log::LOG, $dest = '')
+ * @method static void clear()
+ * @package deeka
+ */
 class Log
 {
     use Singleton;
@@ -54,16 +72,32 @@ class Log
     protected static $config   = [];
     protected static $handlers = [];
 
+    /**
+     * Get accessor
+     * @return CacheInterface 
+     * @throws Exception 
+     */
     public static function getAccessor()
     {
         return self::connect();
     }
 
+    /**
+     * Init
+     * @param array $config 
+     * @return void 
+     */
     public static function init($config = [])
     {
         self::$config = $config;
     }
 
+    /**
+     * Connect a driver
+     * @param array $config 
+     * @return \Psr\SimpleCache\CacheInterface 
+     * @throws Exception 
+     */
     public static function connect($config = [])
     {
         // 合拼默认配置
@@ -98,6 +132,7 @@ class Log
 
     /**
      * @param $level 级别
+     * @return string
      */
     public static function level($level = '')
     {
@@ -108,6 +143,11 @@ class Log
         return strtoupper($level);
     }
 
+    /**
+     * Get constants
+     * @param bool $fetch_keys 
+     * @return array 
+     */
     public static function getConstants($fetch_keys = false)
     {
         static $constants = null;

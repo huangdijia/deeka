@@ -1,9 +1,9 @@
 <?php
 namespace deeka;
 
+use deeka\traits\Singleton;
 use deeka\view\Template;
 use Exception;
-use deeka\traits\Singleton;
 
 // 視圖類
 class View
@@ -33,20 +33,33 @@ class View
     ];
     protected static $handlers = [];
 
+    /**
+     * Instance
+     * @param array $config
+     * @return Template
+     */
     public static function instance(array $config = [])
     {
         if (empty($config)) {
             $config = Config::get('tmpl');
         }
+
         $key = md5(serialize($config));
+
         if (!isset(self::$handlers[$key])) {
             self::$handlers[$key] = new self;
             self::$handlers[$key]->setConfig($config);
         }
+
         return self::$handlers[$key];
     }
 
-    // 配置參數設置
+    /**
+     * 配置參數設置
+     * @param mixed $name
+     * @param string $value
+     * @return void
+     */
     public function setConfig($name, $value = '')
     {
         if (is_array($name)) {
@@ -56,7 +69,12 @@ class View
         }
     }
 
-    // 模板變量賦值
+    /**
+     * 模板變量賦值
+     * @param mixed $name
+     * @param string $value
+     * @return void
+     */
     public function assign($name, $value = '')
     {
         // 變量轉換為模板編碼
@@ -69,41 +87,64 @@ class View
         }
     }
 
-    // 獲取模板變量
+    /**
+     * 獲取模板變量
+     * @param mixed $name
+     * @return mixed
+     */
     public function __get($name)
     {
         return $this->get($name);
     }
 
+    /**
+     * Get
+     * @param string $name
+     * @return mixed
+     */
     public function get($name = '')
     {
         if ('' === $name) {
             return $this->tVar;
         }
+
         return isset($this->tVar[$name]) ? $this->tVar[$name] : '';
     }
 
-    // 自动解析模板文件
+    /**
+     * 自动解析模板文件
+     * @param string $template
+     * @return string
+     */
     public function parseTemplate($template = '')
     {
         if (is_file($template)) {
             return $template;
         }
+
         $glue = $this->config['tmpl_glue'];
+
         if (
             '' == $template
             || false === strpos($template, $glue)
         ) {
             $template = Str::parseName(CONTROLLER_NAME) . $glue . Str::parseName(ACTION_NAME);
         }
+
         return rtrim($this->config['tmpl_path'], DS) . DS . $template . $this->config['tmpl_suffix'];
     }
 
-    // 獲取模板內容
+    /**
+     * 獲取模板內容
+     * @param string $templateFile
+     * @return string
+     * @throws Exception
+     */
     public function fetch($templateFile = '')
     {
         // 解析模板名
         $templateFile = $this->parseTemplate($templateFile);
+
         // 检测模板不否存在
         if (!is_file($templateFile)) {
             if (!APP_DEBUG) {
@@ -111,9 +152,11 @@ class View
             }
             throw new Exception("template '{$templateFile}' is not exists", 1);
         }
+
         // 页面缓存
         ob_start();
         ob_implicit_flush(0);
+
         // 使用原生的PHP模板
         if ($this->config['tmpl_engine'] == 'php') {
             // 展开变量
@@ -137,26 +180,39 @@ class View
                 $engine->fetch($templateFile, $this->tVar);
             }
         }
+
         // 获取并清空缓存
         $content = ob_get_clean();
+
         // 替换字符串
         if (is_array($this->config['tmpl_parse_string']) && !empty($this->config['tmpl_parse_string'])) {
             $content = str_replace(array_keys($this->config['tmpl_parse_string']), array_values($this->config['tmpl_parse_string']), $content);
         }
+
         // 输出模板内容
         $content = trim($content);
+
         return $content;
     }
 
-    // 輸出內容
+    /**
+     * 輸出內容
+     * @param string $content
+     * @param string $charset
+     * @param string $contentType
+     * @return void
+     */
     public function render($content = '', $charset = 'utf-8', $contentType = 'text/html')
     {
         // 设置头信息
         @header('Content-Type:' . $contentType . '; charset=' . $charset);
+
         $content = preg_replace('/<meta[^>]+charset=[^>]+>/i', '<meta http-equiv="Content-Type" content="text/html; charset=' . $charset . '" />', $content);
+
         if ($this->config['tmpl_output_charset'] != $charset) {
             $content = self::autoCharset($content, $this->config['tmpl_output_charset'], $charset);
         }
+
         // 输入变量至控制台
         if (!empty($this->cVar)) {
             if (count($this->cVar) == 1) {
@@ -166,26 +222,40 @@ class View
             $consoleOutput = "<script>(typeof console != 'undefined') && console.{$method}(" . json_encode($this->cVar) . ");</script>";
             $content .= $consoleOutput;
         }
+
         // 输出内容
         echo $content;
     }
 
-    // 渲染模板
+    /**
+     * 渲染模板
+     * @param string $templateFile
+     * @param string $charset
+     * @param string $contentType
+     * @return void
+     * @throws Exception
+     */
     public function display($templateFile = '', $charset = 'utf-8', $contentType = 'text/html')
     {
         $content = $this->fetch($templateFile);
         $this->render($content, $charset, $contentType);
     }
 
-    // 檢查緩存是否可用
+    /**
+     * 檢查緩存是否可用
+     * @param mixed $templateFile
+     * @return bool
+     */
     public function checkCache($templateFile)
     {
         // 优先对配置设定检测
         if (!$this->config['tmpl_cache_on']) {
             return false;
         }
+
         $tmplCacheFile = $this->config['tmpl_cache_path'] . md5($templateFile) . $this->config['tmpl_cache_path'];
         $layoutFile    = $this->config['tmpl_path'] . $this->config['layout_name'] . $this->config['tmpl_suffix'];
+
         if (!is_file($tmplCacheFile)) {
             return false;
         } elseif ($this->config['layout_on'] && filemtime($layoutFile) > filemtime($tmplCacheFile)) {
@@ -197,17 +267,26 @@ class View
             // 缓存是否在有效期
             return false;
         }
+
         // 缓存有效
         return true;
     }
 
-    // 输出到控制台
+    /**
+     * 输出到控制台
+     * @param mixed $var
+     * @return void
+     */
     public function dump($var)
     {
         $this->cVar[] = $var;
     }
 
-    // 判斷是否utf-8編碼
+    /**
+     * 判斷是否utf-8編碼
+     * @param mixed $string
+     * @return int|false
+     */
     public static function isUtf8($string)
     {
         return preg_match('%^(?:
@@ -222,15 +301,23 @@ class View
         )*$%xs', $string);
     }
 
-    // 編碼轉換
+    /**
+     * 編碼轉換
+     * @param mixed $fContents
+     * @param string $from
+     * @param string $to
+     * @return mixed
+     */
     public static function autoCharset($fContents, $from = 'gbk', $to = 'utf-8')
     {
         $from = strtoupper($from) == 'UTF8' ? 'utf-8' : $from;
         $to   = strtoupper($to) == 'UTF8' ? 'utf-8' : $to;
+
         if (strtoupper($from) === strtoupper($to) || empty($fContents) || (is_scalar($fContents) && !is_string($fContents))) {
             //如果编码相同或者非字符串标量则不转换
             return $fContents;
         }
+
         if (is_string($fContents)) {
             if (function_exists('mb_convert_encoding')) {
                 return mb_convert_encoding($fContents, $to, $from);
