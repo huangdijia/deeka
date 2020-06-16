@@ -54,14 +54,14 @@ trait Rest
     {
         switch ($this->type) {
             case 'json':
-                Response::json($data, $code);
+                Response::instance()->json($data, $code);
                 break;
             case 'xml':
-                Response::xml($data, $code);
+                Response::instance()->xml($data, $code);
                 break;
             default:
             case 'html':
-                Response::html($data, $code);
+                Response::instance()->html($data, $code);
                 break;
         }
     }
