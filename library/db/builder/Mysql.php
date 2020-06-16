@@ -237,7 +237,7 @@ class Mysql implements BuilderInterface
             case '=':
             case '<>':
             case '!=':
-                $value = self::parseValue($value);
+                $value = $this->parseValue($value);
                 $where = "{$field} {$operator} {$value}";
                 break;
             case 'IN':
@@ -245,7 +245,7 @@ class Mysql implements BuilderInterface
                 is_object($value) && $value = get_defined_vars($value);
                 is_string($value) && $value = explode(',', $value);
 
-                $value = self::parseValue($value);
+                $value = $this->parseValue($value);
                 $where = "{$field} {$operator} ({$value})";
                 break;
             case 'BETWEEN':
@@ -253,13 +253,13 @@ class Mysql implements BuilderInterface
                 is_object($value) && $value = get_defined_vars($value);
                 is_string($value) && $value = explode(',', $value);
 
-                $value[0] = self::parseValue($value[0]);
-                $value[1] = self::parseValue($value[1]);
+                $value[0] = $this->parseValue($value[0]);
+                $value[1] = $this->parseValue($value[1]);
                 $where    = "{$field} {$operator} {$value[0]} AND {$value[1]}";
                 break;
             case 'LIKE':
             case 'NOT LIKE':
-                $value = self::parseValue($value);
+                $value = $this->parseValue($value);
                 $where = "{$field} {$operator} {$value}";
                 break;
             case 'EXISTS':
@@ -372,7 +372,7 @@ class Mysql implements BuilderInterface
                 $value = get_object_vars($value);
             case "array":
                 $value = array_map(function ($val) {
-                    return self::parseValue($val);
+                    return $this->parseValue($val);
                 }, $value);
                 return join(',', $value);
             case "resource":
