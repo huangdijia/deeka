@@ -79,15 +79,18 @@ class Reflect
     public static function bindParams($reflect, $vars = [])
     {
         $args = [];
-        $argc = $reflect->getNumberOfParameters();
-        if ($argc) {
+        $c    = $reflect->getNumberOfParameters();
+
+        if ($c) {
             reset($vars);
             $type   = self::isAssoc($vars) ? 0 : 1;
             $params = $reflect->getParameters();
+
             foreach ($params as $param) {
                 $args[] = self::getParamValue($param, $vars, $type);
             }
         }
+
         return $args;
     }
 
@@ -102,19 +105,21 @@ class Reflect
     {
         $name  = $param->getName();
         $class = $param->getClass();
+
         if ($class) {
-            $cn   = $class->getName();
-            $argv = method_exists($cn, 'instance') ? $cn::instance() : self::invokeClass($cn, $vars);
+            $cn    = $class->getName();
+            $value = method_exists($cn, 'instance') ? $cn::instance() : self::invokeClass($cn, $vars);
         } elseif (1 == $type && !empty($vars)) {
-            $argv = array_shift($vars);
+            $value = array_shift($vars);
         } elseif (0 == $type && isset($vars[$name])) {
-            $argv = $vars[$name];
+            $value = $vars[$name];
         } elseif ($param->isDefaultValueAvailable()) {
-            $argv = $param->getDefaultValue();
+            $value = $param->getDefaultValue();
         } else {
             throw new Exception("Method param \${$name} miss");
         }
-        return $argv;
+
+        return $value;
     }
 
     /**

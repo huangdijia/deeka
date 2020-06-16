@@ -9,26 +9,12 @@ class Error
 {
     use Singleton;
 
-    // protected static $errorTable = [
-    //     E_ERROR             => 'Error',
-    //     E_WARNING           => 'Warning',
-    //     E_PARSE             => 'Parse',
-    //     E_NOTICE            => 'Notice',
-    //     E_CORE_ERROR        => 'Core Error',
-    //     E_CORE_WARNING      => 'Core Warning',
-    //     E_COMPILE_ERROR     => 'Compile Error',
-    //     E_COMPILE_WARNING   => 'Compile Warning',
-    //     E_USER_ERROR        => 'User Error',
-    //     E_USER_WARNING      => 'User Warning',
-    //     E_USER_NOTICE       => 'User Notice',
-    //     E_STRICT            => 'Strict',
-    //     E_RECOVERABLE_ERROR => 'Recoverable Error',
-    //     E_DEPRECATED        => 'Deprecated',
-    //     E_USER_DEPRECATED   => 'User Deprecated',
-    //     E_ALL               => 'All',
-    // ];
     private static $debug = false;
 
+    /**
+     * Register
+     * @return void 
+     */
     public static function register()
     {
         error_reporting(E_ALL);
@@ -37,6 +23,11 @@ class Error
         register_shutdown_function([__CLASS__, 'shutdownHandler']);
     }
 
+    /**
+     * Shutdown handler
+     * @return void 
+     * @throws Exception 
+     */
     public static function shutdownHandler()
     {
         self::$debug && Log::record(__METHOD__, Log::DEBUG);
@@ -57,6 +48,16 @@ class Error
         !Defer::isDefered() && Log::save();
     }
 
+    /**
+     * Error handler
+     * @param mixed $errno 
+     * @param mixed $errstr 
+     * @param mixed $errfile 
+     * @param mixed $errline 
+     * @param array $errcontext 
+     * @return void 
+     * @throws Exception 
+     */
     public static function errorHandler($errno, $errstr, $errfile, $errline, $errcontext = [])
     {
         self::$debug && Log::record(__METHOD__, Log::DEBUG);
@@ -81,6 +82,12 @@ class Error
         }
     }
 
+    /**
+     * Exception handler
+     * @param mixed $e 
+     * @return void 
+     * @throws Exception 
+     */
     public static function exceptionHandler($e)
     {
         self::$debug && Log::record(__METHOD__, Log::DEBUG);
@@ -105,6 +112,11 @@ class Error
         }
     }
 
+    /**
+     * Is fatal error
+     * @param int $type 
+     * @return bool 
+     */
     protected static function isFatal($type = 0)
     {
         return in_array($type, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE]);

@@ -8,6 +8,7 @@ use Psr\Log\LogLevel;
 use deeka\traits\Singleton;
 use deeka\traits\SingletonCallable;
 use deeka\traits\SingletonInstance;
+use Psr\SimpleCache\CacheInterface;
 
 /**
  * @method static void emergency($message = '', array $contex = [])
@@ -71,16 +72,32 @@ class Log
     protected static $config   = [];
     protected static $handlers = [];
 
+    /**
+     * Get accessor
+     * @return CacheInterface 
+     * @throws Exception 
+     */
     public static function getAccessor()
     {
         return self::connect();
     }
 
+    /**
+     * Init
+     * @param array $config 
+     * @return void 
+     */
     public static function init($config = [])
     {
         self::$config = $config;
     }
 
+    /**
+     * Connect a driver
+     * @param array $config 
+     * @return \Psr\SimpleCache\CacheInterface 
+     * @throws Exception 
+     */
     public static function connect($config = [])
     {
         // 合拼默认配置
@@ -115,6 +132,7 @@ class Log
 
     /**
      * @param $level 级别
+     * @return string
      */
     public static function level($level = '')
     {
@@ -125,6 +143,11 @@ class Log
         return strtoupper($level);
     }
 
+    /**
+     * Get constants
+     * @param bool $fetch_keys 
+     * @return array 
+     */
     public static function getConstants($fetch_keys = false)
     {
         static $constants = null;

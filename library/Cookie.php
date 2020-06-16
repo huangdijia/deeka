@@ -29,11 +29,21 @@ class Cookie
         'domain' => '',
     ];
 
+    /**
+     * Init
+     * @param array $config 
+     * @return void 
+     */
     private function init(array $config = [])
     {
         self::$config = array_merge(self::$config, $config);
     }
 
+    /**
+     * Set prefix
+     * @param string|null $prefix 
+     * @return string|int|void 
+     */
     private function prefix(string $prefix = null)
     {
         if (is_null($prefix)) {
@@ -43,6 +53,13 @@ class Cookie
         }
     }
 
+    /**
+     * Set cookie
+     * @param mixed $name 
+     * @param string $value 
+     * @param mixed|null $option 
+     * @return true 
+     */
     private function set($name, $value = '', $option = null)
     {
         if (!is_null($option)) {
@@ -65,24 +82,42 @@ class Cookie
         return true;
     }
 
+    /**
+     * Get one or all
+     * @param string $name 
+     * @param string|null $prefix 
+     * @return mixed 
+     */
     private function get(string $name = '', string $prefix = null)
     {
         $prefix = $prefix ?? self::$config['prefix'];
+
         if ($name == '') {
             return self::all($prefix);
         }
+
         $name = $prefix . $name;
+
         if (!isset($_COOKIE[$name])) {
             return null;
         }
+
         $value = $_COOKIE[$name];
+
         if (0 === strpos($value, 'array:')) {
             $value = substr($value, 6);
             return array_map('urldecode', json_decode($value, true));
         }
+
         return $value;
     }
 
+    /**
+     * Remove a cookie
+     * @param string $name 
+     * @param string|null $prefix 
+     * @return void 
+     */
     private function del(string $name, string $prefix = null)
     {
         $prefix = $prefix ?? self::$config['prefix'];
@@ -91,6 +126,12 @@ class Cookie
         unset($_COOKIE[$name]);
     }
 
+    /**
+     * Check
+     * @param string $name 
+     * @param string|null $prefix 
+     * @return bool 
+     */
     private function has(string $name, string $prefix = null)
     {
         $prefix = $prefix ?? self::$config['prefix'];
@@ -98,6 +139,11 @@ class Cookie
         return isset($_COOKIE[$name]);
     }
 
+    /**
+     * Get all
+     * @param string|null $prefix 
+     * @return array 
+     */
     private function all(string $prefix = null)
     {
         if ($prefix == '') {
@@ -112,12 +158,19 @@ class Cookie
         return $cookie;
     }
 
+    /**
+     * Clear all cookies
+     * @param string|null $prefix 
+     * @return true 
+     */
     private function clear(string $prefix = null)
     {
         if (empty($_COOKIE)) {
             return true;
         }
+
         $prefix = $prefix ?? self::$config['prefix'];
+
         if ($prefix) {
             foreach ($_COOKIE as $key => $val) {
                 if (0 === strpos($key, $prefix)) {
@@ -128,6 +181,7 @@ class Cookie
         } else {
             unset($_COOKIE);
         }
+
         return true;
     }
 }
