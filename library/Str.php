@@ -272,6 +272,7 @@ class Str
      * 解析变量名
      * @param $name
      * @param $type
+     * @return string
      */
     public static function parseName(string $name, int $type = 0): string
     {
@@ -280,6 +281,7 @@ class Str
                 return strtoupper($m[1]);
             }, $name));
         }
+
         return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
     }
 }

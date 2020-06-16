@@ -1,7 +1,6 @@
 <?php
 namespace deeka\controller\traits;
 
-use deeka\Input;
 use deeka\Reflect;
 use deeka\Request;
 use deeka\Response;
@@ -25,9 +24,11 @@ trait Rest
     {
         $this->type   = $this->defaultType;
         $this->method = $this->defaultMethod;
+
         if (preg_match("/^{$this->allowType}$/i", Request::ext())) {
             $this->type = Request::ext();
         }
+
         if (false !== stripos($this->allowMethod, Request::method())) {
             $this->method = Request::method(CASE_LOWER);
         }
@@ -35,6 +36,8 @@ trait Rest
 
     public function __call($method, $args = [])
     {
+        $fun = $method;
+
         if (method_exists($this, $method . '_' . $this->method . '_' . $this->type)) {
             $fun = $method . '_' . $this->method . '_' . $this->type;
         } elseif ($this->method == $this->defaultMethod && method_exists($this, $method . '_' . $this->type)) {
@@ -42,11 +45,12 @@ trait Rest
         } elseif ($this->type == $this->defaultType && method_exists($this, $method . '_' . $this->method)) {
             $fun = $method . '_' . $this->method;
         }
+
         if (isset($fun)) {
             Reflect::invokeMethod([$this, $fun], $args);
         } else {
             // 抛出异常
-            throw new Exception("Action " . get_called_class() . "::{$name}() is not exists\n", 1);
+            throw new Exception("Action " . get_called_class() . "::{$fun}() is not exists\n", 1);
         }
     }
 
@@ -54,14 +58,14 @@ trait Rest
     {
         switch ($this->type) {
             case 'json':
-                Response::json($data, $code);
+                Response::instance()->json($data, $code);
                 break;
             case 'xml':
-                Response::xml($data, $code);
+                Response::instance()->xml($data, $code);
                 break;
             default:
             case 'html':
-                Response::html($data, $code);
+                Response::instance()->html($data, $code);
                 break;
         }
     }

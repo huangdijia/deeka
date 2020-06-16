@@ -16,6 +16,31 @@ use deeka\traits\Singleton;
 //     die();
 // }
 
+/**
+ * @method static bool require($variable)
+ * @method static bool required($variable)
+ * @method static bool regex($variable, $pattern)
+ * @method static bool in($variable, array $haystack)
+ * @method static bool notin($variable, array $haystack)
+ * @method static bool between($variable, string|array $haystack)
+ * @method static bool notbetween($variable, string|array $haystack)
+ * @method static bool eq($variable, $value)
+ * @method static bool equal($variable, $value)
+ * @method static bool neq($variable, $value)
+ * @method static bool notequal($variable, $value)
+ * @method static bool gt($variable, $value)
+ * @method static bool gte($variable, $value)
+ * @method static bool lt($variable, $value)
+ * @method static bool lte($variable, $value)
+ * @method static bool length($variable, array|string $scopes)
+ * @method static bool confirm($variable, string $varName)
+ * @method static bool filter($variable, int $filter)
+ * @method static bool contain($variable, mixed $needle )
+ * @method static bool isDate($variable)
+ * @method static bool isFunction($variable)
+ * @method static bool isCallback($variable)
+ * @package deeka
+ */
 class Validate
 {
     use Singleton;
@@ -31,11 +56,19 @@ class Validate
             $rule      = strtolower(substr($name, 2));
             $value     = $args[0] ?? '';
             $condition = $args[1] ?? '';
+
             return self::check($value, $rule, $condition);
         }
     }
 
-    // 规划格式：[變量名], [提示消息], [規則], [條件]
+    /**
+     * 规划格式：[變量名], [提示消息], [規則], [條件]
+     * 
+     * @param mixed $data 
+     * @param array $rules 
+     * @param bool $batch 
+     * @return bool 
+     */
     public static function valid($data, $rules = [], $batch = false)
     {
         if (is_array($rules) && !empty($rules)) {
@@ -77,16 +110,26 @@ class Validate
                 }
             }
         }
+
         // 返回批量验证结果[array]
         if ($batch && count($errors) > 0) {
             self::$error = $errors;
             return false;
         }
+
         // 重置錯誤
         self::$error = '';
+
         return true;
     }
 
+    /**
+     * Check by any rule
+     * @param mixed $value 
+     * @param string $rule 
+     * @param string $condition 
+     * @return bool 
+     */
     public static function check($value, $rule = 'require', $condition = '')
     {
         // 規則轉換
@@ -94,31 +137,33 @@ class Validate
             $condition = self::$rules[$rule];
             $rule      = 'regex';
         }
+
         // 根据规则检测
         switch ($rule) {
-            case 'require':
+            case 'required':
+            case 'require': // @method static bool require($variable)
                 if (empty($value)) {
                     return false;
                 }
                 break;
-            case 'regex':
+            case 'regex': // @method static bool regex($variable, $pattern)
                 if (!empty($condition) && !preg_match($condition, $value)) {
                     return false;
                 }
                 break;
-            case 'in':
+            case 'in': // @method static bool in($variable, array $haystack)
                 $range = is_array($condition) ? $condition : explode(',', $condition);
                 if (!in_array($value, $range)) {
                     return false;
                 }
                 break;
-            case 'notin':
+            case 'notin': // @method static bool notin($variable, array $haystack)
                 $range = is_array($condition) ? $condition : explode(',', $condition);
                 if (!!in_array($value, $range)) {
                     return false;
                 }
                 break;
-            case 'between':
+            case 'between': // @method static bool between($variable, string|array $haystack)
                 if (is_array($condition) && count($condition) > 1) {
                     list($min, $max) = $condition;
                 } else {
@@ -128,7 +173,7 @@ class Validate
                     return false;
                 }
                 break;
-            case 'notbetween':
+            case 'notbetween': // @method static bool notbetween($variable, string|array $haystack)
                 if (is_array($condition)) {
                     list($min, $max) = $condition;
                 } else {
@@ -138,42 +183,46 @@ class Validate
                     return false;
                 }
                 break;
-            case 'eq':
-            case 'equal':
+            case 'eq': // @method static bool eq($variable, $value)
+            case 'equal': // @method static bool equal($variable, $value)
             case '=':
                 if (!($value == $condition)) {
                     return false;
                 }
                 break;
-            case 'neq':
-            case 'notequal':
+            case 'neq': // @method static bool neq($variable, $value)
+            case 'notequal': // @method static bool notequal($variable, $value)
             case '!=':
             case '<>':
                 if (!($value != $condition)) {
                     return false;
                 }
                 break;
+            case 'gt': // @method static bool gt($variable, $value)
             case '>':
                 if (!($value > $condition)) {
                     return false;
                 }
                 break;
+            case 'gte': // @method static bool gte($variable, $value)
             case '>=':
                 if (!($value >= $condition)) {
                     return false;
                 }
                 break;
+            case 'lt': // @method static bool lt($variable, $value)
             case '<':
                 if (!($value < $condition)) {
                     return false;
                 }
                 break;
+            case 'lte': // @method static bool lte($variable, $value)
             case '<=':
                 if (!($value <= $condition)) {
                     return false;
                 }
                 break;
-            case 'length':
+            case 'length': // @method static bool length($variable, array|string $scopes)
                 $length = strlen($value);
                 if (false !== strpos($condition, ',')) {
                     list($min, $max) = explode(',', $condition);
@@ -186,40 +235,52 @@ class Validate
                     }
                 }
                 break;
-            case 'confirm':
+            case 'confirm': // @method static bool confirm($variable, mixed $data)
+                $data = Input::param($condition);
+
                 if (isset($data[$condition])) {
                     if (!($value == $data[$condition])) {
                         return false;
                     }
                 }
                 break;
-            case 'filter':
+            case 'filter': // @method static bool filter($variable, int $filter)
                 if (!filter_var($value, $condition)) {
                     return false;
                 }
                 break;
-            case 'contain':
+            case 'contain': // @method static bool contain($variable, mixed $needle )
                 if (!(0 < stripos($value, $condition))) {
                     return false;
                 }
                 break;
-            case 'date':
+            case 'date': // @method static bool isDate($variable)
                 list($year, $month, $day) = [substr($value, 0, 4), substr($value, 5, 2), substr($value, 8, 2)];
+
                 if (!checkdate($month, $day, $year)) {
                     return false;
                 }
+
                 break;
-            case 'function':
-            case 'callback':
-                if (!is_callable($condition)) {
+            case 'function': // @method static bool isFunction($variable)
+            case 'callback': // @method static bool isCallback($variable)
+                if (!is_callable($value)) {
                     return false;
                 }
-                return call_user_func_array($condition, []) ? true : false;
+
+                return call_user_func_array($value, []) ? true : false;
                 break;
         }
+
         return true;
     }
 
+    /**
+     * Add rule
+     * @param mixed $rule 
+     * @param string $regex 
+     * @return void 
+     */
     public static function addRule($rule, $regex = '')
     {
         if (is_array($rule)) {
@@ -229,6 +290,10 @@ class Validate
         }
     }
 
+    /**
+     * Get error
+     * @return string 
+     */
     public static function getError()
     {
         return self::$error;

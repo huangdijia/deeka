@@ -5,8 +5,17 @@ use deeka\traits\Singleton;
 use deeka\traits\SingletonCallable;
 use deeka\traits\SingletonInstance;
 
+/**
+ * @method static mixed get(string $name = '', $default = null)
+ * @method static array all()
+ * @method static bool has(string $name = '')
+ * @method static array parse()
+ * @package deeka
+ */
 class Options
 {
+    private static $instance;
+
     use Singleton;
     use SingletonCallable;
     use SingletonInstance;
@@ -30,12 +39,14 @@ class Options
 
     private function all(): array
     {
-        static $argv = null;
-        if (is_null($argv)) {
+        static $args = null;
+
+        if (is_null($args)) {
             list($shortopts, $longopts) = $this->parse();
-            $argv                       = getopt($shortopts, $longopts);
+            $args                       = getopt($shortopts, $longopts);
         }
-        return $argv;
+
+        return $args;
     }
 
     private function has(string $name = ''): bool
@@ -48,14 +59,17 @@ class Options
         if (empty($_SERVER['argv'])) {
             return $opts = [];
         }
+
         $opts = ['', []];
-        foreach ($_SERVER['argv'] as $argv) {
-            if (preg_match('/^\-\-([\w\-]+)/', $argv, $matches)) {
+
+        foreach ($_SERVER['argv'] as $value) {
+            if (preg_match('/^\-\-([\w\-]+)/', $value, $matches)) {
                 $opts[1][] = $matches[1] . '::';
-            } elseif (preg_match('/^\-([a-z])/', $argv, $matches)) {
+            } elseif (preg_match('/^\-([a-z])/', $value, $matches)) {
                 $opts[0] .= $matches[1] . '::';
             }
         }
+
         return $opts;
     }
 }

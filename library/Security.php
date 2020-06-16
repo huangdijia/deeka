@@ -13,6 +13,10 @@ class Security
         //
     }
 
+    /**
+     * Create rand hash
+     * @return string 
+     */
     private static function hash(): string
     {
         list($usec, $sec) = explode(' ', microtime());
@@ -21,6 +25,10 @@ class Security
         return md5(rand());
     }
 
+    /**
+     * Create csrf
+     * @return string 
+     */
     public static function csrf(): string
     {
         if (!Config::get('csrf.on', false)) {
@@ -34,6 +42,10 @@ class Security
         return sprintf('<input type="hidden" name="%s" value="%s" />', $name, $token);
     }
 
+    /**
+     * Check csrf
+     * @return bool 
+     */
     public static function checkCsrf(): bool
     {
         if (!Config::get('csrf.on', false)) {

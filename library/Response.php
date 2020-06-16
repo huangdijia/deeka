@@ -83,15 +83,28 @@ class Response
         //
     }
 
+    /**
+     * Instance
+     * @param array $options 
+     * @return \deeka\Response|\deeka\response\Json|\deeka\response\Xml|\deeka\response\Jsonp
+     */
     public static function instance($options = [])
     {
         $class = get_called_class();
+
         if (!empty(self::$handler[$class])) {
             return self::$handler[$class];
         }
+
         return self::$handler[$class] = new $class($options);
     }
 
+    /**
+     * Set header
+     * @param mixed $name 
+     * @param mixed|null $value 
+     * @return $this 
+     */
     public function header($name, $value = null)
     {
         if (is_array($name)) {
@@ -101,28 +114,47 @@ class Response
         } else {
             $this->headers[$name] = $value;
         }
+
         return $this;
     }
 
+    /**
+     * Write
+     * @param string $str 
+     * @return $this 
+     */
     public function write($str = '')
     {
         $this->body .= $str;
+
         return $this;
     }
 
+    /**
+     * Set status code
+     * @param mixed|null $code 
+     * @return mixed 
+     * @throws Exception 
+     */
     public function status($code = null)
     {
         if ($code === null) {
             return $this->status;
         }
+
         if (array_key_exists($code, self::$codes)) {
             $this->status = $code;
         } else {
             throw new Exception('Invalid status code');
         }
+
         return $this;
     }
 
+    /**
+     * Send headers
+     * @return $this 
+     */
     public function sendHeaders()
     {
         header(
@@ -150,6 +182,11 @@ class Response
         return $this;
     }
 
+    /**
+     * Cache
+     * @param mixed $expires 
+     * @return $this 
+     */
     public function cache($expires)
     {
         if ($expires === false) {
@@ -168,6 +205,12 @@ class Response
         return $this;
     }
 
+    /**
+     * Last modified
+     * @param mixed $time 
+     * @return void 
+     * @throws Exception 
+     */
     public function lastModified($time)
     {
         $this->header('Last-Modified', date(DATE_RFC1123, $time));
@@ -179,6 +222,14 @@ class Response
         }
     }
 
+    /**
+     * Redirect
+     * @param mixed $url 
+     * @param int $code 
+     * @param array $params 
+     * @return void 
+     * @throws Exception 
+     */
     public function redirect($url, $code = 301, $params = [])
     {
         if (!empty($params)) {
@@ -193,6 +244,11 @@ class Response
             ->send();
     }
 
+    /**
+     * Send
+     * @param bool $exit 
+     * @return void 
+     */
     public function send($exit = false)
     {
         if (ob_get_length() > 0) {
@@ -206,12 +262,25 @@ class Response
         $exit && exit();
     }
 
+    /**
+     * Send http status code
+     * @param int $code 
+     * @return void 
+     * @throws Exception 
+     */
     public function sendHttpStatus($code = 200)
     {
         $this->status($code)
             ->send();
     }
 
+    /**
+     * Output
+     * @param string $message 
+     * @param int $code 
+     * @return void 
+     * @throws Exception 
+     */
     public function output($message = '', $code = 200)
     {
         $this->status($code)
@@ -219,6 +288,13 @@ class Response
             ->send();
     }
 
+    /**
+     * Halt
+     * @param int $code 
+     * @param string $message 
+     * @return void 
+     * @throws Exception 
+     */
     public function halt($code = 200, $message = '')
     {
         $this->status($code)
@@ -226,6 +302,14 @@ class Response
             ->send(true);
     }
 
+    /**
+     * Output as json
+     * @param mixed $data 
+     * @param int $code 
+     * @param bool $encode 
+     * @return void 
+     * @throws Exception 
+     */
     public function json($data, $code = 200, $encode = true)
     {
         if ($encode) {
@@ -233,14 +317,25 @@ class Response
                 'json_encode_param'  => Config::get('response.json_param'),
                 'json_empty_to_null' => Config::get('response.empty_to_null'),
             ];
+
             $data = JsonResponse::instance($options)->render($data);
         }
+
         $this->status($code)
             ->header('Content-Type', 'application/json')
             ->write($data)
             ->send();
     }
 
+    /**
+     * Output as jsonp
+     * @param mixed $data 
+     * @param string $callback 
+     * @param int $code 
+     * @param bool $encode 
+     * @return void 
+     * @throws Exception 
+     */
     public function jsonp($data, $callback = '', $code = 200, $encode = true)
     {
         if ('' == $callback) {
@@ -264,17 +359,33 @@ class Response
             ->send();
     }
 
+    /**
+     * Output as xml
+     * @param string $data 
+     * @param int $code 
+     * @param bool $encode 
+     * @return void 
+     * @throws Exception 
+     */
     public function xml($data = '', $code = 200, $encode = true)
     {
         if ($encode) {
             $data = XmlResponse::instance()->render($data);
         }
+
         $this->status($code)
             ->header('Content-Type', 'text/xml')
             ->write($data)
             ->send();
     }
 
+    /**
+     * Output as html
+     * @param string $content 
+     * @param int $code 
+     * @return void 
+     * @throws Exception 
+     */
     public function html($content = '', $code = 200)
     {
         $this->status($code)
@@ -283,6 +394,13 @@ class Response
             ->send();
     }
 
+    /**
+     * Output as log
+     * @param string $info 
+     * @param string $type 
+     * @param int $exit 
+     * @return void 
+     */
     public function log($info = '', $type = 'LOG', $exit = 0)
     {
         $format = "[%s] %s %s\n";
@@ -294,24 +412,36 @@ class Response
         $exit && exit();
     }
 
+    /**
+     * Clear
+     * @return $this 
+     */
     public function clear()
     {
         $this->status  = 200;
         $this->headers = [];
         $this->body    = '';
+
         return $this;
     }
 
+    /**
+     * Empty to null
+     * @param mixed $data 
+     * @return null|mixed 
+     */
     protected static function emptyToNull($data)
     {
         if (empty($data)) {
             return null;
         }
+
         if (is_array($data)) {
             foreach ($data as &$val) {
                 $val = self::emptyToNull($val);
             }
         }
+
         return $data;
     }
 }

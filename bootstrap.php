@@ -36,7 +36,7 @@ ob_start();
     \deeka\Loader::register();
 // }
 
-class_alias('deeka\\Configure', 'deeka\\Config'); // fix error in php7.3
+// class_alias('deeka\\Configure', 'deeka\\Config'); // fix error in php7.3
 
 // 注册错误捕获
 \deeka\Error::register();
