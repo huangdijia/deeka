@@ -86,7 +86,7 @@ class Response
     /**
      * Instance
      * @param array $options 
-     * @return Response|\deeka\response\Json|\deeka\response\Xml|\deeka\response\Jsonp
+     * @return \deeka\Response|\deeka\response\Json|\deeka\response\Xml|\deeka\response\Jsonp
      */
     public static function instance($options = [])
     {
