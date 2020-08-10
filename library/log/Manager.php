@@ -11,12 +11,19 @@ class Manager
 {
     protected $config = [
         'on'          => true,
-        'type'        => 'File',
         'level'       => 'MERG,ALERT,CRIT,ERR',
         'path'        => '',
         'alone_ip'    => '',
         'time_format' => '[ Y-m-d H:i:s ]',
         'channels'    => ['file'],
+        'file'        => [
+            'path' => LOG_PATH,
+        ],
+        'papertrail'  => [
+            'host'  => '127.0.0.1',
+            'port'  => 1111,
+            'ident' => 'web',
+        ],
     ];
     protected $log      = [];
     protected $channels = [];
@@ -137,7 +144,7 @@ class Manager
             return;
         }
 
-        $now  = date($this->config['time_format']);
+        $now  = date($this->config['time_format'] ?? '[ Y-m-d H:i:s ]');
         $dest = $this->dest($dest);
 
         // 统计执行时间
@@ -178,7 +185,7 @@ class Manager
             $message = var_export($message, 1);
         }
 
-        $now   = date($this->config['time_format']);
+        $now   = date($this->config['time_format'] ?? '[ Y-m-d H:i:s ]');
         $level = Log::level($level);
         $dest  = $this->dest($dest);
 
@@ -241,11 +248,11 @@ class Manager
 
     /**
      * 发送
-     * @param string $message 
-     * @param array $context 
-     * @param string $dest 
-     * @return true 
-     * @throws RuntimeException 
+     * @param string $message
+     * @param array $context
+     * @param string $dest
+     * @return true
+     * @throws RuntimeException
      */
     protected function send($message = '', $context = [], $dest = '')
     {
