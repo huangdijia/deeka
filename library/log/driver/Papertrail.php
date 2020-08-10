@@ -25,11 +25,11 @@ class Papertrail implements LoggerInterface
     /**
      * 记录日志
      * @param string $message
-     * @param array|null $context
+     * @param array $context
      * @param string $dest
      * @return void
      */
-    public function info(string $message = '', ?array $context = null, string $dest = '')
+    public function info(string $message = '', array $context = null, string $dest = '')
     {
         $ident = trim($this->ident . str_replace('/', '_', $dest), '_');
 
