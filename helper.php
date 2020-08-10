@@ -6,6 +6,7 @@ use deeka\Cookie;
 use deeka\Debug;
 use deeka\Defer;
 use deeka\Env;
+use deeka\Log;
 use deeka\Queue;
 use deeka\Request;
 use deeka\Response;
@@ -195,6 +196,10 @@ if (!function_exists('cookie')) {
 }
 
 if (!function_exists('__')) {
+    /**
+     * 语言包
+     * @return mixed 
+     */
     function __()
     {
         $args = func_get_args();
@@ -205,6 +210,11 @@ if (!function_exists('__')) {
 }
 
 if (!function_exists('defer')) {
+    /**
+     * 后置操作
+     * @param Closure $action 
+     * @return void 
+     */
     function defer(\Closure $action)
     {
         Defer::register($action);
@@ -212,8 +222,49 @@ if (!function_exists('defer')) {
 }
 
 if (!function_exists('env')) {
+    /**
+     * 获取 env 值
+     * @param mixed $name 
+     * @param mixed|null $default 
+     * @return mixed 
+     */
     function env($name, $default = null)
     {
         return Env::get($name, $default);
+    }
+}
+
+if (!function_exists('info')) {
+    /**
+     * 记录日志
+     * @param mixed $message 
+     * @param array $context 
+     * @param string $dest 
+     * @return void 
+     */
+    function info($message, $context = [], $dest = '')
+    {
+        if ($context) {
+            $message .= ' ' . json_encode($context, JSON_UNESCAPED_UNICODE);
+        }
+
+        if (!$dest) {
+            Log::record($message, Log::INFO);
+        } else {
+            Log::write($message, Log::INFO, $dest);
+        }
+    }
+}
+
+if (!function_exists('logger')) {
+    /**
+     * 创建驱动
+     * @param string $name
+     * @return \deeka\log\LoggerInterface
+     * @throws RuntimeException
+     */
+    function logger($channel = 'file')
+    {
+        return Log::createDriver($channel);
     }
 }
