@@ -73,7 +73,7 @@
         'time_format' => '[ Y-m-d H:i:s ]',
         'channels'    => ['file'],
         'file'        => [
-            'path' => trim(LOG_PATH, '/'),
+            'path' => rtrim(LOG_PATH, '/'),
         ],
         'papertrail'  => [
             'host'  => '127.0.0.1',

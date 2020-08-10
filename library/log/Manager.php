@@ -6,7 +6,6 @@ use deeka\Input;
 use deeka\Log;
 use Exception;
 use RuntimeException;
-use Throwable;
 
 class Manager
 {
@@ -250,12 +249,8 @@ class Manager
      */
     protected function send($message = '', $context = [], $dest = '')
     {
-        try {
-            foreach ($this->config['channels'] as $channel) {
-                $this->createDriver($channel)->info($message, $context, $dest);
-            }
-        } catch (Throwable $e) {
-            return false;
+        foreach ($this->config['channels'] as $channel) {
+            $this->createDriver($channel)->info($message, $context, $dest);
         }
 
         return true;
