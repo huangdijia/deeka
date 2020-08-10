@@ -12,7 +12,6 @@ class Manager
     protected $config = [
         'on'          => true,
         'level'       => 'MERG,ALERT,CRIT,ERR',
-        'path'        => '',
         'alone_ip'    => '',
         'time_format' => '[ Y-m-d H:i:s ]',
         'channels'    => ['file'],
