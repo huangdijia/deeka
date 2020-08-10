@@ -69,7 +69,6 @@ class Log
         'err'   => 'error',
         'warn'  => 'warning',
     ];
-    protected static $config  = [];
     protected static $manager = null;
 
     /**
@@ -79,17 +78,7 @@ class Log
      */
     public static function getAccessor()
     {
-        return self::connect(self::$config);
-    }
-
-    /**
-     * Init
-     * @param array $config
-     * @return void
-     */
-    public static function init($config = [])
-    {
-        self::$config = $config;
+        return self::connect(Config::get('log'));
     }
 
     /**
@@ -100,8 +89,6 @@ class Log
      */
     public static function connect($config = [])
     {
-        $config = array_merge(Config::get('log'), self::$config, $config);
-
         if (is_null(self::$manager)) {
             self::$manager = new Manager($config);
         }

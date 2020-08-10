@@ -198,7 +198,7 @@ if (!function_exists('cookie')) {
 if (!function_exists('__')) {
     /**
      * 语言包
-     * @return mixed 
+     * @return mixed
      */
     function __()
     {
@@ -212,8 +212,8 @@ if (!function_exists('__')) {
 if (!function_exists('defer')) {
     /**
      * 后置操作
-     * @param Closure $action 
-     * @return void 
+     * @param Closure $action
+     * @return void
      */
     function defer(\Closure $action)
     {
@@ -224,9 +224,9 @@ if (!function_exists('defer')) {
 if (!function_exists('env')) {
     /**
      * 获取 env 值
-     * @param mixed $name 
-     * @param mixed|null $default 
-     * @return mixed 
+     * @param mixed $name
+     * @param mixed|null $default
+     * @return mixed
      */
     function env($name, $default = null)
     {
@@ -237,10 +237,10 @@ if (!function_exists('env')) {
 if (!function_exists('info')) {
     /**
      * 记录日志
-     * @param mixed $message 
-     * @param array $context 
-     * @param string $dest 
-     * @return void 
+     * @param mixed $message
+     * @param array $context
+     * @param string $dest
+     * @return void
      */
     function info($message, $context = [], $dest = '')
     {
@@ -266,5 +266,47 @@ if (!function_exists('logger')) {
     function logger($channel = 'file')
     {
         return Log::createDriver($channel);
+    }
+}
+
+if (!function_exists('throw_if')) {
+    /**
+     * Throw the given exception if the given condition is true.
+     *
+     * @param  mixed  $condition
+     * @param  \Throwable|string  $exception
+     * @param  array  ...$parameters
+     * @return mixed
+     *
+     * @throws \Throwable
+     */
+    function throw_if($condition, $exception, ...$parameters)
+    {
+        if ($condition) {
+            throw (is_string($exception) ? new $exception(...$parameters) : $exception);
+        }
+
+        return $condition;
+    }
+}
+
+if (!function_exists('throw_unless')) {
+    /**
+     * Throw the given exception unless the given condition is true.
+     *
+     * @param  mixed  $condition
+     * @param  \Throwable|string  $exception
+     * @param  array  ...$parameters
+     * @return mixed
+     *
+     * @throws \Throwable
+     */
+    function throw_unless($condition, $exception, ...$parameters)
+    {
+        if (!$condition) {
+            throw (is_string($exception) ? new $exception(...$parameters) : $exception);
+        }
+
+        return $condition;
     }
 }
