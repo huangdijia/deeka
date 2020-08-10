@@ -223,7 +223,7 @@ class Manager
      * @return \deeka\log\LoggerInterface
      * @throws RuntimeException
      */
-    protected function createDriver($name = 'file')
+    public function createDriver($name = 'file')
     {
         if (!isset($this->channels[$name])) {
             $driver = '\\deeka\\log\\driver\\' . ucfirst($name);
