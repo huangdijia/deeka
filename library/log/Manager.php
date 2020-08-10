@@ -155,10 +155,8 @@ class Manager
                 $runtime,
                 join('', $this->log)
             );
-            $message = trim($message);
 
-            in_array('file', $this->config['channels']) && $this->createDriver('file')->info($message, [], $dest);
-            in_array('papertrail', $this->config['channels']) && $this->createDriver('papertrail')->info($message, [], $dest);
+            $this->send($message, [], $dest);
         } catch (Exception $e) {
             //
         }
@@ -185,10 +183,9 @@ class Manager
         $dest  = $this->dest($dest);
 
         try {
-            $message = sprintf("%s %s: %s\n\n", $now, $level, $message);
+            $message = sprintf("%s %s: %s", $now, $level, $message);
 
-            in_array('file', $this->config['channels']) && $this->createDriver('file')->info($message, [], $dest);
-            in_array('papertrail', $this->config['channels']) && $this->createDriver('papertrail')->info($message, [], $dest);
+            $this->send($message, [], $dest);
         } catch (Exception $e) {
             //
         }
@@ -240,5 +237,22 @@ class Manager
         }
 
         return $this->channels[$name];
+    }
+
+    /**
+     * 发送
+     * @param mixed $message 
+     * @param mixed $context 
+     * @param mixed $dest 
+     * @return true 
+     * @throws RuntimeException 
+     */
+    protected function send($message, $context, $dest)
+    {
+        foreach ($this->config['channels'] as $channel) {
+            $this->createDriver($channel)->info($message, $context, $dest);
+        }
+
+        return true;
     }
 }
