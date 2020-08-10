@@ -13,7 +13,7 @@ class File implements LoggerInterface
 
     public function __construct(array $config = [])
     {
-        $this->logPath = $config['path'] ?? LOG_PATH;
+        $this->logPath = $config['file']['path'] ?? LOG_PATH;
     }
 
     /**
