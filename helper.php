@@ -6,6 +6,7 @@ use deeka\Cookie;
 use deeka\Debug;
 use deeka\Defer;
 use deeka\Env;
+use deeka\Log;
 use deeka\Queue;
 use deeka\Request;
 use deeka\Response;
@@ -215,5 +216,20 @@ if (!function_exists('env')) {
     function env($name, $default = null)
     {
         return Env::get($name, $default);
+    }
+}
+
+if (!function_exists('info')) {
+    function info($message, $context = [], $dest = '')
+    {
+        if ($context) {
+            $message .= ' ' . json_encode($context, JSON_UNESCAPED_UNICODE);
+        }
+
+        if (!$dest) {
+            Log::record($message, Log::INFO);
+        } else {
+            Log::write($message, Log::INFO, $dest);
+        }
     }
 }

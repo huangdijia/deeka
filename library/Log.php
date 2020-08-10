@@ -1,14 +1,14 @@
 <?php
 namespace deeka;
 
-use Exception;
 use deeka\Config;
-use ReflectionClass;
-use Psr\Log\LogLevel;
+use deeka\log\Manager;
 use deeka\traits\Singleton;
 use deeka\traits\SingletonCallable;
 use deeka\traits\SingletonInstance;
-use Psr\SimpleCache\CacheInterface;
+use Exception;
+use Psr\Log\LogLevel;
+use ReflectionClass;
 
 /**
  * @method static void emergency($message = '', array $contex = [])
@@ -20,8 +20,8 @@ use Psr\SimpleCache\CacheInterface;
  * @method static void info($message = '', array $contex = [])
  * @method static void debug($message = '', array $contex = [])
  * @method static void sql($message = '', array $contex = [])
- * @method static void log($level, $message = '', array $contex = [])
- * @method static void record($message = '', $level = Log::LOG)
+ * @method static void log($message = '', array $contex = [])
+ * @method static void record($message = '', $level = Log::LOG, array $contex = [])
  * @method static void save($dest = '')
  * @method static void write($message = '', $level = Log::LOG, $dest = '')
  * @method static void clear()
@@ -69,23 +69,23 @@ class Log
         'err'   => 'error',
         'warn'  => 'warning',
     ];
-    protected static $config   = [];
-    protected static $handlers = [];
+    protected static $config  = [];
+    protected static $manager = null;
 
     /**
      * Get accessor
-     * @return CacheInterface 
-     * @throws Exception 
+     * @return Manager
+     * @throws Exception
      */
     public static function getAccessor()
     {
-        return self::connect();
+        return self::connect(self::$config);
     }
 
     /**
      * Init
-     * @param array $config 
-     * @return void 
+     * @param array $config
+     * @return void
      */
     public static function init($config = [])
     {
@@ -94,40 +94,20 @@ class Log
 
     /**
      * Connect a driver
-     * @param array $config 
-     * @return \Psr\SimpleCache\CacheInterface 
-     * @throws Exception 
+     * @param array $config
+     * @return Manager
+     * @throws Exception
      */
     public static function connect($config = [])
     {
-        // 合拼默认配置
         $config = array_merge(Config::get('log'), self::$config, $config);
 
-        // 解析类型
-        $type = $config['type'] ?? 'file';
-        if (false === strpos($type, '\\')) {
-            $class = '\\deeka\\log\\driver\\' . ucfirst(strtolower($type));
-        }
-
-        // 驱动错误
-        if (!class_exists($class)) {
-            throw new Exception("Log driver '{$class}' is not exists", 1);
-        }
-
-        // 解析key
-        $key = md5($class . serialize($config));
-
-        // 单例实例化
-        if (
-            !isset(self::$handlers[$key])
-            || !is_object(self::$handlers[$key])
-        ) {
-            // 实例化驱动类
-            self::$handlers[$key] = new $class($config);
+        if (is_null(self::$manager)) {
+            self::$manager = new Manager($config);
         }
 
         // 返回对象
-        return self::$handlers[$key];
+        return self::$manager;
     }
 
     /**
@@ -145,8 +125,8 @@ class Log
 
     /**
      * Get constants
-     * @param bool $fetch_keys 
-     * @return array 
+     * @param bool $fetch_keys
+     * @return array
      */
     public static function getConstants($fetch_keys = false)
     {
