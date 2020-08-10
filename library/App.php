@@ -25,9 +25,6 @@ class App
         // 设置时区
         date_default_timezone_set(Config::get('app.timezone', 'Asia/Shanghai'));
 
-        // 初始化日志
-        Log::init(Config::get('log'));
-
         // 初始化数据库
         Db::init(Config::get('database'));
 

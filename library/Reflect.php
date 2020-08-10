@@ -26,7 +26,7 @@ class Reflect
                 throw new Exception("Constructor of {$reflect->name} is not public in {$reflect->getFileName()} on line {$reflect->getStartLine()}", 1);
             }
             $args = self::bindParams($constructor, $vars);
-            APP_DEBUG && Log::record("[RUN] {$constructor->class}::{$constructor->name}() in {$constructor->getFileName()} on line {$constructor->getStartLine()}", Log::INFO);
+            // APP_DEBUG && Log::record("[RUN] {$constructor->class}::{$constructor->name}() in {$constructor->getFileName()} on line {$constructor->getStartLine()}", Log::INFO);
         }
         return $reflect->newInstanceArgs($args ?? []);
     }
@@ -50,7 +50,7 @@ class Reflect
             $reflect = new ReflectionMethod($method);
         }
         $args = self::bindParams($reflect, $vars);
-        APP_DEBUG && Log::record("[RUN] {$reflect->class}::{$reflect->name}() in {$reflect->getFileName()} on line {$reflect->getStartLine()}", Log::INFO);
+        // APP_DEBUG && Log::record("[RUN] {$reflect->class}::{$reflect->name}() in {$reflect->getFileName()} on line {$reflect->getStartLine()}", Log::INFO);
         return $reflect->invokeArgs($class ?? null, $args);
     }
 
@@ -65,7 +65,7 @@ class Reflect
     {
         $reflect = new ReflectionFunction($name);
         $args    = self::bindParams($reflect, $vars);
-        APP_DEBUG && Log::record("[RUN] {$reflect->name}() in {$reflect->getFileName()} on line {$reflect->getStartLine()}", Log::INFO);
+        // APP_DEBUG && Log::record("[RUN] {$reflect->name}() in {$reflect->getFileName()} on line {$reflect->getStartLine()}", Log::INFO);
         return $reflect->invokeArgs($args);
     }
 
