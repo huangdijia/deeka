@@ -6,6 +6,7 @@ use deeka\Input;
 use deeka\Log;
 use Exception;
 use RuntimeException;
+use Throwable;
 
 class Manager
 {
@@ -163,13 +164,11 @@ class Manager
                 join('', $this->log)
             );
 
-            $this->send($message, [], $dest);
-        } catch (Exception $e) {
-            //
+            return $this->send($message, [], $dest);
+        } finally {
+            // 清空日志
+            $this->clear();
         }
-
-        // 清空日志
-        $this->clear();
     }
 
     /**
@@ -185,17 +184,12 @@ class Manager
             $message = var_export($message, 1);
         }
 
-        $now   = date($this->config['time_format'] ?? '[ Y-m-d H:i:s ]');
-        $level = Log::level($level);
-        $dest  = $this->dest($dest);
+        $now     = date($this->config['time_format'] ?? '[ Y-m-d H:i:s ]');
+        $level   = Log::level($level);
+        $dest    = $this->dest($dest);
+        $message = sprintf("%s %s: %s", $now, $level, $message);
 
-        try {
-            $message = sprintf("%s %s: %s", $now, $level, $message);
-
-            $this->send($message, [], $dest);
-        } catch (Exception $e) {
-            //
-        }
+        return $this->send($message, [], $dest);
     }
 
     /**
@@ -251,13 +245,17 @@ class Manager
      * @param string $message
      * @param array $context
      * @param string $dest
-     * @return true
+     * @return bool
      * @throws RuntimeException
      */
     protected function send($message = '', $context = [], $dest = '')
     {
-        foreach ($this->config['channels'] as $channel) {
-            $this->createDriver($channel)->info($message, $context, $dest);
+        try {
+            foreach ($this->config['channels'] as $channel) {
+                $this->createDriver($channel)->info($message, $context, $dest);
+            }
+        } catch (Throwable $e) {
+            return false;
         }
 
         return true;
