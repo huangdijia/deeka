@@ -19,12 +19,12 @@ class File implements LoggerInterface
     /**
      * 记录日志
      * @param string $message
-     * @param array|null $context
+     * @param array $context
      * @param string $dest
      * @return void
      * @throws Exception
      */
-    public function info(string $message = '', ?array $context = null, string $dest = '')
+    public function info(string $message = '', array $context = null, string $dest = '')
     {
         // 检测目录是否可以写
         if (!is_writable($this->logPath)) {
