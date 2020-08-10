@@ -241,13 +241,13 @@ class Manager
 
     /**
      * 发送
-     * @param mixed $message 
-     * @param mixed $context 
-     * @param mixed $dest 
+     * @param string $message 
+     * @param array $context 
+     * @param string $dest 
      * @return true 
      * @throws RuntimeException 
      */
-    protected function send($message, $context, $dest)
+    protected function send($message = '', $context = [], $dest = '')
     {
         foreach ($this->config['channels'] as $channel) {
             $this->createDriver($channel)->info($message, $context, $dest);
