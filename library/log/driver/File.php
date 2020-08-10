@@ -1,199 +1,121 @@
 <?php
+
 namespace deeka\log\driver;
 
-use deeka\Debug;
-use deeka\Input;
-use deeka\Log;
-use Exception;
-use Psr\Log\LoggerInterface;
+use RuntimeException;
+use deeka\log\LoggerInterface;
 
-class File extends Log implements LoggerInterface
+class File implements LoggerInterface
 {
-    protected static $config = [
-        'on'          => true,
-        'type'        => 'File',
-        'level'       => 'MERG,ALERT,CRIT,ERR',
-        'path'        => '',
-        'alone_ip'    => '',
-        'time_format' => '[ Y-m-d H:i:s ]',
-    ];
-    protected static $log = [];
+    protected $dataFormat = 'Y-m-d H:i:s';
+    protected $logFormat  = "[%s] %s %s\n";
+    protected $logPath;
 
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
-        self::$config = array_merge(self::$config, $config);
+        $this->logPath = $config['file']['path'] ?? LOG_PATH;
     }
 
-    // public function __call($name, $args)
-    // {
-    //     $name = strtoupper($name);
-    //     // check it
-    //     if (!in_array($name, array_key(Log::getConstants()))) {
-    //         $this->warning('Log::' . strtoupper($name) . ' is not defined');
-    //     }
-    //     // message is empty, return
-    //     if (empty($args[0])) {
-    //         return;
-    //     }
-    //     // record it
-    //     $this->record($args[0], $name);
-    // }
-
-    public function emergency($message = '', array $contex = [])
+    /**
+     * 记录日志
+     * @param string $message
+     * @param array|null $context
+     * @param string $dest
+     * @return void
+     * @throws Exception
+     */
+    public function info(string $message = '', ?array $context = null, string $dest = '')
     {
-        $this->record($message, Log::EMERGENCY);
-    }
-
-    public function alert($message = '', array $contex = [])
-    {
-        $this->record($message, Log::ALERT);
-    }
-
-    public function critical($message = '', array $contex = [])
-    {
-        $this->record($message, Log::CRITICAL);
-    }
-
-    public function error($message = '', array $contex = [])
-    {
-        $this->record($message, Log::ERROR);
-    }
-
-    public function warning($message = '', array $contex = [])
-    {
-        $this->record($message, Log::WARNING);
-    }
-
-    public function notice($message = '', array $contex = [])
-    {
-        $this->record($message, Log::NOTICE);
-    }
-
-    public function info($message = '', array $contex = [])
-    {
-        $this->record($message, Log::INFO);
-    }
-
-    public function debug($message = '', array $contex = [])
-    {
-        $this->record($message, Log::DEBUG);
-    }
-
-    public function sql($message = '', array $contex = [])
-    {
-        $this->record($message, Log::SQL);
-    }
-
-    public function log($level, $message = '', array $contex = [])
-    {
-        $this->record($message, $level);
-    }
-
-    // 旧用法
-    public function record($message = '', $level = Log::LOG)
-    {
-        if (!self::$config['on']) {
-            return;
+        // 检测目录是否可以写
+        if (!is_writable($this->logPath)) {
+            throw new RuntimeException("日誌目錄 {$this->logPath} 不可寫", 1);
         }
-        $level     = Log::level($level);
-        $log_level = self::$config['level'];
-        // 任意类型
-        if (is_scalar($log_level) && in_array(strtoupper($log_level), ['ANY', 'ALL', ''])) {
-            $log_level = [$level];
-        } else {
-            if (is_scalar($log_level)) {
-                $log_level = explode(',', $log_level);
-            }
-            // 强转类型
-            if (is_object($log_level)) {
-                $log_level = (array) $log_level;
-            }
-            // 转大写
-            $log_level = array_map('strtoupper', $log_level);
-        }
-        // 判断是否记录
-        if (false === in_array($level, $log_level)) {
-            return;
-        }
-        if (!is_scalar($message)) {
-            $message = var_export($message, 1);
-        }
-        self::$log[] = sprintf("%s: %s\n", $level, $message);
-        return;
+
+        error_log($this->formatMessage($message, $context), 3, $this->getLogFile($dest));
     }
 
-    public function save($dest = '')
+    /**
+     * 格式化内容
+     * @param string $message
+     * @param array|null $context
+     * @return string
+     */
+    protected function formatMessage($message = '', $context = null)
     {
-        if (
-            empty(self::$log)
-            || !self::$config['on']
-        ) {
-            return;
-        }
-        $now  = date(self::$config['time_format']);
-        $dest = $this->dest($dest);
-        // 统计执行时间
-        Debug::remark('app_end');
-        $runtime = '[' . Debug::getRangeTime('app_start', 'app_end') . 'sec]';
-        // 记录日志
-        try {
-            error_log(
-                sprintf(
-                    "%s %s %s %s %s\n%s\n",
-                    $now,
-                    Input::server('REMOTE_ADDR'),
-                    Input::server('REQUEST_METHOD'),
-                    Input::server('REQUEST_URI'),
-                    $runtime,
-                    join('', self::$log)
-                ),
-                3,
-                $dest
-            );
-        } catch (Exception $e) {
-            //
-        }
-        // 清空日志
-        self::clear();
+        return sprintf(
+            $this->logFormat,
+            date($this->dataFormat),
+            $message,
+            $context ? json_encode($context) : ''
+        );
     }
 
-    public function write($message = '', $level = Log::LOG, $dest = '')
+    /**
+     * 获取日志文件
+     * @param string $dest
+     * @return string
+     * @throws Exception
+     */
+    protected function getLogFile($dest = '')
     {
-        if (!is_scalar($message)) {
-            $message = var_export($message, 1);
-        }
-        $now   = date(self::$config['time_format']);
-        $level = Log::level($level);
-        $dest  = $this->dest($dest);
-        try {
-            error_log(
-                sprintf("%s %s: %s\n\n", $now, $level, $message),
-                3,
-                $dest
-            );
-        } catch (Exception $e) {
-            //
-        }
+        /// 格式化 $dest
+        $dest = $this->parseDest($dest);
+
+        return sprintf(
+            '%s/%s%s.log',
+            rtrim($this->logPath, '/'),
+            $dest ? ($dest . '_') : '',
+            date('ymd')
+        );
     }
 
-    protected function dest($dest = '')
+    /**
+     * 解析日志路径
+     * @param string $dest
+     * @return string
+     * @throws Exception
+     */
+    protected function parseDest($dest = '')
     {
-        if (!empty($dest)) {
+        if ($dest == '') {
             return $dest;
         }
-        if (
-            '' != self::$config['alone_ip']
-            && false !== strpos(Input::server('REMOTE_ADDR'), self::$config['alone_ip'])
-        ) {
-            $dest = sprintf('%s/%s_%s.log', self::$config['path'], Input::server('REMOTE_ADDR'), date('y_m_d'));
-        } else {
-            $dest = sprintf('%s/%s.log', self::$config['path'], date('y_m_d'));
-        }
-        return $dest;
-    }
 
-    public function clear()
-    {
-        self::$log = [];
+        // 去掉空格
+        $dest = trim($dest);
+
+        // 兼容全路径
+        $dest = str_replace('//', '/', $dest);
+        $dest = str_replace($this->logPath, '', $dest);
+
+        // 去掉后缀
+        $dest = str_replace(array('.html', '.htm', '.log'), '', $dest);
+
+        // 去掉两头的 /
+        $dest = trim($dest, '/');
+
+        // 重新封装 $dest
+        if (false === strpos($dest, '/')) {
+            return $dest;
+        }
+
+        $module     = strstr($dest, '/', true);
+        $modulePath = $this->logPath . '/' . $module;
+
+        // 创建模块目录
+        if (!is_dir($modulePath) && !mkdir($modulePath)) {
+            throw new RuntimeException("{$modulePath} 创建失败", 1);
+        }
+
+        // 替换 $action 中的 /
+        $action = strstr($dest, '/');
+        $action = trim($action);
+        $action = trim($action, '/');
+        $action = str_replace('/', '_', $action);
+
+        // 重新拼接 $dest
+        $dest = $module . '/' . $action;
+
+        return $dest;
     }
 }

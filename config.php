@@ -68,11 +68,18 @@
     // 日志
     'log'      => [
         'on'          => true,
-        'type'        => 'File',
         'level'       => 'EMERGENCY,ALERT,CRITICAL,ERROR',
         'alone_ip'    => '',
-        'path'        => LOG_PATH,
         'time_format' => '[ Y-m-d H:i:s ]',
+        'channels'    => ['file'],
+        'file'        => [
+            'path' => rtrim(LOG_PATH, '/'),
+        ],
+        'papertrail'  => [
+            'host'  => '127.0.0.1',
+            'port'  => 1111,
+            'ident' => 'web',
+        ],
     ],
     // 缓存
     'cache'    => [
